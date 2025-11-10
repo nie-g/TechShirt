@@ -60,10 +60,23 @@ const AdminReports: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"overview" | "orders"| "requests"|"designs">("overview");
   const [daysRange, _setDaysRange] = useState<number>(30);
   const [compare, _setCompare] = useState<boolean>(true);
-  const [useCustomRange, _setUseCustomRange] = useState<boolean>(false);
-  const [customStartDate, _setCustomStartDate] = useState<string>("");
-  const [customEndDate, _setCustomEndDate] = useState<string>("");
+  const [useCustomRange, setUseCustomRange] = useState<boolean>(false);
+  const [customStartDate, setCustomStartDate] = useState<string>("");
+  const [customEndDate, setCustomEndDate] = useState<string>("");
   const chartRef = useRef<any>(null);
+
+  // Handle date range change from chart filter
+  const handleChartDateRangeChange = (startDate: string, endDate: string) => {
+    if (startDate && endDate) {
+      setUseCustomRange(true);
+      setCustomStartDate(startDate);
+      setCustomEndDate(endDate);
+    } else {
+      setUseCustomRange(false);
+      setCustomStartDate("");
+      setCustomEndDate("");
+    }
+  };
 
   const getUserName = (userId: string) => {
     const user = users.find((u: any) => u._id === userId);
@@ -155,7 +168,7 @@ const AdminReports: React.FC = () => {
       if (createdTs >= startTime && createdTs <= endTime) {
         const key = formatDateKey(new Date(createdTs));
         aggThis[key] = (aggThis[key] || 0) + amount;
-      } else if (!useCustomRange && createdTs < startTime && createdTs >= startTime - rangeDaysToMs(daysRange)) {
+      } else if (createdTs < startTime && createdTs >= startTime - rangeDaysToMs(daysRange)) {
         const key = formatDateKey(new Date(createdTs));
         aggLast[key] = (aggLast[key] || 0) + amount;
       }
@@ -183,7 +196,7 @@ const AdminReports: React.FC = () => {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: "index" as const, intersect: false },
-      plugins: { legend: { display: true, position: "top" as const } },
+      plugins: { legend: { display: false } },
       scales: {
         x: { grid: { display: false } },
         y: {
@@ -310,6 +323,7 @@ const AdminReports: React.FC = () => {
               requestStats={requestStats}
               designStats={designStats}
               getUserName={getUserName}
+              onDateRangeChange={handleChartDateRangeChange}
             />
           ) : activeTab === "orders" ? (
             <SalesReport />

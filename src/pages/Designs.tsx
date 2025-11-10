@@ -107,9 +107,15 @@ const Designs: React.FC = () => {
   });
 
   useEffect(() => {
-    if (designerDesigns !== undefined && designRequests.length >= 0)
-      setIsLoading(false);
-  }, [designerDesigns, designRequests]);
+  // Still loading
+  if (designerDesigns === undefined || designRequests === undefined) {
+    setIsLoading(true);
+    return;
+  }
+
+  // Loaded
+  setIsLoading(false);
+}, [designerDesigns, designRequests]);
 
   const handleSort = (key: string) => {
     let direction: "asc" | "desc" = "asc";

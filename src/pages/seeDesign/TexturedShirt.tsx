@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { useGLTF } from "@react-three/drei";
 import ThreeScreenshotHelper from "../../components/ThreeScreenshotHelper";
 
+
 interface Props {
   fabricCanvas?: HTMLCanvasElement;
   canvasModifiedKey: number;

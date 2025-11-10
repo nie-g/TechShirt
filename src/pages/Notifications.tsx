@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useQuery, useMutation } from "convex/react";
@@ -6,7 +6,7 @@ import { api } from "../../convex/_generated/api";
 import AdminNavbar from "../components/UsersNavbar";
 import DynamicSidebar from "../components/Sidebar";
 import { useUser } from "@clerk/clerk-react";
-import { Bell, CheckCircle, Clock, AlertTriangle, Trash2 } from "lucide-react";
+import { CheckCircle, AlertTriangle, Trash2, Search } from "lucide-react";
 import { formatTimeAgo } from "./utils/convexUtils";
 
 
@@ -25,6 +25,8 @@ const Notifications: React.FC = () => {
   const [_userRole, setUserRole] = useState<"admin" | "designer" | "client" | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+
 
   // Fetch current user from Convex users table by Clerk ID
   const userRecord = useQuery(api.userQueries.getUserByClerkId, clerkUser ? { clerkId: clerkUser.id } : "skip");
@@ -105,6 +107,12 @@ const Notifications: React.FC = () => {
     }
   };
 
+    const filteredNotifications = useMemo(() => {
+    return notifications.filter((n) =>
+      n.notif_content.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [notifications, searchTerm]);
+
   if (isLoading) {
       return (
         <div className="flex h-screen bg-gray-50">
@@ -157,82 +165,107 @@ const Notifications: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: "easeOut" }}
           >
-          <div className="p-4 sm:p-6 bg-white rounded-xl sm:rounded-2xl shadow-md">
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Notifications</h1>
-            <p className="text-sm sm:text-base text-gray-600 mt-1">Stay updated with your latest activities</p>
-          </div>
-
-          {/* Stats Card */}
-          <div className="bg-white p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-md border-l-4 border-teal-500 hover:shadow-lg transition-shadow mt-4">
-            <div className="flex justify-between items-start">
+          {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6">
               <div>
-                <p className="text-sm font-medium text-gray-500">Notifications</p>
-                <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1">{notifications.length}</h3>
+                <h1 className="text-2xl font-bold text-gray-900">Notifications</h1>
+                <p className="text-gray-600 text-sm mt-1">
+                  Stay updated with your latest account activities
+                </p>
               </div>
-              <div className="p-2 sm:p-3 bg-teal-100 rounded-full">
-                <Bell className="h-5 w-5 sm:h-6 sm:w-6 text-teal-500" />
+              <div className="mt-4 sm:mt-0 flex gap-2 items-center">
+                <input
+                  type="text"
+                  placeholder="Search notifications..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-teal-200 text-sm"
+                />
+                <Search className="absolute h-4 w-4 text-gray-400 ml-3" />
+                {notifications.some((n) => !n.is_read) && (
+                  <button
+                    onClick={markAllAsRead}
+                    className="bg-teal-100 text-teal-700 px-4 py-2 rounded-lg hover:bg-teal-200 transition-colors text-sm"
+                  >
+                    Mark all as read
+                  </button>
+                )}
               </div>
-            </div>
-            <div className="mt-3 sm:mt-4 flex gap-2 sm:gap-3 flex-wrap">
-              <span className="text-xs px-2 py-1 bg-blue-100 text-blue-800 rounded-full">Unread: {notifications.filter(n => !n.is_read).length}</span>
-              <span className="text-xs px-2 py-1 bg-green-100 text-green-800 rounded-full">Read: {notifications.filter(n => n.is_read).length}</span>
-            </div>
-          </div>
-
-          {/* Notifications List */}
-          <div className="bg-white rounded-xl sm:rounded-2xl shadow-md p-4 sm:p-6 mt-4">
-            <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mb-4 sm:mb-6 gap-3 sm:gap-0">
-              <div className="flex items-center">
-                <Bell className="text-teal-500 mr-2 h-5 w-5 sm:h-6 sm:w-6" />
-                <h2 className="text-base sm:text-lg font-semibold">Your Notifications</h2>
-              </div>
-              {notifications.some((n) => !n.is_read) && (
-                <button onClick={markAllAsRead} className="text-xs sm:text-sm bg-teal-100 text-teal-700 px-3 py-1.5 rounded-lg hover:bg-teal-200 transition-colors self-start sm:self-auto">
-                  Mark all as read
-                </button>
-              )}
             </div>
 
-            {notifications.length === 0 ? (
-              <div className="text-center py-6 sm:py-8 bg-teal-50 rounded-xl">
-                <div className="p-3 bg-teal-100 rounded-full w-12 h-12 sm:w-16 sm:h-16 flex items-center justify-center mx-auto mb-3 sm:mb-4">
-                  <Bell className="h-6 w-6 sm:h-8 sm:w-8 text-teal-500" />
-                </div>
-                <h3 className="text-base sm:text-lg font-medium text-gray-900">No notifications</h3>
-                <p className="mt-2 text-sm text-gray-600 max-w-md mx-auto px-4">You don't have any notifications at the moment. Notifications will appear here when there are updates to your account or activities.</p>
-              </div>
-            ) : (
-              <div className="space-y-3 sm:space-y-4">
-                {notifications.map((notification) => (
-                  <div key={notification.id} className={`p-3 sm:p-4 border rounded-lg sm:rounded-xl transition-all hover:shadow-md ${notification.is_read ? "bg-white" : "bg-teal-50 border-teal-200"}`}>
-                    <div className="flex flex-col sm:flex-row sm:justify-between gap-3 sm:gap-0">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center mb-2">
-                          <div className={`w-2 h-2 rounded-full mr-2 flex-shrink-0 ${notification.is_read ? 'bg-gray-300' : 'bg-teal-500'}`}></div>
-                          <span className="text-xs text-gray-500">{notification.is_read ? 'Read' : 'New'}</span>
-                        </div>
-                        <p className="text-sm sm:text-base text-gray-700 break-words">{notification.notif_content}</p>
-                        <div className="flex items-center mt-2 text-xs text-gray-500">
-                          <Clock className="h-3 w-3 mr-1 flex-shrink-0" />
-                          <span>{notification.created_at ? formatTimeAgo(notification.created_at) : ''}</span>
-                        </div>
-                      </div>
-                      <div className="flex items-start space-x-2 sm:ml-4 self-start">
-                        {!notification.is_read && (
-                          <button onClick={() => markAsRead(notification.id)} className="text-teal-600 hover:text-teal-800 p-1.5 rounded-full hover:bg-teal-100 transition-colors" title="Mark as read">
-                            <CheckCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+            {/* Table-like List */}
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Notification
+                    </th>
+                    <th className="px-3 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Time
+                    </th>
+                    <th className="px-3 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredNotifications.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="text-center py-8 text-gray-500">
+                        No notifications found
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredNotifications.map((notification) => (
+                      <tr
+                        key={notification.id}
+                        className={`transition-all hover:bg-gray-50 ${
+                          notification.is_read ? "" : "bg-teal-50"
+                        }`}
+                      >
+                        <td className="px-3 py-4">
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                              notification.is_read
+                                ? "bg-gray-100 text-gray-700"
+                                : "bg-teal-100 text-teal-700"
+                            }`}
+                          >
+                            {notification.is_read ? "Read" : "New"}
+                          </span>
+                        </td>
+                        <td className="px-3 py-4 text-sm text-gray-800">{notification.notif_content}</td>
+                        <td className="px-3 py-4 text-sm text-gray-500">
+                          {notification.created_at ? formatTimeAgo(notification.created_at) : ""}
+                        </td>
+                        <td className="px-3 py-4 flex justify-center gap-2">
+                          {!notification.is_read && (
+                            <button
+                              onClick={() => markAsRead(notification.id)}
+                              className="text-teal-600 hover:text-teal-800 p-1.5 rounded-full hover:bg-teal-100 transition-colors"
+                              title="Mark as read"
+                            >
+                              <CheckCircle className="h-5 w-5" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => deleteNotification(notification.id)}
+                            className="text-red-600 hover:text-red-800 p-1.5 rounded-full hover:bg-red-100 transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="h-5 w-5" />
                           </button>
-                        )}
-                        <button onClick={() => deleteNotification(notification.id)} className="text-red-600 hover:text-red-800 p-1.5 rounded-full hover:bg-red-100 transition-colors" title="Delete notification">
-                          <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
           </motion.div>
         </main>
       </div>

@@ -30,7 +30,6 @@ import { AuthenticateWithRedirectCallback } from "@clerk/clerk-react";
 import { Toaster } from "react-hot-toast";
 
 
-
 function App() {
   return (
     <BrowserRouter>

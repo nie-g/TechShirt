@@ -303,7 +303,7 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
               setActiveTab(activeTab === "details" ? "none" : "details")
             }
             className={`p-2 rounded ${
-              activeTab === "details" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
+              activeTab === "details" ? "bg-cyan-600 text-white" : "bg-gray-200 text-gray-700"
             }`}
             title="Details"
           >
@@ -320,7 +320,7 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
                 setActiveTab(activeTab === "tools" ? "none" : "tools")
               }
               className={`p-2 rounded ${
-                activeTab === "tools" ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
+                activeTab === "tools" ? "bg-cyan-600 text-white" : "bg-gray-200 text-gray-700"
               }`}
               title="Tools"
             >
@@ -408,7 +408,7 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
 
       {/* Floating container for details/tools */}
         {activeTab !== "none" && (
-          <div className="absolute top-16 right-2 max-w-[100vw] sm:max-w-sm p-4 bg-white shadow-lg border rounded-xl z-10 overflow-y-auto max-h-[80vh]">
+          <div className="absolute top-16 right-2 max-w-[100vw] sm:max-w-sm p-4 bg-white shadow-lg border border-gray-300 rounded-xl z-10 overflow-y-auto max-h-[80vh]">
             {activeTab === "details" && (
               <div>
                 <h3 className="text-sm font-semibold mb-2">Design Details</h3>

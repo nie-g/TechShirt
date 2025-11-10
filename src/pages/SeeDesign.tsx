@@ -13,6 +13,7 @@ import { useQuery, useMutation, useAction } from "convex/react"; // ✅ include 
 import type { Id } from "../../convex/_generated/dataModel";
 import { useUser } from "@clerk/clerk-react";
 import BillModal from "../components/BillModal";
+import { OrbitControls } from "@react-three/drei";
 
 type FabricCanvasRecord = {
   _id: Id<"fabric_canvases">;
@@ -431,63 +432,123 @@ function createWhiteFallbackCanvas(): HTMLCanvasElement {
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: 20 }}
       transition={{ duration: 0.3 }}
-      className="relative p-4 flex flex-col md:flex-row gap-4 h-[80vh]"
+    className="
+      relative p-4 flex flex-col md:flex-row gap-4
+      h-[80vh] md:h-[80vh]  /* desktop remains same */
+      min-h-screen
+    "
     >
       {/* Left: 3D preview */}
-      <motion.div className="relative flex-1 border border-slate-300 rounded-2xl h-[96vh] p-6 shadow-md bg-white flex items-center justify-center">
+      <motion.div  className="
+    relative flex-1 border border-slate-300 rounded-2xl
+    md:h-[96vh] h-[55vh]   /* mobile/tablet: half height */
+    p-4 md:p-6 shadow-md bg-white flex items-center justify-center
+  ">
         {/* Back + Approve inside 3D canvas container */}
+       {/* Back + Approve inside 3D canvas container */}
         <div className="absolute top-4 left-4 z-20">
           <motion.button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-1 bg-white shadow-lg rounded-lg border border-gray-300 px-4 py-2 hover:bg-gray-100"
+            className="
+              flex items-center gap-1 bg-white shadow-lg rounded-lg border
+              border-gray-300
+              px-3 py-1.5 text-xs        /* mobile */
+              sm:px-4 sm:py-2 sm:text-sm /* desktop */
+              hover:bg-gray-100
+            "
           >
             <ArrowLeft size={18} /> Back
           </motion.button>
         </div>
 
-        <div className="absolute top-4 right-4 z-20 flex gap-3">
-          {design && design.status === "approved" ||design?.status === "completed"? (
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-green-50 text-green-700 border border-green-600 px-4 py-2 rounded-lg shadow">
+        <div className="absolute top-4 right-4 z-20 flex gap-2 sm:gap-3">
+
+          {design && (design.status === "approved" || design.status === "completed") ? (
+            <div className="flex items-center gap-2 sm:gap-3">
+
+              <div className="
+                flex items-center gap-2 bg-green-50 text-green-700 border border-green-600
+                px-3 py-1.5 text-xs
+                sm:px-4 sm:py-2 sm:text-sm
+                rounded-lg shadow
+              ">
                 {design?.status === "approved" ? "Approved" : "Completed"}
               </div>
-              {/* 🆕 Billing button only visible when approved */}
-              <motion.button
-                onClick={() => setIsBillModalOpen(true)}
-                className="bg-teal-500 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-teal-600 transition flex items-center gap-2"
-              >
-                View Bill
-              </motion.button>
-               <motion.button
-                onClick={() => setIsRatingModalOpen(true)}
-                className="bg-yellow-500 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-yellow-600 transition flex items-center gap-2"
-              >
-                Rate Design
-              </motion.button>
-            </div>
-          ) :design && design.status === "in_production" ||design?.status === "pending_pickup" ? (
-            <div className="flex items-center gap-3">
-              <div className="flex items-center gap-2 bg-purple-200 border border-purple-300 text-purple-700  px-4 py-2 rounded-lg shadow">
-                In Production
 
-              </div>
+              {/* View Bill */}
               <motion.button
                 onClick={() => setIsBillModalOpen(true)}
-                className="bg-teal-500 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-teal-600 transition flex items-center gap-2"
+                className="
+                  bg-teal-500 text-white
+                  px-3 py-1.5 text-xs
+                  sm:px-6 sm:py-2 sm:text-sm
+                  rounded-lg shadow-lg hover:bg-teal-600 transition
+                  flex items-center gap-2
+                "
               >
                 View Bill
               </motion.button>
-               <motion.button
+
+              {/* Rate */}
+              <motion.button
                 onClick={() => setIsRatingModalOpen(true)}
-                className="bg-yellow-500 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-yellow-600 transition flex items-center gap-2"
+                className="
+                  bg-yellow-500 text-white
+                  px-3 py-1.5 text-xs
+                  sm:px-6 sm:py-2 sm:text-sm
+                  rounded-lg shadow-lg hover:bg-yellow-600 transition
+                  flex items-center gap-2
+                "
               >
                 Rate Design
               </motion.button>
+
             </div>
-          ) :
-          (
+
+          ) : design && (design.status === "in_production" || design.status === "pending_pickup") ? (
+            <div className="flex items-center gap-2 sm:gap-3">
+
+              <div className="
+                flex items-center gap-2 bg-purple-200 border border-purple-300 text-purple-700
+                px-3 py-1.5 text-xs
+                sm:px-4 sm:py-2 sm:text-sm
+                rounded-lg shadow
+              ">
+                In Production
+              </div>
+
+              <motion.button
+                onClick={() => setIsBillModalOpen(true)}
+                className="
+                  bg-teal-500 text-white
+                  px-3 py-1.5 text-xs
+                  sm:px-6 sm:py-2 sm:text-sm
+                  rounded-lg shadow-lg hover:bg-teal-600 transition
+                  flex items-center gap-2
+                "
+              >
+                View Bill
+              </motion.button>
+
+              <motion.button
+                onClick={() => setIsRatingModalOpen(true)}
+                className="
+                  bg-yellow-500 text-white
+                  px-3 py-1.5 text-xs
+                  sm:px-6 sm:py-2 sm:text-sm
+                  rounded-lg shadow-lg hover:bg-yellow-600 transition
+                  flex items-center gap-2
+                "
+              >
+                Rate Design
+              </motion.button>
+
+            </div>
+
+          ) : (
             design && (
               <>
+                {/* Approve */}
                 <motion.button
                   onClick={() => {
                     if (!latestPreview) {
@@ -496,12 +557,18 @@ function createWhiteFallbackCanvas(): HTMLCanvasElement {
                       setIsApproveModalOpen(true);
                     }
                   }}
-                  className="bg-teal-500 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-teal-600 transition"
+                  className="
+                    bg-teal-500 text-white
+                    px-3 py-1.5 text-xs
+                    sm:px-6 sm:py-2 sm:text-sm
+                    rounded-lg shadow-lg hover:bg-teal-600 transition
+                  "
                 >
                   Approve
                 </motion.button>
 
-                {design.status !== "approved"  && (
+                {/* Request Revision */}
+                {design.status !== "approved" && (
                   <motion.button
                     onClick={() => {
                       if (!latestPreview) {
@@ -512,7 +579,12 @@ function createWhiteFallbackCanvas(): HTMLCanvasElement {
                         setIsRevisionModalOpen(true);
                       }
                     }}
-                    className="bg-yellow-500 text-white px-6 py-2 rounded-lg shadow-lg hover:bg-yellow-600 transition"
+                    className="
+                      bg-yellow-500 text-white
+                      px-3 py-1.5 text-xs
+                      sm:px-6 sm:py-2 sm:text-sm
+                      rounded-lg shadow-lg hover:bg-yellow-600 transition
+                    "
                   >
                     Request Revision
                   </motion.button>
@@ -520,9 +592,8 @@ function createWhiteFallbackCanvas(): HTMLCanvasElement {
               </>
             )
           )}
-
-
         </div>
+
 
         {fabricCanvas && designRequest ? (
           <ThreeCanvas camera={{ position: [0, 1, 2.5], fov: 45 }}>
@@ -542,6 +613,16 @@ function createWhiteFallbackCanvas(): HTMLCanvasElement {
                 canvasModifiedKey={canvasModifiedKey}
                 shirtType={shirtType}
               />
+              
+              <OrbitControls
+                enableZoom={true}
+                enablePan={false}
+                enableDamping={true}
+                dampingFactor={0.08}
+                rotateSpeed={0.8}
+                maxPolarAngle={Math.PI * 0.9}
+                minPolarAngle={Math.PI * 0.1}
+              />
             </Stage>
           </PresentationControls>
             <ThreeScreenshotHelper onReady={(fn) => (screenshotRef.current = fn)}/>
@@ -552,7 +633,13 @@ function createWhiteFallbackCanvas(): HTMLCanvasElement {
       </motion.div>
 
      {/* Right: Comments */}
-    <motion.div className="w-full md:w-1/3 border border-gray-300 rounded-2xl h-[96vh] p-4 shadow-lg bg-white flex flex-col">
+   <motion.div
+  className="
+    w-full md:w-1/3 border border-gray-300 rounded-2xl
+    md:h-[96vh] h-[45vh]   /* mobile/tablet: half height */
+    p-3 md:p-4 shadow-lg bg-white flex flex-col
+  "
+>
       <h2 className="text-lg font-semibold mb-4">Comments</h2>
 
         {/* Comments list */}

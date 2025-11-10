@@ -13,20 +13,26 @@ export default function DashboardHeader() {
       <h1 className="text-2xl font-bold text-gray-900">Client Dashboard</h1>
       <p className="text-gray-600">Welcome back, {userName}!</p>
 
-      <div className="flex flex-wrap mt-6 gap-4">
+      {/* Buttons */}
+      <div className="flex mt-6 gap-4 flex-wrap sm:flex-nowrap">
+        {/* New Design Request */}
         <button
           onClick={() => navigate("/client/requests/new")}
-          className="px-6 py-3 text-teal-500 border-2 border-teal-500 rounded-lg hover:bg-teal-500 hover:text-white flex items-center gap-2"
+          className="flex-1 sm:flex-none px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm text-teal-500 border-2 border-teal-500 rounded-lg hover:bg-teal-500 hover:text-white flex items-center justify-center gap-2"
         >
           <Plus size={18} />
-          New Design Request
+          <span className="hidden sm:inline">New Design Request</span>
+          <span className="sm:hidden">New Request</span>
         </button>
+
+        {/* View All Requests */}
         <button
           onClick={() => navigate("/client/requests")}
-          className="px-6 py-3 text-teal-500 border-2 border-teal-500 rounded-lg hover:bg-teal-500 hover:text-white flex items-center gap-2"
+          className="flex-1 sm:flex-none px-3 sm:px-6 py-3 sm:py-3 text-xs sm:text-sm text-teal-500 border-2 border-teal-500 rounded-lg hover:bg-teal-500 hover:text-white flex items-center justify-center gap-2"
         >
           <FileText size={18} />
-          View All Requests
+          <span className="hidden sm:inline">View All Requests</span>
+          <span className="sm:hidden">View Requests</span>
         </button>
       </div>
     </div>

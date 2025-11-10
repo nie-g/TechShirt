@@ -2,6 +2,7 @@ import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 
+
 /**
  * Create a notification for a single user
  */
@@ -24,7 +25,18 @@ export const createNotification = mutation({
         is_read: false,
       });
 
+       // 🟢 3. Send email notification (optional if user has an email)
+      if (userRecord.email) {
+        // Use Convex scheduler to call an ACTION (server-side email sender)
+        await ctx.scheduler.runAfter(0, api.sendEmail.sendEmailAction, {
+          to: userRecord.email,
+          subject: "New Notification from TechShirt",
+          text: message,
+        });
+      }
+
       // Trigger push notification if you have a function defined in api.notifications
+       
       
     } catch (error: any) {
       console.error("Error creating notification:", error);

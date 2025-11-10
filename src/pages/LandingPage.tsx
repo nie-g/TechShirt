@@ -6,7 +6,7 @@ import Navbar from "../components/Navbar"; // keep your Navbar here
 import cutie from "../images/DesignSyncLogo.png";
 import { Shirt, Users, MessageSquare, Clock, LayoutDashboard, Download } from "lucide-react";
 
-const LandingPage: React.FC = () => {
+const LandingPage: React.FC = () => { 
   const { isSignedIn, user } = useUser();
   const navigate = useNavigate();
 
@@ -67,7 +67,7 @@ const LandingPage: React.FC = () => {
               whileTap={{ scale: 0.95 }}
               className="px-3 py-3 text-lg font-semibold text-white transition-all duration-300 bg-teal-500 rounded-full shadow-lg hover:bg-teal-600"
             >
-              <a href="/sign-up"> Get Started →</a>
+              <a href="/register"> Get Started →</a>
             </motion.button>
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -192,7 +192,7 @@ const LandingPage: React.FC = () => {
           whileTap={{ scale: 0.95 }}
           className="px-6 py-3 mt-6 font-semibold text-teal-500 bg-white rounded-lg"
         >
-          <a href="/sign-up"> Get Started Now</a>
+          <a href="/register"> Get Started Now</a>
         </motion.button>
       </motion.section>
 

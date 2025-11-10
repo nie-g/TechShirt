@@ -87,9 +87,14 @@ export default defineSchema({
     email: v.string(),
     token: v.string(),
     expiresAt: v.number(),
-    used: v.boolean(),
+    status: v.union(
+      v.literal("active"),
+      v.literal("revoked"),
+      v.literal("accepted")
+    ),
     createdAt: v.number(),
-  }),
+    acceptedAt: v.optional(v.number()),
+  }).index("by_email", ["email"]),
 
   notifications: defineTable({
     recipient_user_id: v.id("users"),

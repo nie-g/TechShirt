@@ -11,6 +11,13 @@ export const getAll = query({
   },
 });
 
+
+export const getPrintTypes = query({
+  handler: async (ctx) => {
+    return await ctx.db.query("print_pricing").collect();
+  },
+});
+
 /**
  * ➕ Create a new print pricing record
  */

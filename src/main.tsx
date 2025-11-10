@@ -17,6 +17,7 @@ if (!CONVEX_URL) {
   throw new Error('Add your Convex URL to the .env file')
 }
 
+
 const convex = new ConvexReactClient(CONVEX_URL)
 
 createRoot(document.getElementById('root')!).render(

@@ -63,6 +63,7 @@ const Step3: React.FC<Step3Props> = ({
   const shirtSizes = useQuery(api.shirt_sizes.getAll) || [];
   const textiles = useQuery(api.inventory.getTextileItems) || [];
   const designers = useQuery(api.userQueries.listDesigners) || [];
+  const printPricing = useQuery(api.print_pricing.getPrintTypes) || [];
   const typeMapping: Record<string, string> = {
     "Round Neck": "tshirt",
     "V-neck": "tshirt",      // V-neck is still a tshirt in schema
@@ -462,48 +463,50 @@ const handleReferenceImageUpload = async (
             value={printType || ""}
             onChange={(e) =>
               setPrintType(
-                e.target.value
-                  ? (e.target.value as "Sublimation" | "Dtf")
-                  : undefined
+                e.target.value ? (e.target.value as any) : undefined
               )
             }
             className="w-full p-3 text-gray-700 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
           >
             <option value="">Select a print type</option>
-            <option value="Sublimation">Sublimation</option>
-            <option value="Dtf">DTF</option>
+
+            {printPricing.map((p: any) => (
+              <option key={p._id.toString()} value={p.print_type}>
+                {p.print_type}
+              </option>
+            ))}
           </select>
+
 
           {/* Recommendation label */}
           {printType && (
-            <p
-              className={`mt-1 text-xs ${
-                printType === recommendedPrintType
-                  ? "text-green-600 font-medium"
-                  : "text-red-500 font-medium"
+          <div
+            className={`mt-1 text-xs ${
+              printType === recommendedPrintType
+                ? "text-green-600 font-medium"
+                : "text-red-500 font-medium"
+            }`}
+          >
+            <span
+              className={`mt-1 flex items-center gap-1 text-xs font-medium ${
+                printType === recommendedPrintType ? "text-green-600" : "text-red-500"
               }`}
             >
-              {printType && (
-                <p
-                  className={`mt-1 flex items-center gap-1 text-xs font-medium ${
-                    printType === recommendedPrintType ? "text-green-600" : "text-red-500"
-                  }`}
-                >
-                  {printType === recommendedPrintType ? (
-                    <>
-                      <CircleCheck size={14} />
-                      Recommended for this fabric
-                    </>
-                  ) : (
-                    <>
-                      <TriangleAlert size={14} />
-                      Not recommended for this fabric
-                    </>
-                  )}
-                </p>
+              {printType === recommendedPrintType ? (
+                <>
+                  <CircleCheck size={14} />
+                  Recommended for this fabric
+                </>
+              ) : (
+                <>
+                  <TriangleAlert size={14} />
+                  Not recommended for this fabric
+                </>
               )}
-            </p>
-          )}
+            </span>
+          </div>
+        )}
+
 
           {/* Hint before user selects */}
           {!printType && recommendedPrintType && (

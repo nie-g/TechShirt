@@ -219,7 +219,7 @@ const UserRequests: React.FC = () => {
                         
                         <tr key={req._id.toString()} className="hover:bg-gray-50 transition-colors">
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{req.request_title}</div>
+                            <div className="text-sm font-medium text-gray-900">{req.request_title ||"Loading ..."}</div>
                             <div className="text-sm text-gray-500 line-clamp-1">{req.description || "No description"}</div>
                           </td>
                           <td className="px-6 py-4 text-sm text-gray-700">{req.tshirt_type || "T-shirt"}</td>

@@ -1,6 +1,8 @@
 import { action } from "../_generated/server";
 import { v } from "convex/values";
 import type { ActionCtx } from "../_generated/server";
+import { api } from "../_generated/api";
+
 
 export const sendClerkInvite = action({
   args: v.object({
@@ -45,7 +47,7 @@ export const sendClerkInvite = action({
       // ✅ Dynamic redirect based on role
       const roleRedirectMap: Record<string, string> = {
         admin: `${CLIENT_BASE_URL}/register/admin`,
-        client: `${CLIENT_BASE_URL}/register`,
+        client: `${CLIENT_BASE_URL}/register/client`,
         designer: `${CLIENT_BASE_URL}/register/designer`,
       };
 
@@ -69,6 +71,13 @@ export const sendClerkInvite = action({
       }
 
       const createData = await createResponse.json();
+
+      await _ctx.runMutation(api.invitation.createInvite, {
+        email,
+        token: createData.id,   // <- Clerk invitation ID
+        expiresAt: Date.now() + 1000 * 60 * 60 * 24 * 30, // example: 7 days
+      });
+
 
       return {
         clerkInvitation: createData,

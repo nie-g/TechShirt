@@ -1,7 +1,9 @@
 // src/pages/admin/ReportsOverview.tsx
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Line } from "react-chartjs-2";
 import ReportsMetrics from "./AdminMetricsCard";
+import { Calendar, X } from "lucide-react";
 
 interface ReportsOverviewProps {
   user: { full_name: string };
@@ -14,6 +16,7 @@ interface ReportsOverviewProps {
   requestStats: any;
   designStats: any;
   getUserName: (id: string) => string;
+  onDateRangeChange?: (startDate: string, endDate: string) => void;
 }
 
 const ReportsOverview: React.FC<ReportsOverviewProps> = ({
@@ -27,7 +30,30 @@ const ReportsOverview: React.FC<ReportsOverviewProps> = ({
   requestStats,
   designStats,
   getUserName,
+  onDateRangeChange,
 }) => {
+  const [showDateFilter, setShowDateFilter] = useState(false);
+  const [startDate, setStartDate] = useState("");
+  const [endDate, setEndDate] = useState("");
+
+  const handleApplyDateFilter = () => {
+    if (startDate && endDate) {
+      if (new Date(startDate) > new Date(endDate)) {
+        alert("Start date must be before end date");
+        return;
+      }
+      onDateRangeChange?.(startDate, endDate);
+      setShowDateFilter(false);
+    }
+  };
+
+  const handleClearDateFilter = () => {
+    setStartDate("");
+    setEndDate("");
+    onDateRangeChange?.("", "");
+    setShowDateFilter(false);
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -56,18 +82,81 @@ const ReportsOverview: React.FC<ReportsOverviewProps> = ({
                 Revenue trend for the selected period
               </p>
             </div>
-            <div className="text-right">
-              <div className="text-sm text-gray-500">This period</div>
-              <div className="text-xl font-semibold">
-                ₱{chartSummary.thisSum.toLocaleString()}
-              </div>
-              <div className="text-xs text-gray-500">
-                Last: ₱{chartSummary.lastSum.toLocaleString()}
+            <div className="flex items-center gap-3">
+              {/* Date Filter Button */}
+              <button
+                onClick={() => setShowDateFilter(!showDateFilter)}
+                className="flex items-center gap-2 px-3 py-2 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-100 transition text-sm font-medium"
+              >
+                <Calendar size={16} />
+                Filter Dates
+              </button>
+
+              {/* Summary Stats */}
+              <div className="text-right">
+                <div className="text-sm text-gray-500">This period</div>
+                <div className="text-xl font-semibold">
+                  ₱{chartSummary.thisSum.toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-500">
+                  Last: ₱{chartSummary.lastSum.toLocaleString()}
+                </div>
               </div>
             </div>
           </div>
-    
-          <div style={{ height: 300 }}>
+
+          {/* Date Filter Panel */}
+          {showDateFilter && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="mb-4 p-4 bg-gray-50 rounded-lg border border-gray-200"
+            >
+              <div className="flex items-end gap-3">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    Start Date
+                  </label>
+                  <input
+                    aria-label="Start date"
+                    type="date"
+                    value={startDate}
+                    onChange={(e) => setStartDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                </div>
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                    End Date
+                  </label>
+                  <input
+                    aria-label="End date"
+                    type="date"
+                    value={endDate}
+                    onChange={(e) => setEndDate(e.target.value)}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
+                  />
+                </div>
+                <button
+                  onClick={handleApplyDateFilter}
+                  disabled={!startDate || !endDate}
+                  className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition font-medium"
+                >
+                  Apply
+                </button>
+                <button
+                  onClick={handleClearDateFilter}
+                  className="px-4 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-medium flex items-center gap-2"
+                >
+                  <X size={16} />
+                  Clear
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          <div className="h-80">
             <Line ref={chartRef} data={chartData} options={lineChartOptions} />
           </div>
         </div>

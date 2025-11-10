@@ -8,7 +8,6 @@ export default function UsersNavbar() {
       ? `${user.firstName} ${user.lastName}`
       : user?.fullName || "Client";
 
-  // Read userType from Clerk's unsafeMetadata
   const role = (user?.unsafeMetadata?.userType as string) || "client";
 
   return (
@@ -23,21 +22,23 @@ export default function UsersNavbar() {
 
       {/* Right: User Info */}
       <div className="flex items-center space-x-3">
-        <div className="flex flex-col items-end">
+        
+        {/* Hide text on mobile */}
+        <div className="hidden sm:flex flex-col items-end">
           <span className="text-gray-700 font-medium">{fullName}</span>
           <span className="text-xs text-teal-600 font-semibold">
             {role.toUpperCase()}
           </span>
         </div>
 
-        {/* Clerk Compact User Button */}
+        {/* Clerk Avatar */}
         <UserButton
           afterSignOutUrl="/"
           appearance={{
             elements: {
-              avatarBox: "w-9 h-9", // make avatar smaller
-              userButtonPopoverCard: "max-w-xs", // constrain dropdown width
-              userButtonPopoverFooter: "hidden", // optional: hide Clerk branding
+              avatarBox: "w-9 h-9",
+              userButtonPopoverCard: "max-w-xs",
+              userButtonPopoverFooter: "hidden",
             },
           }}
         />

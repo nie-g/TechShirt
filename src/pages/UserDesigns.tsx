@@ -261,7 +261,7 @@ const UserDesigns: React.FC = () => {
                       {filteredDesigns.map((d) => (
                         <tr key={d._id} className="hover:bg-gray-50">
                           <td className="px-6 py-4 break-words">
-                            {requestsMap[d.request_id]?.request_title ?? "No Name"}
+                            {requestsMap[d.request_id]?.request_title ?? "Loading..."}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <StatusBadge status={d.status} />
@@ -298,7 +298,7 @@ const UserDesigns: React.FC = () => {
                     >
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="text-base font-medium text-gray-900 break-words">
-                          {requestsMap[d.request_id]?.request_title ?? "No Name"}
+                          {requestsMap[d.request_id]?.request_title ?? "Loading..."}
                         </h3>
                         <StatusBadge status={d.status} />
                       </div>

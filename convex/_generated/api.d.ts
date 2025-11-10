@@ -36,15 +36,18 @@ import type * as gallery from "../gallery.js";
 import type * as getPreviewUrl from "../getPreviewUrl.js";
 import type * as http from "../http.js";
 import type * as inventory from "../inventory.js";
+import type * as invitation from "../invitation.js";
 import type * as notifications from "../notifications.js";
 import type * as portfolio from "../portfolio.js";
 import type * as print_pricing from "../print_pricing.js";
 import type * as ratings_and_feedback from "../ratings_and_feedback.js";
+import type * as sendEmail from "../sendEmail.js";
 import type * as shirt_sizes from "../shirt_sizes.js";
 import type * as shirt_types from "../shirt_types.js";
 import type * as stats from "../stats.js";
 import type * as userQueries from "../userQueries.js";
 import type * as users from "../users.js";
+import type * as utils_gmailClient from "../utils/gmailClient.js";
 
 /**
  * A utility for referencing Convex functions in your app's API.
@@ -78,15 +81,18 @@ declare const fullApi: ApiFromModules<{
   getPreviewUrl: typeof getPreviewUrl;
   http: typeof http;
   inventory: typeof inventory;
+  invitation: typeof invitation;
   notifications: typeof notifications;
   portfolio: typeof portfolio;
   print_pricing: typeof print_pricing;
   ratings_and_feedback: typeof ratings_and_feedback;
+  sendEmail: typeof sendEmail;
   shirt_sizes: typeof shirt_sizes;
   shirt_types: typeof shirt_types;
   stats: typeof stats;
   userQueries: typeof userQueries;
   users: typeof users;
+  "utils/gmailClient": typeof utils_gmailClient;
 }>;
 export declare const api: FilterApi<
   typeof fullApi,

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/clerk-react";
+import { motion } from "framer-motion";
 import {
   Home,
   Clock,
@@ -11,6 +12,7 @@ import {
   Bell as BellIcon,
   Users,
   FileText,
+  BookImage,
   BarChart,
   Layers,
   Box,
@@ -18,7 +20,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
-import logoIcon from "../images/cutiepie.png";
+import logoIcon from "../images/TechShirt.png";
 import { useUnreadNotificationCount } from "../hooks/UnreadNotificationsCount";
 import NotificationBadge from "./NotificationBadge";
 
@@ -88,7 +90,7 @@ const Sidebar: React.FC = () => {
           { name: "Dashboard", icon: <Home />, route: "/client" },
           { name: "My Requests", icon: <Clock />, route: "/client/requests" },
           { name: "My Orders", icon: <BookText />, route: "/client/designs" },
-          { name: "Browse Galleries", icon: <Layers />, route: "/client/browse" },
+          { name: "Browse Galleries", icon: <BookImage />, route: "/client/browse" },
           { name: "Notifications", icon: <BellIcon />, route: "/notifications" },
           { name: "Settings", icon: <Settings />, route: "/client/settings" },
         ];
@@ -111,78 +113,88 @@ const Sidebar: React.FC = () => {
       )}
 
       {/* 🔹 Mobile Sidebar Drawer */}
-      {isMobileOpen && (
-        <div className="md:hidden fixed inset-0 z-40">
-          {/* overlay */}
-          <button
-            className="absolute inset-0 bg-black/40"
-            onClick={() => setIsMobileOpen(false)}
-            aria-label="Close sidebar backdrop"
-          />
-          {/* drawer */}
-          <aside className="relative w-64 h-full bg-[#0A192F] text-white flex flex-col">
-            <div className="flex items-center justify-between p-4 border-b border-white/10">
-              <div className="flex items-center space-x-3">
-                <img src={logoIcon} alt="logo" className="w-10 h-10" />
-                <h1 className={text}>
-                  Tech<span className="text-white">Shirt</span>
-                </h1>
-              </div>
-              <button
-                className="p-2"
-                onClick={() => setIsMobileOpen(false)}
-                aria-label="Close sidebar"
-              >
-                <X size={20} />
-              </button>
-            </div>
+    
+{/* 🔹 Mobile Sidebar Drawer */}
+{isMobileOpen && (
+  <div className="md:hidden fixed inset-0 z-40">
+    {/* overlay */}
+    <button
+      className="absolute inset-0 bg-black/40"
+      onClick={() => setIsMobileOpen(false)}
+      aria-label="Close sidebar backdrop"
+    />
 
-            <nav className="flex-1 overflow-y-auto mt-2 px-2 space-y-2">
-              {navItems.map((item) => (
-                <Link
-                  key={item.name}
-                  to={item.route}
-                  onClick={() => setIsMobileOpen(false)}
-                  className={`flex items-center px-4 py-3 rounded-lg space-x-3 transition-all relative ${hover}`}
-                >
-                  <span className={`${text} relative`}>
-                    {item.icon}
-                    {item.name === "Notifications" && unreadCount > 0 && (
-                      <NotificationBadge
-                        count={unreadCount}
-                        size="sm"
-                        color="red"
-                        className="animate-pulse"
-                      />
-                    )}
-                  </span>
-                  <span className="flex items-center">
-                    {item.name}
-                    {item.name === "Notifications" && unreadCount > 0 && (
-                      <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">
-                        {unreadCount > 99 ? "99+" : unreadCount}
-                      </span>
-                    )}
-                  </span>
-                </Link>
-              ))}
-            </nav>
-
-            <div className="px-4 py-5 flex-shrink-0">
-              <button
-                onClick={() => {
-                  setIsMobileOpen(false);
-                  handleLogout();
-                }}
-                className="flex items-center space-x-3 text-red-300 hover:text-red-500"
-              >
-                <LogOut />
-                <span>Sign Out</span>
-              </button>
-            </div>
-          </aside>
+    {/* drawer with animation */}
+    <motion.aside
+      initial={{ x: "-100%" }}
+      animate={{ x: 0 }}
+      exit={{ x: "-100%" }}
+      transition={{ type: "tween", duration: 0.3 }}
+      className="relative w-64 h-full bg-[#0A192F] text-white flex flex-col"
+    >
+      <div className="flex items-center justify-between p-4 border-b border-white/10">
+        <div className="flex items-center space-x-3">
+          <img src={logoIcon} alt="logo" className="w-10 h-10" />
+          <h1 className={text}>
+            Tech<span className="text-white">Shirt</span>
+          </h1>
         </div>
-      )}
+        <button
+          className="p-2"
+          onClick={() => setIsMobileOpen(false)}
+          aria-label="Close sidebar"
+        >
+          <X size={20} />
+        </button>
+      </div>
+
+      <nav className="flex-1 overflow-y-auto mt-2 px-2 space-y-2">
+        {navItems.map((item) => (
+          <Link
+            key={item.name}
+            to={item.route}
+            onClick={() => setIsMobileOpen(false)}
+            className={`flex items-center px-4 py-3 rounded-lg space-x-3 transition-all relative ${hover}`}
+          >
+            <span className={`${text} relative`}>
+              {item.icon}
+              {item.name === "Notifications" && unreadCount > 0 && (
+                <NotificationBadge
+                  count={unreadCount}
+                  size="sm"
+                  color="red"
+                  className="animate-pulse"
+                />
+              )}
+            </span>
+            <span className="flex items-center">
+              {item.name}
+              {item.name === "Notifications" && unreadCount > 0 && (
+                <span className="ml-2 bg-red-500 text-white text-xs px-2 py-1 rounded-full min-w-[20px] text-center">
+                  {unreadCount > 99 ? "99+" : unreadCount}
+                </span>
+              )}
+            </span>
+          </Link>
+        ))}
+      </nav>
+
+      <div className="px-4 py-5 flex-shrink-0">
+        <button
+          onClick={() => {
+            setIsMobileOpen(false);
+            handleLogout();
+          }}
+          className="flex items-center space-x-3 text-red-300 hover:text-red-500"
+        >
+          <LogOut />
+          <span>Sign Out</span>
+        </button>
+      </div>
+    </motion.aside>
+  </div>
+)}
+
 
       {/* 🔹 Desktop Sidebar — visible only on md+ */}
       <aside className="hidden md:flex md:w-64 sticky top-0 h-screen bg-[#0A192F] text-white flex-col">
