@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; // add this import at the top
 import { useQuery, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { motion } from "framer-motion";
@@ -18,7 +18,9 @@ const Users: React.FC = () => {
   const [search, setSearch] = useState("");
   const [roleFilter, setRoleFilter] = useState("all");
   const [inviteStatusFilter, _setInviteStatusFilter] = useState("all");
+  const revokeInvite = useAction(api.functions.invites.revokeInvite);
 
+  
   // ✅ Convex queries
   const users = useQuery(api.users.listAllUsers) || [];
   const invitations = useQuery(api.invitation.listInvites, {}) || [];
@@ -124,18 +126,18 @@ const Users: React.FC = () => {
 
         <div className="flex-1 p-6 overflow-y-auto">
           {/* ✅ Tabs */}
-          <div className="flex gap-4 mb-4">
+          <div className="flex gap-2 mb-4">
             <button
-              className={`px-4 py-2 rounded-lg ${
-                activeTab === "users" ? "bg-teal-600 text-white" : "bg-gray-200"
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                activeTab === "users" ? " text-teal-600 bg-gray-100" : " text-gray-700 hover:bg-gray-200"
               }`}
               onClick={() => setActiveTab("users")}
             >
               Users
             </button>
             <button
-              className={`px-4 py-2 rounded-lg ${
-                activeTab === "invites" ? "bg-teal-600 text-white" : "bg-gray-200"
+              className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                activeTab === "invites" ? " text-teal-600 bg-gray-100" :  " text-gray-700 hover:bg-gray-200"
               }`}
               onClick={() => setActiveTab("invites")}
             >
@@ -143,43 +145,74 @@ const Users: React.FC = () => {
             </button>
           </div>
 
+         {/* ✅ Search + Filters */}
           <motion.div
-  className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
-  initial={{ opacity: 0, y: 10 }}
-  animate={{ opacity: 1, y: 0 }}
-  transition={{ duration: 0.4, delay: 0.2 }}
->
-  {/* Search */}
-  <input
-    type="text"
-    placeholder="Search by name or email..."
-    className="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-1/2 focus:outline-none focus:ring-2 focus:ring-teal-500"
-    value={search}
-    onChange={(e) => setSearch(e.target.value)}
-  />
+            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.2 }}
+          >
+            {activeTab === "users" ? (
+              <>
+                {/* Users Search */}
+                <input
+                  type="text"
+                  placeholder="Search by name or email..."
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-1/2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
 
-  {/* Role Filter + Invite Button */}
-  <div className="flex items-center gap-2 w-full sm:w-auto">
-    <select
-      aria-label="Filter users by role"
-      className="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-teal-500"
-      value={roleFilter}
-      onChange={(e) => setRoleFilter(e.target.value)}
-    >
-      <option value="all">All Roles</option>
-      <option value="client">Client</option>
-      <option value="designer">Designer</option>
-      <option value="admin">Admin</option>
-    </select>
+                {/* Users Filter + Invite */}
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <select
+                    aria-label="Filter users by role"
+                    className="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    value={roleFilter}
+                    onChange={(e) => setRoleFilter(e.target.value)}
+                  >
+                    <option value="all">All Roles</option>
+                    <option value="client">Client</option>
+                    <option value="designer">Designer</option>
+                    <option value="admin">Admin</option>
+                  </select>
 
-    <button
-      onClick={openInviteModal}
-      className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 whitespace-nowrap"
-    >
-      Invite User
-    </button>
-  </div>
-</motion.div>
+                  <button
+                    onClick={openInviteModal}
+                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 whitespace-nowrap"
+                  >
+                    Invite User
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                {/* Invitations Search */}
+                <input
+                  type="text"
+                  placeholder="Search by email..."
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-1/2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                />
+
+                {/* Invitations Status Filter */}
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <select
+                    aria-label="Filter invitations by status"
+                    className="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    value={inviteStatusFilter}
+                    onChange={(e) => _setInviteStatusFilter(e.target.value)}
+                  >
+                    <option value="all">All Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="accepted">Accepted</option>
+                    <option value="expired">Expired</option>
+                  </select>
+                </div>
+              </>
+            )}
+          </motion.div>
 
 
           {/* ✅ Table */}
@@ -227,6 +260,7 @@ const Users: React.FC = () => {
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Email</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
                     <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Created At</th>
+                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -238,6 +272,27 @@ const Users: React.FC = () => {
                       <td className="px-4 py-3 text-sm text-gray-700">{inv.email}</td>
                       <td className="px-4 py-3 text-sm capitalize text-gray-700">{inv.status}</td>
                       <td className="px-4 py-3 text-sm text-gray-700">{new Date(inv.createdAt).toLocaleString()}</td>
+                       <td className="px-4 py-3 text-sm">
+                        {inv.status === "pending" ? (
+                          <button
+                            onClick={async () => {
+                              if (confirm(`Revoke invite for ${inv.email}?`)) {
+                                const result = await revokeInvite({ email: inv.email });
+                                if (result?.success) {
+                                  alert(`✅ Invitation revoked for ${inv.email}`);
+                                } else {
+                                  alert(`❌ Failed to revoke invite`);
+                                }
+                              }
+                            }}
+                            className="px-4 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                          >
+                            Revoke
+                          </button>
+                        ) : (
+                          <span className="text-gray-400 italic">—</span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

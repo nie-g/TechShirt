@@ -1,12 +1,12 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
-
 export const listInvites = query({
   args: {
     status: v.optional(
       v.union(
         v.literal("active"),
+        v.literal("pending"),
         v.literal("revoked"),
         v.literal("accepted")
       )
@@ -39,7 +39,7 @@ export const createInvite = mutation({
       email,
       token,
       expiresAt,
-      status: "active",
+      status: "pending",
       createdAt: Date.now(),
     });
   },
@@ -63,3 +63,19 @@ export const acceptInvite = mutation({
     });
   },
 });
+
+export const updateInviteStatus = mutation({
+  args: {
+    id: v.id("invites"),
+    status: v.union(
+      v.literal("active"),
+      v.literal("pending"),
+      v.literal("revoked"),
+      v.literal("accepted")
+    ),
+  },
+  handler: async (ctx, { id, status }) => {
+    await ctx.db.patch(id, { status });
+  },
+});
+

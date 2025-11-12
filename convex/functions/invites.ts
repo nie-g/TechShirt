@@ -94,3 +94,45 @@ export const sendClerkInvite = action({
     }
   },
 });
+
+
+export const revokeInvite = action({
+  args: { email: v.string() },
+  handler: async (ctx, { email }) => {
+    const CLERK_SECRET_KEY = process.env.CLERK_SECRET_KEY;
+    if (!CLERK_SECRET_KEY) throw new Error("Missing Clerk secret key");
+
+    const headers = {
+      Authorization: `Bearer ${CLERK_SECRET_KEY}`,
+      "Content-Type": "application/json",
+    };
+
+    // ✅ Find invite in Convex DB (using a query)
+    const invite = await ctx.runQuery(api.invitation.listInvites, {}); // or use ctx.runQuery on your custom lookup
+    const targetInvite = invite.find((i) => i.email === email);
+
+    if (!targetInvite) {
+      console.warn("No invite found in Convex for email:", email);
+      return { success: false, message: "Invite not found" };
+    }
+
+    try {
+      // ✅ Revoke in Clerk
+      await fetch(`https://api.clerk.com/v1/invitations/${targetInvite.token}/revoke`, {
+        method: "POST",
+        headers,
+      });
+
+      // ✅ Update in Convex (mutations are allowed from actions)
+      await ctx.runMutation(api.invitation.updateInviteStatus, {
+        id: targetInvite._id,
+        status: "revoked",
+      });
+
+      return { success: true, message: "Invite revoked successfully" };
+    } catch (err: any) {
+      console.error("Failed to revoke Clerk invite:", err);
+      return { success: false, message: err.message };
+    }
+  },
+});
