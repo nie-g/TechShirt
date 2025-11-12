@@ -88,7 +88,6 @@ export default defineSchema({
     token: v.string(),
     expiresAt: v.number(),
     status: v.union(
-      v.literal("active"),
        v.literal("pending"),
       v.literal("revoked"),
       v.literal("accepted")

@@ -12,9 +12,11 @@ const Navbar = () => {
     <nav className="flex justify-between items-center p-5 bg-white shadow-md">
       {/* Logo */}
       <div className="flex items-center gap-2">
-        <span className="text-2xl font-bold text-black">
-          <span className="text-teal-500">Tech</span>Shirt
-        </span>
+        <Link to="/" className="flex items-center gap-2">
+          <span className="text-2xl font-bold text-black cursor-pointer hover:text-teal-500 transition-all">
+            <span className="text-teal-500">Tech</span>Shirt
+          </span>
+        </Link>
       </div>
 
       {/* Navigation Links */}

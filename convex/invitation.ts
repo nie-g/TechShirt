@@ -5,7 +5,6 @@ export const listInvites = query({
   args: {
     status: v.optional(
       v.union(
-        v.literal("active"),
         v.literal("pending"),
         v.literal("revoked"),
         v.literal("accepted")
@@ -68,7 +67,6 @@ export const updateInviteStatus = mutation({
   args: {
     id: v.id("invites"),
     status: v.union(
-      v.literal("active"),
       v.literal("pending"),
       v.literal("revoked"),
       v.literal("accepted")
