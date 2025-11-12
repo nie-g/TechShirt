@@ -77,7 +77,7 @@ const ReportsOverview: React.FC<ReportsOverviewProps> = ({
         <div className="lg:col-span-2 bg-white rounded-2xl p-6 shadow">
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-lg font-semibold">Overall Sales</h3>
+              <h3 className="text-lg font-semibold">Sales Trend</h3>
               <p className="text-sm text-gray-500">
                 Revenue trend for the selected period
               </p>

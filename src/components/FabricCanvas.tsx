@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as fabric from "fabric";
 import CanvasSettings from "./designCanvasComponents/CanvasSettings";
 import DesignDetails from "./designCanvasComponents/CanvasDesignDetails";
-import { Save, Upload, Info, Wrench, ArrowLeft, ReceiptText, Image, MessageCircleMore, Notebook, Loader2, BadgeCheck } from "lucide-react"; // added Back icon
+import { Save, Upload, Info, Wrench, ArrowLeft, ReceiptText, Image, MessageCircleMore, Notebook, Loader2, BadgeCheck, ImageDown } from "lucide-react"; // added Back icon
 import { useQuery } from "convex/react";
 import toast from "react-hot-toast";
 import { api } from "../../convex/_generated/api";
@@ -40,6 +40,27 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   const navigate = useNavigate();
   const notifyClientUpdate = useMutation(api.design_notifications.notifyClientDesignUpdate);
+  // Add this function inside FabricCanvas component
+    const handleDownloadCanvas = () => {
+    if (!canvas) return;
+
+    // Get canvas as PNG data URL
+    const dataURL = canvas.toDataURL({
+      format: "png",
+      quality: 1,
+      multiplier: 1, // ✅ Required by Fabric.js types
+    });
+
+    // Create a temporary link to trigger download
+    const link = document.createElement("a");
+    link.href = dataURL;
+    link.download = `design_${designId}.png`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
+
   
 
   const [showReferences, setShowReferences] = useState(false);
@@ -392,6 +413,16 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
               )}
             </motion.button>
           )}
+          <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
+          type="button"
+          onClick={handleDownloadCanvas}
+          className="flex items-center gap-2 px-3 py-2 rounded bg-slate-300 hover:bg-slate-500 text-white"
+          title="Download Canvas"
+        >
+          <ImageDown size={18} />
+        </motion.button>
 
 
         </div>
