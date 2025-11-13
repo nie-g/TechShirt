@@ -1,6 +1,7 @@
 import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import type { Id } from "./_generated/dataModel";
+import { api } from "./_generated/api";
 // Get all designs
 export const listAllDesigns = query({
   args: {},
@@ -72,7 +73,7 @@ export const approveDesign = mutation({
     // --- Extract revision count ---
     const revisionCount = design.revision_count ?? 0;
      const printPricing = await ctx.db
-      .query("print_pricing")
+      .query("prints")
       .withIndex("by_print_type", (q) => q.eq("print_type", printType))
       .unique();
     const printFee = printPricing?.amount ?? 0; // default to 0 if not found
@@ -158,13 +159,13 @@ export const approveDesign = mutation({
       });
     }
 
-    // --- Send notification to the designer (userId) ---
-    await ctx.db.insert("notifications", {
-      recipient_user_id: design.designer_id, // still userId
-      recipient_user_type: "designer",
-      notif_content: `Your design "${design._id ?? "Untitled"}" has been approved by the client.`,
-      created_at: Date.now(),
-      is_read: false,
+    // --- Send notification to the designer ---
+    await ctx.runMutation(api.notifications.createNotification, {
+      userId: design.designer_id,
+      userType: "designer",
+      title: "Design Approved",
+      message: `Your design for "${request.request_title}" has been approved by the client.`,
+      type: "design_approved",
     });
 
     return { success: true, status: "approved", startingAmount };
@@ -334,12 +335,12 @@ export const markAsInProduction = mutation({
 
     const notifyUsers = async (requestTitle: string, userIds: Id<"users">[]) => {
       for (const uid of userIds) {
-        await ctx.db.insert("notifications", {
-          recipient_user_id: uid,
-          recipient_user_type: "client",
-          notif_content: `Heads up: The production for your order "${requestTitle}" has now been started`,
-          created_at: Date.now(),
-          is_read: false,
+        await ctx.runMutation(api.notifications.createNotification, {
+          userId: uid,
+          userType: "client",
+          title: "Production Started",
+          message: `Production for your order "${requestTitle}" has now been started`,
+          type: "production_started",
         });
       }
     };
@@ -390,12 +391,12 @@ export const markAsCompleted = mutation({
     // --- Helper function to notify clients ---
     const notifyUsers = async (requestTitle: string, userIds: Id<"users">[]) => {
       for (const uid of userIds) {
-        await ctx.db.insert("notifications", {
-          recipient_user_id: uid,
-          recipient_user_type: "client",
-          notif_content: `Order completed for "${requestTitle}". Thank you for your appretiating our service.`,
-          created_at: Date.now(),
-          is_read: false,
+        await ctx.runMutation(api.notifications.createNotification, {
+          userId: uid,
+          userType: "client",
+          title: "Order Completed",
+          message: `Order completed for "${requestTitle}". Thank you for your business!`,
+          type: "order_completed",
         });
       }
     };
@@ -445,12 +446,12 @@ export const pendingPickup = mutation({
     // --- Helper function to notify clients ---
     const notifyUsers = async (requestTitle: string, userIds: Id<"users">[]) => {
       for (const uid of userIds) {
-        await ctx.db.insert("notifications", {
-          recipient_user_id: uid,
-          recipient_user_type: "client",
-          notif_content: ` The production for your order "${requestTitle}" has now been finished. You can now proceed to payment then pick up your order.`,
-          created_at: Date.now(),
-          is_read: false,
+        await ctx.runMutation(api.notifications.createNotification, {
+          userId: uid,
+          userType: "client",
+          title: "Ready for Pickup",
+          message: `Production for your order "${requestTitle}" is finished. You can now proceed to payment and pick up your order.`,
+          type: "ready_for_pickup",
         });
       }
     };

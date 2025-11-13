@@ -14,8 +14,10 @@ import ProjectsSection from "./admin/ProjectsSection";
 import ActivitySection from "./admin/ActivitySection";
 import AdminMetricsCards from "./admin/AdminMetricsCard";
 
+import { useFirebaseNotifications } from "../hooks/useFirebaseNotifications";
 
 interface User {
+  id: string;
   full_name: string;
 }
 
@@ -57,8 +59,13 @@ const defaultStats: DashboardStats = {
 
 const AdminDashboard: React.FC = () => {
   const [user, setUser] = useState<User | null>(null);
+ 
+
   const navigate: NavigateFunction = useNavigate();
   const { isLoaded, isSignedIn, user: clerkUser } = useUser(); // ✅ Clerk user
+  useFirebaseNotifications(user?.id || "");
+
+
 
   // Convex queries
   const requests = useQuery(api.design_requests.listAllRequests) || [];
@@ -104,7 +111,7 @@ const AdminDashboard: React.FC = () => {
     if (clerkUser) {
       const role = clerkUser.unsafeMetadata?.userType;
       if (role === "admin") {
-        setUser({ full_name: clerkUser.fullName || clerkUser.username || "admin" });
+        setUser({ id: clerkUser.id, full_name: clerkUser.fullName || clerkUser.username || "admin" });
       } else {
         navigate("/sign-in"); // redirect if not admin
       }

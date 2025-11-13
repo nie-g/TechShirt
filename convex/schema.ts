@@ -297,16 +297,20 @@ export default defineSchema({
       .index("by_normal_amount", ["normal_amount"])
       .index("by_revision_fee", ["revision_fee"]),
       // --- PRINT PRICING ---
-   print_pricing: defineTable({
-    print_type: v.union(
-      v.literal("Sublimation"),
-      v.literal("Dtf"),
-    ), // ✅ you can adjust print types as needed
-    amount: v.number(), // 💰 price per print or base rate
-    description: v.optional(v.string()), // optional explanation (e.g. "Full front print")
-    created_at: v.number(),
-    updated_at: v.optional(v.number()),
-  }).index("by_print_type", ["print_type"]),
+
+    prints: defineTable({
+      print_type: v.optional(v.string()),
+      amount: v.number(), // 💰 price per print or base rate
+      recommended_for: v.optional(v.string()), // optional: fabric names this is recommended for
+      description: v.optional(v.string()), // optional explanation (e.g. "Full front print")
+      created_at: v.number(),
+      updated_at: v.optional(v.number()),
+    }).index("by_print_type", ["print_type"]),
+
+     fcmTokens: defineTable({
+        userId: v.string(),
+        token: v.string(),
+    }).index("by_userId", ["userId"]),
 
 // --- INVOICES ---
 

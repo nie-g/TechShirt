@@ -9,6 +9,7 @@ import StatsSection from "./designer/StatsSection";
 import ProjectsSection from "./designer/ProjectsSection";
 import QuickActionsSection from "./designer/QuickActionsSection";
 import ClientNavbar from "../components/UsersNavbar";
+import { useFirebaseNotifications } from "../hooks/useFirebaseNotifications";
 
 // 🔹 Types for cleaner code
 interface User {
@@ -31,6 +32,7 @@ interface Design {
 
 const DesignerDashboard: React.FC = () => {
   const { user: clerkUser } = useUser();
+  useFirebaseNotifications(clerkUser?.id || "");
 
   // ✅ Get current user from Convex users table
   const currentUser = useQuery(

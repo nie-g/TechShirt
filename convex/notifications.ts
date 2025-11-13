@@ -11,8 +11,10 @@ export const createNotification = mutation({
     userId: v.id("users"),
     userType: v.union(v.literal("admin"), v.literal("designer"), v.literal("client")),
     message: v.string(),
+    title: v.optional(v.string()),
+    type: v.optional(v.string()),
   },
-  handler: async (ctx, { userId, userType, message }) => {
+  handler: async (ctx, { userId, userType, message, title, type }) => {
     try {
       const userRecord = await ctx.db.get(userId);
       if (!userRecord) throw new Error(`User ${userId} not found`);
@@ -35,9 +37,33 @@ export const createNotification = mutation({
         });
       }
 
-      // Trigger push notification if you have a function defined in api.notifications
-       
-      
+      // 🔔 4. Send push notification via Firebase Cloud Messaging
+      // Get all FCM tokens for this user
+      const fcmTokens = await ctx.db.query("fcmTokens")
+        .withIndex("by_userId", (q: any) => q.eq("userId", userId))
+        .collect();
+
+      console.log(`📱 Found ${fcmTokens.length} FCM tokens for user ${userId}`);
+
+      if (fcmTokens.length > 0) {
+        // Send push notification to all user's devices
+        const tokens = fcmTokens.map((t: any) => t.token);
+        console.log(`🚀 Sending push notification to ${tokens.length} devices`);
+
+        // Schedule action to send push notifications
+        await ctx.scheduler.runAfter(0, api.sendPushNotification.sendPushNotificationToMultipleUsers, {
+          fcmTokens: tokens,
+          title: title || "🔔 TechShirt Notification",
+          body: message,
+          data: {
+            notificationId: userId.toString(),
+            type: type || "notification",
+          },
+        });
+      } else {
+        console.log(`⚠️ No FCM tokens found for user ${userId}`);
+      }
+
     } catch (error: any) {
       console.error("Error creating notification:", error);
       return { success: false, error: error.message };

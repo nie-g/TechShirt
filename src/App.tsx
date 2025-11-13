@@ -28,9 +28,15 @@ import Reports from './pages/AdminReports';
 import AdminOrdersReport from './pages/admin/SalesReports';
 import { AuthenticateWithRedirectCallback } from "@clerk/clerk-react";
 import { Toaster } from "react-hot-toast";
+import { useUser } from "@clerk/clerk-react";
+import { useFirebaseNotifications } from "./hooks/useFirebaseNotifications";
 
 
 function App() {
+
+  // Call the hook - it handles getting the user internally
+  useFirebaseNotifications();
+
   return (
     <BrowserRouter>
        <Toaster

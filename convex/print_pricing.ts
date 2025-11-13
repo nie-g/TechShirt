@@ -7,14 +7,14 @@ import { mutation, query } from "./_generated/server";
 export const getAll = query({
   args: {},
   handler: async (ctx) => {
-    return await ctx.db.query("print_pricing").collect();
+    return await ctx.db.query("prints").collect();
   },
 });
 
 
 export const getPrintTypes = query({
   handler: async (ctx) => {
-    return await ctx.db.query("print_pricing").collect();
+    return await ctx.db.query("prints").collect();
   },
 });
 
@@ -23,15 +23,17 @@ export const getPrintTypes = query({
  */
 export const create = mutation({
   args: {
-    print_type: v.union(v.literal("Sublimation"), v.literal("Dtf")),
+    print_type: v.optional(v.string()),
     amount: v.number(),
     description: v.optional(v.string()),
+    recommended_for: v.optional(v.string()), // ✅ Added this
   },
   handler: async (ctx, args) => {
-    const id = await ctx.db.insert("print_pricing", {
+    const id = await ctx.db.insert("prints", {
       print_type: args.print_type,
       amount: args.amount,
       description: args.description,
+      recommended_for: args.recommended_for,
       created_at: Date.now(),
     });
     return id;
@@ -43,10 +45,11 @@ export const create = mutation({
  */
 export const update = mutation({
   args: {
-    id: v.id("print_pricing"),
-    print_type: v.optional(v.union(v.literal("Sublimation"), v.literal("Dtf"))),
+    id: v.id("prints"),
+    print_type:  v.optional(v.string()),
     amount: v.optional(v.number()),
     description: v.optional(v.string()),
+    recommended_for: v.optional(v.string()), // ✅ Added this
   },
   handler: async (ctx, args) => {
     const { id, ...updates } = args;
@@ -66,7 +69,7 @@ export const update = mutation({
  * 🗑️ Delete a print pricing record
  */
 export const remove = mutation({
-  args: { id: v.id("print_pricing") },
+  args: { id: v.id("prints") },
   handler: async (ctx, args) => {
     await ctx.db.delete(args.id);
   },

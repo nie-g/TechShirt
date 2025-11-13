@@ -458,63 +458,69 @@ const handleReferenceImageUpload = async (
           <label className="block mb-2 text-sm font-semibold text-gray-700">
             Print Type
           </label>
+
           <select
             aria-label="Select a print type"
             value={printType || ""}
             onChange={(e) =>
-              setPrintType(
-                e.target.value ? (e.target.value as any) : undefined
-              )
+              setPrintType(e.target.value ? (e.target.value as any) : undefined)
             }
             className="w-full p-3 text-gray-700 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
           >
             <option value="">Select a print type</option>
-
             {printPricing.map((p: any) => (
               <option key={p._id.toString()} value={p.print_type}>
-                {p.print_type}
+                {p.print_type}{" "}
+                {p.recommended_for ? `– for ${p.recommended_for}` : ""}
               </option>
             ))}
           </select>
 
+          {/* Auto recommendation based on Convex data */}
+          {selectedFabric && printPricing.length > 0 && (() => {
+            const fabricName = selectedFabric.name?.toLowerCase() || "";
+            const match = printPricing.find(
+              (p: any) =>
+                p.recommended_for &&
+                fabricName.includes(p.recommended_for.toLowerCase())
+            );
 
-          {/* Recommendation label */}
-          {printType && (
-          <div
-            className={`mt-1 text-xs ${
-              printType === recommendedPrintType
-                ? "text-green-600 font-medium"
-                : "text-red-500 font-medium"
-            }`}
-          >
-            <span
-              className={`mt-1 flex items-center gap-1 text-xs font-medium ${
-                printType === recommendedPrintType ? "text-green-600" : "text-red-500"
-              }`}
-            >
-              {printType === recommendedPrintType ? (
-                <>
-                  <CircleCheck size={14} />
-                  Recommended for this fabric
-                </>
-              ) : (
-                <>
+            if (match) {
+              const isRecommended = printType === match.print_type;
+              return (
+                <div
+                  className={`mt-1 flex items-center gap-1 text-xs font-medium ${
+                    isRecommended ? "text-green-600" : "text-amber-600"
+                  }`}
+                >
+                  {isRecommended ? (
+                    <>
+                      <CircleCheck size={14} />
+                      Recommended for this fabric
+                    </>
+                  ) : (
+                    <>
+                      <TriangleAlert size={14} />
+                      Recommended print type:{" "}
+                      <span className="font-semibold ml-1">{match.print_type}</span>
+                    </>
+                  )}
+                </div>
+              );
+            } else if (printType) {
+              // No matching recommendation exists for this fabric
+              return (
+                <div className="mt-1 flex items-center gap-1 text-xs font-medium text-red-500">
                   <TriangleAlert size={14} />
-                  Not recommended for this fabric
-                </>
-              )}
-            </span>
-          </div>
-        )}
+                  This print type isn’t recommended for this fabric
+                </div>
+              );
+            }
 
-
-          {/* Hint before user selects */}
-          {!printType && recommendedPrintType && (
-            <p className="mt-1 text-xs text-gray-500">
-              Recommended: <span className="font-medium">{recommendedPrintType}</span>
-            </p>
-          )}
+            return null;
+          })()}
         </div>
+
 
       </div>
 

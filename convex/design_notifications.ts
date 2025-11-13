@@ -1,6 +1,7 @@
 // convex/mutations/designNotifications.ts
 import { mutation } from "./_generated/server";
 import { v } from "convex/values";
+import { api } from "./_generated/api";
 
 export const notifyClientDesignUpdate = mutation({
   args: { designId: v.id("design") },
@@ -15,12 +16,12 @@ export const notifyClientDesignUpdate = mutation({
     await ctx.db.patch(designId, { status: "in_progress" });
 
     // 2. Send notification
-    await ctx.db.insert("notifications", {
-      recipient_user_id: clientId,
-      recipient_user_type: "client",
-      notif_content: `Your design "${design._id}" has a new update from the designer.`,
-      created_at: Date.now(),
-      is_read: false,
+    await ctx.runMutation(api.notifications.createNotification, {
+      userId: clientId,
+      userType: "client",
+      title: "Design Update",
+      message: `Your design has a new update from the designer.`,
+      type: "design_update",
     });
 
     return { success: true };

@@ -11,11 +11,13 @@ import StatsCards from "./client/StatsCard";
 import DashboardHeader from "./client/DashboardHeader";
 import ProjectsSection from "./client/ProjectsSection";
 import QuickActionsSection from "./client/Quick";
+import { useFirebaseNotifications } from "../hooks/useFirebaseNotifications";
 
 const ClientDashboard: React.FC = () => {
   const navigate = useNavigate();
-  const { user: clerkUser } = useUser();
-
+  const { user: clerkUser  } = useUser();
+  
+  useFirebaseNotifications(clerkUser?.id || "");
   // Fetch current user directly from Convex
   const currentUser = useQuery(
   api.userQueries.getUserByClerkId,
