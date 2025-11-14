@@ -1,4 +1,4 @@
-import { query, mutation } from "./_generated/server";
+﻿import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 import { api } from "./_generated/api";
 
@@ -368,20 +368,18 @@ export const assignDesignRequest = mutation({
 
     // --- 🧵 If fabric stock is insufficient, notify client
     if (totalYardsNeeded > fabricItem.stock) {
-      await ctx.db.insert("notifications", {
-        recipient_user_id: request.client_id,
-        recipient_user_type: "client",
-        notif_content: `Heads up: Your order "${request.request_title}" has now been aprroved. However, production will be delayed due to insufficient stock of the chosen fabric. We’re sourcing additional yards to fulfill your request.`,
-        created_at: Date.now(),
-        is_read: false,
-      });
-    } else {
-      await ctx.runMutation(api.notifications.createNotification, {
-        userId: request.client_id,
+       await ctx.runMutation(api.notifications.createNotification, {
+        userId:  request.client_id,
         userType: "client",
-        title: "✅ Order Approved",
-        message: `Your order "${request.request_title}" has been approved and assigned to a designer`,
-        type: "order_approved",
+        message: `Heads up: Your order "${request.request_title}" has now been aprroved. However, production will be delayed due to insufficient stock of the chosen fabric. We’re sourcing additional yards to fulfill your request.`,
+    
+      });
+    }else{ 
+      await ctx.runMutation(api.notifications.createNotification, {
+        userId:  request.client_id,
+        userType: "client",
+        message: `Your order "${request.request_title}" has been approved and been assigned to a designer`,
+    
       });
     }
 
@@ -420,17 +418,6 @@ export const assignDesignRequest = mutation({
       userType: "designer",
       message: `You’ve been assigned a new design request: "${request.request_title}"`,
     });
-
-    // --- 5. Notify client
-    if (request.client_id) {
-      await ctx.runMutation(api.notifications.createNotification, {
-        userId: request.client_id,
-        userType: "client",
-        title: "✅ Designer Assigned",
-        message: `A designer has been assigned to your request: "${request.request_title}"`,
-        type: "designer_assigned",
-      });
-    }
 
     return { success: true, designId };
   },
@@ -503,13 +490,13 @@ export const rejectDesignRequestWithReason = mutation({
     // Update request status
     await ctx.db.patch(requestId, { status: "declined" });
 
-    // Notify client with push notification
-    await ctx.runMutation(api.notifications.createNotification, {
-      userId: request.client_id,
-      userType: "client",
-      title: "❌ Request Rejected",
-      message: `Your design request "${request.request_title}" was rejected. Reason: ${reason}`,
-      type: "request_rejected",
+    // Notify client
+    await ctx.db.insert("notifications", {
+      recipient_user_id: request.client_id,
+      recipient_user_type: "client",
+      notif_content: `Your design request "${request.request_title}" was rejected. Reason: ${reason}`,
+      created_at: Date.now(),
+      is_read: false,
     });
 
     return { success: true };

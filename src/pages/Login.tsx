@@ -79,16 +79,19 @@ const Login = () => {
 
       {/* Two-column layout */}
       <div className="flex flex-1">
-        {/* Left side */}
-        <div className="w-1/2 hidden lg:flex flex-col items-center justify-center bg-gradient-to-r relative">
-          <h1 className="text-4xl font-bold mb-4 text-start">Welcome Back</h1>
-          <p className="text-lg text-start max-w-md">
+       {/* Left side */}
+      <div className="w-1/2 hidden lg:flex flex-col justify-center px-25 gap-4">
+          <h1 className="text-5xl font-bold text-gray-700 leading-tight">
+            Welcome Back
+          </h1>
+          <p className="text-lg text-teal-800 max-w-md leading-relaxed">
             Log in to <span className="font-semibold">TechShirt</span> and manage 
             your shirt designs, connect with designers, and continue bringing 
             your creative ideas to life.
           </p>
-          <img src={cutie} alt="DesignSync" className="w-[30vw] mb-2" />
+          <img src={cutie} alt="TechShirt" className="w-[30vw] -mt-4" />
         </div>
+
 
         {/* Right side (form) */}
         <div className="w-full lg:w-1/2 flex items-center justify-center p-8">

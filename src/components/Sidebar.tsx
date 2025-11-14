@@ -71,7 +71,7 @@ const Sidebar: React.FC = () => {
           { name: "Dashboard", icon: <Home />, route: "/admin" },
           { name: "Users", icon: <Users />, route: "/admin/users" },
           { name: "Requests", icon: <FileText />, route: "/admin/requests" },
-          { name: "Designs", icon: <Palette />, route: "/admin/designs" },
+          { name: "Orders", icon: <BookText />, route: "/admin/designs" },
           { name: "Templates & Pricing", icon: <Layers />, route: "/admin/templates" },
           { name: "Inventory", icon: <Box />, route: "/admin/inventory" },
           { name: "Notifications", icon: <BellIcon />, route: "/notifications" },

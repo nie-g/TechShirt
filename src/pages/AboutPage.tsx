@@ -4,8 +4,11 @@ import Navbar from "../components/Navbar";
 import about1 from "../images/picture1.jpg";
 import about2 from "../images/picture2.jpg";
 import about3 from "../images/picture3.jpg";
+import dev1 from "../images/picture1.jpg";
+import dev2 from "../images/picture1.jpg";
+import dev3 from "../images/picture1.jpg";
 
-// Define the shape of each about item
+// About items
 interface AboutItem {
   title: string;
   text: string;
@@ -30,6 +33,27 @@ const aboutItems: AboutItem[] = [
   },
 ];
 
+// Team members
+const developers = [
+  {
+    name: "Alice Smith",
+    role: "Frontend Developer",
+    image: dev1,
+    description: "Alice specializes in creating beautiful and responsive user interfaces using React and Tailwind CSS, ensuring smooth interactions and pixel-perfect designs."
+  },
+  {
+    name: "Bob Johnson",
+    role: "Backend Developer",
+    image: dev2,
+    description: "Bob focuses on building robust APIs and server-side logic with Node.js and Express, making sure data flows seamlessly across the platform."
+  },
+  {
+    name: "Charlie Lee",
+    role: "Fullstack Developer",
+    image: dev3,
+    description: "Charlie bridges the frontend and backend, implementing features end-to-end and optimizing performance for a fast and reliable user experience."
+  }
+];
 const AboutPage: React.FC = () => {
   return (
     <motion.div
@@ -40,13 +64,11 @@ const AboutPage: React.FC = () => {
     >
       <Navbar />
 
-      {/* Intro Section */}
-      <section className="px-6 py-20 text-center">
-        <h1 className="text-4xl font-bold text-gray-900">About DesignSync</h1>
-        <p className="mt-4 text-lg text-gray-600 max-w-3xl mx-auto">
-          Where creativity meets collaboration. DesignSync is more than a design
-          tool — it's a community where clients and designers come together to
-          make fashion ideas real.
+      {/* TechShirt Description */}
+      <section className="px-6 py-20 text-center max-w-4xl mx-auto">
+        <h1 className="text-4xl font-bold text-gray-900">About TechShirt</h1>
+        <p className="mt-4 text-lg text-gray-600">
+          TechShirt is a platform that merges creativity with technology. From designing custom t-shirts to collaborating with fellow designers, we make it easy to bring your ideas to life while ensuring a seamless user experience.
         </p>
       </section>
 
@@ -73,6 +95,34 @@ const AboutPage: React.FC = () => {
         ))}
       </section>
 
+        
+
+ 
+    <section className="px-6 py-20 bg-white">
+      <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">Meet Our Developers</h2>
+      <div className="grid grid-cols-1 gap-10 md:grid-cols-3 max-w-6xl mx-auto">
+        {developers.map((dev, index) => (
+          <motion.div
+            key={index}
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: index * 0.1 }}
+            className="flex flex-col items-center text-center"
+          >
+            <img
+              src={dev.image}
+              alt={dev.name}
+              className="w-32 h-32 rounded-full object-cover mb-4 shadow-md"
+            />
+            <h3 className="text-lg font-semibold text-gray-800">{dev.name}</h3>
+            <p className="text-teal-600 text-sm font-medium mb-2">{dev.role}</p>
+            <p className="text-gray-600 text-sm">{dev.description}</p>
+          </motion.div>
+        ))}
+      </div>
+    </section>
+
+
       {/* Call to Action */}
       <motion.section
         initial={{ opacity: 0, y: 50 }}
@@ -97,7 +147,7 @@ const AboutPage: React.FC = () => {
       <footer className="w-full px-6 py-10 text-gray-400 bg-gray-900">
         <div className="grid max-w-6xl grid-cols-1 gap-6 mx-auto md:grid-cols-3">
           <div>
-            <h3 className="text-lg font-bold text-white">DesignSync</h3>
+            <h3 className="text-lg font-bold text-white">TechShirt</h3>
             <p>
               Where creativity meets collaboration. Build t-shirts, build
               connections.

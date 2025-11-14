@@ -143,7 +143,7 @@ const Notifications: React.FC = () => {
               </div>
               <h2 className="text-xl font-bold text-gray-900 mb-2">Error</h2>
               <p className="text-gray-600 mb-6">{error}</p>
-              <button onClick={() => navigate("/sign-in")} className="px-6 py-2.5 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors font-medium">
+              <button type="button" onClick={() => navigate("/sign-in")} className="px-6 py-2.5 bg-teal-500 text-white rounded-lg hover:bg-teal-600 transition-colors font-medium">
                 Go to Login
               </button>
             </div>
@@ -184,6 +184,7 @@ const Notifications: React.FC = () => {
                 <Search className="absolute h-4 w-4 text-gray-400 ml-3" />
                 {notifications.some((n) => !n.is_read) && (
                   <button
+                    type="button"
                     onClick={markAllAsRead}
                     className="bg-teal-100 text-teal-700 px-4 py-2 rounded-lg hover:bg-teal-200 transition-colors text-sm"
                   >
@@ -193,8 +194,8 @@ const Notifications: React.FC = () => {
               </div>
             </div>
 
-            {/* Table-like List */}
-            <div className="overflow-x-auto">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-200">
                 <thead className="bg-gray-50">
                   <tr>
@@ -245,6 +246,7 @@ const Notifications: React.FC = () => {
                         <td className="px-3 py-4 flex justify-center gap-2">
                           {!notification.is_read && (
                             <button
+                              type="button"
                               onClick={() => markAsRead(notification.id)}
                               className="text-teal-600 hover:text-teal-800 p-1.5 rounded-full hover:bg-teal-100 transition-colors"
                               title="Mark as read"
@@ -253,6 +255,7 @@ const Notifications: React.FC = () => {
                             </button>
                           )}
                           <button
+                            type="button"
                             onClick={() => deleteNotification(notification.id)}
                             className="text-red-600 hover:text-red-800 p-1.5 rounded-full hover:bg-red-100 transition-colors"
                             title="Delete"
@@ -265,6 +268,73 @@ const Notifications: React.FC = () => {
                   )}
                 </tbody>
               </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-3">
+              {filteredNotifications.length === 0 ? (
+                <div className="text-center py-8 text-gray-500 bg-white rounded-lg">
+                  No notifications found
+                </div>
+              ) : (
+                filteredNotifications.map((notification) => (
+                  <div
+                    key={notification.id}
+                    className={`p-4 rounded-lg border transition-all ${
+                      notification.is_read
+                        ? "bg-white border-gray-200"
+                        : "bg-teal-50 border-teal-200"
+                    }`}
+                  >
+                    {/* Status Badge */}
+                    <div className="flex items-start justify-between mb-3">
+                      <span
+                        className={`px-2.5 py-1 rounded-full text-xs font-semibold ${
+                          notification.is_read
+                            ? "bg-gray-100 text-gray-700"
+                            : "bg-teal-100 text-teal-700"
+                        }`}
+                      >
+                        {notification.is_read ? "Read" : "New"}
+                      </span>
+                      <span className="text-xs text-gray-500">
+                        {notification.created_at ? formatTimeAgo(notification.created_at) : ""}
+                      </span>
+                    </div>
+
+                    {/* Notification Content */}
+                    <p className="text-sm text-gray-800 mb-4 leading-relaxed">
+                      {notification.notif_content}
+                    </p>
+
+                    {/* Action Buttons */}
+                    <div className="flex gap-2">
+                      {!notification.is_read && (
+                        <button
+                          type="button"
+                          onClick={() => markAsRead(notification.id)}
+                          className="flex-1 flex items-center justify-center gap-2 text-teal-600 bg-teal-50 hover:bg-teal-100 p-2 rounded-lg transition-colors text-sm font-medium"
+                          title="Mark as read"
+                        >
+                          <CheckCircle className="h-4 w-4" />
+                          Mark as read
+                        </button>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => deleteNotification(notification.id)}
+                        className={`flex-1 flex items-center justify-center gap-2 text-red-600 bg-red-50 hover:bg-red-100 p-2 rounded-lg transition-colors text-sm font-medium ${
+                          !notification.is_read ? "" : "flex-1"
+                        }`}
+                        title="Delete"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                ))
+              )}
             </div>
           </motion.div>
         </main>

@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
 import { SignedOut, SignedIn, useClerk, UserButton } from "@clerk/clerk-react";
+import Logo from "../images/Techshirt.png";
 
 const Navbar = () => {
   const clerk = useClerk();
@@ -13,6 +14,13 @@ const Navbar = () => {
       {/* Logo */}
       <div className="flex items-center gap-2">
         <Link to="/" className="flex items-center gap-2">
+          {/* Logo Image */}
+          <img
+            src={Logo} // replace with your image path
+            alt="TechShirt Logo"
+            className="w-10 h-10 object-contain"
+          />
+          {/* Logo Text */}
           <span className="text-2xl font-bold text-black cursor-pointer hover:text-teal-500 transition-all">
             <span className="text-teal-500">Tech</span>Shirt
           </span>

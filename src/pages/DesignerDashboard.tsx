@@ -32,7 +32,7 @@ interface Design {
 
 const DesignerDashboard: React.FC = () => {
   const { user: clerkUser } = useUser();
-  useFirebaseNotifications(clerkUser?.id || "");
+  useFirebaseNotifications();
 
   // ✅ Get current user from Convex users table
   const currentUser = useQuery(

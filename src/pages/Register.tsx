@@ -122,14 +122,15 @@ const handleVerification = async (e: React.FormEvent) => {
 
       <div className="flex flex-1">
         {/* Left */}
-        <div className="w-1/2 hidden lg:flex flex-col items-center justify-center bg-gradient-to-r relative">
-          <h1 className="text-4xl font-bold mb-4 text-start">Why choose TechShirt</h1>
-          <p className="text-lg text-start max-w-md">
+
+        <div className="w-1/2 hidden lg:flex flex-col justify-center px-25 gap-4">
+           <h1 className="text-4xl font-bold mb-4 text-start">Why choose TechShirt</h1>
+           <p className="text-lg text-start max-w-md">
             Join <span className="font-semibold">TechShirt</span> and start creating
             your personalized shirt designs with ease. Connect with designers, 
             explore creative templates, and bring your ideas to life.
           </p>
-          <img src={cutie} alt="DesignSync" className="w-[30vw] mb-2" />
+                  <img src={cutie} alt="TechShirt" className="w-[30vw] -mt-4" />
         </div>
 
         {/* Right (form) */}

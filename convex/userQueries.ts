@@ -61,3 +61,34 @@ export const listAll = query({
     }));
   },
 });
+
+export const getDesignersByIds = query({
+  args: { ids: v.array(v.id("users")) },
+  handler: async (ctx, { ids }) => {
+    // Fetch all users with role = designer first
+    const allDesigners = await ctx.db.query("users")
+      .filter((q) => q.eq(q.field("role"), "designer"))
+      .collect();
+
+    // Only keep users whose _id is in ids
+    const users = allDesigners.filter((user) => ids.includes(user._id));
+
+    const designers = await ctx.db.query("designers").collect();
+    const portfolios = await ctx.db.query("portfolios").collect();
+
+    return users.map((user) => {
+      const designer = designers.find((d) => d.user_id === user._id);
+      const portfolio = designer
+        ? portfolios.find((p) => p.designer_id === designer._id)
+        : null;
+
+      return {
+        ...user,
+        specialization: portfolio?.specialization ?? "General",
+        skills: portfolio?.skills ?? [],
+        portfolioId: portfolio?._id ?? null,
+        full_name: `${user.firstName} ${user.lastName}`.trim(),
+      };
+    });
+  },
+});

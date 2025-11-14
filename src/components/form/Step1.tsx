@@ -8,11 +8,11 @@ function TShirtModel({ shirtType }: { shirtType: string }) {
   if (shirtType === "Polo") {
     modelPath = "/assets/polo.glb";
   } else if (shirtType === "Long Sleeves") {
-    modelPath = "/assets/long_sleeve_t-_shirt.glb"; // swap later if you have a dedicated V-neck model
+    modelPath = "/assets/long_sleeve.glb"; // swap later if you have a dedicated V-neck model
   } else if (shirtType === "Jersey") {
     modelPath = "/assets/jersey_uv.glb"; // swap later if you have a jersey model
   }
-  const { scene } = useGLTF(modelPath);
+  const { scene } = useGLTF(modelPath, true); // true disables the default cache
   return <primitive object={scene} scale={1.2} />;
 }
 
@@ -31,23 +31,26 @@ const shirtOptions = [
 
 
 
+
 const Step1: React.FC<Step1Props> = ({ shirtType, setShirtType }) => {
   return (
     <div className="grid grid-cols-2 gap-6">
       {/* 3D Preview */}
       <div className="flex items-center justify-center bg-gray-100 rounded-lg shadow-md h-80">
         {shirtType ? (
-          <ThreeCanvas
-            camera={{ position: [0, 1, 2.5], fov: 45 }}
-            className="w-full h-full"
-          >
-            <color attach="background" args={["#F8F9FA"]} />
-            <PresentationControls>
-              <Stage>
-                <TShirtModel shirtType={shirtType} />
-              </Stage>
-            </PresentationControls>
-          </ThreeCanvas>
+         <ThreeCanvas
+          key={shirtType || "empty"} // ensures remount even if shirtType is null
+          camera={{ position: [0, 1, 2.5], fov: 45 }}
+          className="w-full h-full"
+        >
+          <color attach="background" args={["#F8F9FA"]} />
+          <PresentationControls>
+            <Stage>
+              {shirtType && <TShirtModel shirtType={shirtType} />}
+            </Stage>
+          </PresentationControls>
+        </ThreeCanvas>
+
         ) : (
           <p className="text-gray-500">Select a shirt type to see the preview</p>
         )}

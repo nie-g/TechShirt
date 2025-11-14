@@ -17,7 +17,7 @@ const ClientDashboard: React.FC = () => {
   const navigate = useNavigate();
   const { user: clerkUser  } = useUser();
   
-  useFirebaseNotifications(clerkUser?.id || "");
+  useFirebaseNotifications();
   // Fetch current user directly from Convex
   const currentUser = useQuery(
   api.userQueries.getUserByClerkId,
@@ -33,6 +33,11 @@ const ClientDashboard: React.FC = () => {
     api.designs.getDesignsByClient,
     currentUser ? { clientId: currentUser._id } : "skip"
   ) || [];
+
+  const notifications = useQuery(
+  api.notifications.getUserNotifications,
+  currentUser ? { userId: currentUser._id } : "skip"
+) || [];
 
   if (!clerkUser || !currentUser) {
     return (
@@ -57,7 +62,11 @@ const ClientDashboard: React.FC = () => {
         <ClientNavbar />
         <main className="p-6 md:p-8 flex flex-col gap-6 overflow-auto">
           <DashboardHeader />
-          <StatsCards requests={requests} designs={designs} />
+         <StatsCards 
+            requests={requests} 
+            designs={designs}
+            notifications={notifications}
+          />
           <ProjectsSection requests={requests} navigate={navigate} />
           <QuickActionsSection navigate={navigate} />
         </main>

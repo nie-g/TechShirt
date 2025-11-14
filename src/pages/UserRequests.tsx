@@ -201,58 +201,116 @@ const UserRequests: React.FC = () => {
                   <p className="text-gray-600 text-sm">No requests found</p>
                 </div>
               ) : (
-                <div className="overflow-x-auto">
-                  <table className="min-w-full divide-y divide-gray-200">
-                    <thead className="bg-gray-50">
-                      <tr>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Designer</th>
-                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Update</th>
-                        <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="bg-white divide-y divide-gray-200">
-                      
-                      {filteredRequests.map((req) => (
-                        
-                        <tr key={req._id.toString()} className="hover:bg-gray-50 transition-colors">
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm font-medium text-gray-900">{req.request_title ||"Loading ..."}</div>
-                            <div className="text-sm text-gray-500 line-clamp-1">{req.description || "No description"}</div>
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-700">{req.tshirt_type || "T-shirt"}</td>
-                          <td className="px-6 py-4">
-                            <StatusBadge status={req.status} />
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-700">
-                            {req.designer?.full_name || "Unassigned"}
-                          </td>
-                          <td className="px-6 py-4 text-sm text-gray-500">
-                            {formatTimeAgo(req.created_at ?? req._creationTime)}
-                          </td>
-                          <td className="px-6 py-4 text-right space-x-2">
+                <>
+                  {/* Desktop Table */}
+                  <div className="hidden md:block overflow-x-auto">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Title</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Type</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Designer</th>
+                          <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Update</th>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {filteredRequests.map((req) => (
+                          <tr key={req._id.toString()} className="hover:bg-gray-50 transition-colors">
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="text-sm font-medium text-gray-900">{req.request_title ||"Loading ..."}</div>
+                              <div className="text-sm text-gray-500 line-clamp-1">{req.description || "No description"}</div>
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">{req.tshirt_type || "T-shirt"}</td>
+                            <td className="px-6 py-4">
+                              <StatusBadge status={req.status} />
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-700">
+                              {req.designer?.full_name || "Unassigned"}
+                            </td>
+                            <td className="px-6 py-4 text-sm text-gray-500">
+                              {formatTimeAgo(req.created_at ?? req._creationTime)}
+                            </td>
+                            <td className="px-6 py-4 text-right space-x-2">
+                              {req.status === "pending" && (
+                                <button
+                                  onClick={() => handleCancelRequest(req._id)}
+                                  className="text-xs px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                  Cancel
+                                </button>
+                              )}
+                              <button
+                                onClick={() => setSelectedRequest(req)}
+                                className="text-xs px-3 py-1.5 text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                              >
+                                View
+                              </button>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+
+                  {/* Mobile Card View */}
+                  <div className="md:hidden divide-y divide-gray-200">
+                    {filteredRequests.map((req) => (
+                      <div key={req._id.toString()} className="p-4 hover:bg-gray-50 transition-colors">
+                        <div className="space-y-3">
+                          {/* Title */}
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-900">{req.request_title || "Loading..."}</h3>
+                            <p className="text-xs text-gray-500 line-clamp-2">{req.description || "No description"}</p>
+                          </div>
+
+                          {/* Info Grid */}
+                          <div className="grid grid-cols-2 gap-3 text-xs">
+                            <div>
+                              <p className="text-gray-500 font-medium">Type</p>
+                              <p className="text-gray-900">{req.tshirt_type || "T-shirt"}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-500 font-medium">Status</p>
+                              <div className="mt-1">
+                                <StatusBadge status={req.status} />
+                              </div>
+                            </div>
+                            <div>
+                              <p className="text-gray-500 font-medium">Designer</p>
+                              <p className="text-gray-900">{req.designer?.full_name || "Unassigned"}</p>
+                            </div>
+                            <div>
+                              <p className="text-gray-500 font-medium">Updated</p>
+                              <p className="text-gray-900">{formatTimeAgo(req.created_at ?? req._creationTime)}</p>
+                            </div>
+                          </div>
+
+                          {/* Actions */}
+                          <div className="flex gap-2 pt-2">
                             {req.status === "pending" && (
                               <button
+                                type="button"
                                 onClick={() => handleCancelRequest(req._id)}
-                                className="text-xs px-3 py-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                className="flex-1 text-xs px-3 py-2 text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors font-medium"
                               >
                                 Cancel
                               </button>
                             )}
                             <button
+                              type="button"
                               onClick={() => setSelectedRequest(req)}
-                              className="text-xs px-3 py-1.5 text-teal-600 hover:bg-teal-50 rounded-lg transition-colors"
+                              className={`${req.status === "pending" ? "flex-1" : "w-full"} text-xs px-3 py-2 text-teal-600 bg-teal-50 hover:bg-teal-100 rounded-lg transition-colors font-medium`}
                             >
-                              View
+                              View Details
                             </button>
-                          </td>
-                        </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </>
               )}
             </div>
           </motion.div>

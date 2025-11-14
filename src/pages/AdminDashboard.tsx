@@ -63,7 +63,7 @@ const AdminDashboard: React.FC = () => {
 
   const navigate: NavigateFunction = useNavigate();
   const { isLoaded, isSignedIn, user: clerkUser } = useUser(); // ✅ Clerk user
-  useFirebaseNotifications(user?.id || "");
+  useFirebaseNotifications();
 
 
 

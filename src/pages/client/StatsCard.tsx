@@ -4,9 +4,10 @@ import { FileText, Palette, Bell } from "lucide-react";
 interface StatsCardsProps {
   requests: any[];
   designs: any[];
+  notifications: any[];   // <— add this
 }
 
-const StatsCards: React.FC<StatsCardsProps> = ({ requests, designs }) => {
+const StatsCards: React.FC<StatsCardsProps> = ({ requests, designs, notifications }) => {
   const requestStats = {
     total: requests.length,
     pending: requests.filter(r => r.status === "pending").length,
@@ -18,6 +19,12 @@ const StatsCards: React.FC<StatsCardsProps> = ({ requests, designs }) => {
     total: designs.length,
     completed: designs.filter(d => d.status === "completed").length,
   };
+
+  const notificationStats = {
+  total: notifications.length,
+  unread: notifications.filter(n => !n.is_read).length,
+  };
+
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -67,20 +74,33 @@ const StatsCards: React.FC<StatsCardsProps> = ({ requests, designs }) => {
       </div>
 
       {/* Notifications */}
+      {/* Notifications */}
       <div className="bg-white p-6 rounded-2xl shadow-md border-l-4 border-indigo-500 hover:shadow-lg transition-shadow">
         <div className="flex justify-between items-start">
           <div>
             <p className="text-sm font-medium text-gray-500">Notifications</p>
-            <h3 className="text-2xl font-bold text-gray-900 mt-1">0</h3>
+            <h3 className="text-2xl font-bold text-gray-900 mt-1">
+              {notificationStats.unread}
+            </h3>
           </div>
           <div className="p-3 bg-indigo-100 rounded-full">
             <Bell className="h-6 w-6 text-indigo-500" />
           </div>
         </div>
+
         <div className="mt-4">
-          <span className="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full">No unread notifications</span>
+          {notificationStats.unread > 0 ? (
+            <span className="text-xs px-2 py-1 bg-indigo-100 text-indigo-800 rounded-full">
+              {notificationStats.unread} unread notifications
+            </span>
+          ) : (
+            <span className="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full">
+              No unread notifications
+            </span>
+          )}
         </div>
       </div>
+
     </div>
   );
 };

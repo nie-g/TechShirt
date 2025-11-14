@@ -1,4 +1,6 @@
-import React from "react";
+import React, { useMemo } from "react";
+import { useQuery } from "convex/react";
+import { api } from "../../../convex/_generated/api";
 
 interface ProjectsProps {
   requests: any[];
@@ -6,6 +8,28 @@ interface ProjectsProps {
 }
 
 const ProjectsSection: React.FC<ProjectsProps> = ({ requests, navigate }) => {
+  // 1. Collect all designer IDs
+  const designerIds = useMemo(() => {
+    return requests
+      .map((r) => r.preferred_designer_id || r.designer_id)
+      .filter(Boolean);
+  }, [requests]);
+
+  // 2. Fetch designers in bulk
+  const designers = useQuery(api.userQueries.getDesignersByIds, {
+    ids: designerIds,
+  });
+
+  // 3. Make a lookup map
+  const designerMap = useMemo(() => {
+    if (!designers) return {};
+    const map: Record<string, string> = {};
+    designers.forEach((d: any) => {
+      map[d._id] = d.full_name || `${d.firstName} ${d.lastName}`;
+    });
+    return map;
+  }, [designers]);
+
   if (!requests.length) {
     return (
       <div className="bg-white p-6 rounded-2xl shadow-md text-center">
@@ -24,27 +48,43 @@ const ProjectsSection: React.FC<ProjectsProps> = ({ requests, navigate }) => {
     <div className="bg-white p-6 rounded-2xl shadow-md">
       <h2 className="text-xl font-bold text-gray-900 mb-4">My Projects</h2>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {requests.map((project: any) => (
-          <div
-            key={project._id}
-            className="p-5 transition-all border border-gray-200 shadow-sm bg-gradient-to-r from-white to-teal-50 rounded-xl hover:shadow-md hover:border-teal-200"
-          >
-            <div className="flex justify-between items-start mb-3">
-              <h3 className="text-base font-semibold text-gray-800">{project.request_title}</h3>
-              <span className="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full">{project.status}</span>
+        {requests.map((project: any) => {
+          const id = project.preferred_designer_id || project.designer_id;
+          const designerName = designerMap[id] || "Unassigned";
+
+          return (
+            <div
+              key={project._id}
+              className="p-5 transition-all border border-gray-200 shadow-sm bg-gradient-to-r from-white to-teal-50 rounded-xl hover:shadow-md hover:border-teal-200"
+            >
+              <div className="flex justify-between items-start mb-3">
+                <h3 className="text-base font-semibold text-gray-800">
+                  {project.request_title}
+                </h3>
+                <span className="text-xs px-2 py-1 bg-gray-100 text-gray-800 rounded-full">
+                  {project.status}
+                </span>
+              </div>
+
+              <p className="text-sm text-gray-600 mb-1">
+                Type: <span className="font-medium">{project.tshirt_type}</span>
+              </p>
+
+              <p className="text-sm text-gray-600 mb-3">
+                Designer: <span className="font-medium">{designerName}</span>
+              </p>
+
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={() => navigate(`/client/requests/${project._id}`)}
+                  className="px-3 py-1.5 text-sm font-medium text-teal-600 hover:text-teal-800 hover:bg-teal-50 rounded-lg transition-colors"
+                >
+                  View Details →
+                </button>
+              </div>
             </div>
-            <p className="text-sm text-gray-600 mb-1">Type: <span className="font-medium">{project.tshirt_type}</span></p>
-            <p className="text-sm text-gray-600 mb-3">Designer: <span className="font-medium">{project.designer?.full_name || "Unassigned"}</span></p>
-            <div className="flex justify-between items-center">
-              <button
-                onClick={() => navigate(`/client/requests/${project._id}`)}
-                className="px-3 py-1.5 text-sm font-medium text-teal-600 hover:text-teal-800 hover:bg-teal-50 rounded-lg transition-colors"
-              >
-                View Details →
-              </button>
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

@@ -168,6 +168,26 @@ export const approveDesign = mutation({
       type: "design_approved",
     });
 
+    // --- Send notification to admins ---
+    const admins = await ctx.db
+      .query("users")
+      .filter((q) => q.eq(q.field("role"), "admin"))
+      .collect();
+
+    if (admins.length > 0) {
+      const adminRecipients = admins.map((admin) => ({
+        userId: admin._id,
+        userType: "admin" as const,
+      }));
+
+      await ctx.runMutation(api.notifications.createNotificationForMultipleUsers, {
+        recipients: adminRecipients,
+        title: "Design Approved",
+        message: `Design for "${request.request_title}" has been approved by the client.`,
+        type: "design_approved_admin",
+      });
+    }
+
     return { success: true, status: "approved", startingAmount };
   },
 });
@@ -188,14 +208,15 @@ export const reviseDesign = mutation({
       revision_count: revisionCount,
     });
 
-    // 2. Send notification to designer (schema uses designer_id)
+    // 2. Send notification to designer
     if (design.designer_id) {
-      await ctx.db.insert("notifications", {
-        recipient_user_id: design.designer_id,
-        recipient_user_type: "designer",
-        notif_content: `A revision has been requested for the design (ID: ${design._id}).`,
-        created_at: Date.now(),
-        is_read: false,
+      const request = await ctx.db.get(design.request_id);
+      await ctx.runMutation(api.notifications.createNotification, {
+        userId: design.designer_id,
+        userType: "designer",
+        title: "Revision Requested",
+        message: `A revision has been requested for the design "${request?.request_title || "Untitled"}"`,
+        type: "revision_requested",
       });
     }
 
@@ -346,14 +367,22 @@ export const markAsInProduction = mutation({
     };
 
      const notifyAdmin = async (requestTitle: string) => {
-      const adminUser = await ctx.db.query("users").first();
-      if (adminUser) {
-        await ctx.db.insert("notifications", {
-          recipient_user_id: adminUser._id,
-          recipient_user_type: "admin",
-          notif_content: `The production for "${requestTitle}" has now been started.`,
-          created_at: Date.now(),
-          is_read: false,
+      const admins = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("role"), "admin"))
+        .collect();
+
+      if (admins.length > 0) {
+        const adminRecipients = admins.map((admin) => ({
+          userId: admin._id,
+          userType: "admin" as const,
+        }));
+
+        await ctx.runMutation(api.notifications.createNotificationForMultipleUsers, {
+          recipients: adminRecipients,
+          title: "Production Started",
+          message: `Production for order "${requestTitle}" has been started.`,
+          type: "production_started_admin",
         });
       }
     };
@@ -401,17 +430,30 @@ export const markAsCompleted = mutation({
       }
     };
 
-    // --- Helper function to notify admin of restock needs ---
+    // --- Helper function to notify admin and designer ---
+    const notifyAdminAndDesigner = async (requestTitle: string, designerId: Id<"users">) => {
+      const admins = await ctx.db
+        .query("users")
+        .filter((q) => q.eq(q.field("role"), "admin"))
+        .collect();
 
-     const notifyAdmin = async (requestTitle: string) => {
-      const adminUser = await ctx.db.query("users").first();
-      if (adminUser) {
-        await ctx.db.insert("notifications", {
-          recipient_user_id: adminUser._id,
-          recipient_user_type: "admin",
-          notif_content: `Order completed for "${requestTitle}".`,
-          created_at: Date.now(),
-          is_read: false,
+      const recipients = [
+        ...admins.map((admin) => ({
+          userId: admin._id,
+          userType: "admin" as const,
+        })),
+        {
+          userId: designerId,
+          userType: "designer" as const,
+        },
+      ];
+
+      if (recipients.length > 0) {
+        await ctx.runMutation(api.notifications.createNotificationForMultipleUsers, {
+          recipients,
+          title: "Order Completed",
+          message: `Order "${requestTitle}" has been completed.`,
+          type: "order_completed_admin_designer",
         });
       }
     };
@@ -424,8 +466,8 @@ export const markAsCompleted = mutation({
     // 2. Get the associated request
     const request = await ctx.db.get(design.request_id);
     if (!request) throw new Error("Request not found");
-  
-    await notifyAdmin(request.request_title);
+
+    await notifyAdminAndDesigner(request.request_title, design.designer_id);
 
     // 10. Notify client
     await notifyUsers(request.request_title, [request.client_id]);

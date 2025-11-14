@@ -83,8 +83,10 @@ export const createNotificationForMultipleUsers = mutation({
       })
     ),
     message: v.string(),
+    title: v.optional(v.string()),
+    type: v.optional(v.string()),
   },
-  handler: async (ctx, { recipients, message }) => {
+  handler: async (ctx, { recipients, message, title, type }) => {
     const results: {
       userId: string;
       userType: "admin" | "designer" | "client";
@@ -93,17 +95,60 @@ export const createNotificationForMultipleUsers = mutation({
       error?: string;
     }[] = [];
 
+    // Collect all FCM tokens for all recipients
+    const allFcmTokens: { token: string; userId: string }[] = [];
+
     for (const recipient of recipients) {
       try {
-        const result = await ctx.runMutation(api.notifications.createNotification, {
-          userId: recipient.userId,
-          userType: recipient.userType,
-          message,
+        const userRecord = await ctx.db.get(recipient.userId);
+        if (!userRecord) throw new Error(`User ${recipient.userId} not found`);
+
+        // Insert notification to database
+        await ctx.db.insert("notifications", {
+          recipient_user_id: recipient.userId,
+          recipient_user_type: recipient.userType,
+          notif_content: message,
+          created_at: Date.now(),
+          is_read: false,
         });
-        results.push({ ...recipient, success: true, result });
+
+        // Send email notification
+        if (userRecord.email) {
+          await ctx.scheduler.runAfter(0, api.sendEmail.sendEmailAction, {
+            to: userRecord.email,
+            subject: "New Notification from TechShirt",
+            text: message,
+          });
+        }
+
+        // Collect FCM tokens
+        const fcmTokens = await ctx.db.query("fcmTokens")
+          .withIndex("by_userId", (q: any) => q.eq("userId", recipient.userId))
+          .collect();
+
+        fcmTokens.forEach((t: any) => {
+          allFcmTokens.push({ token: t.token, userId: recipient.userId.toString() });
+        });
+
+        results.push({ ...recipient, success: true });
       } catch (error: any) {
         results.push({ ...recipient, success: false, error: error.message });
       }
+    }
+
+    // Send all push notifications in a single batch (avoid duplicates)
+    if (allFcmTokens.length > 0) {
+      const tokens = allFcmTokens.map((t) => t.token);
+      console.log(`🚀 Sending batch push notification to ${tokens.length} devices for ${recipients.length} users`);
+
+      await ctx.scheduler.runAfter(0, api.sendPushNotification.sendPushNotificationToMultipleUsers, {
+        fcmTokens: tokens,
+        title: title || "🔔 TechShirt Notification",
+        body: message,
+        data: {
+          type: type || "notification",
+        },
+      });
     }
 
     return {
