@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import * as fabric from "fabric";
 import { useMutation, useQuery, useAction } from "convex/react";
@@ -46,6 +46,25 @@ const ShirtDesignForm: React.FC<ShirtDesignFormProps> = ({ onClose, onSubmit }) 
   const user = useQuery(api.userQueries.getUserByClerkId, {
     clerkId: clerkUser ? clerkUser.id : ("skip" as any),
   });
+
+  // ✅ Reset form state when component mounts to prevent stale data from previous opens
+  useEffect(() => {
+    setShirtType(null);
+    setStep(1);
+    setCanvasState(null);
+    setProjectName("");
+    setDescription("");
+    setGender("unisex");
+    setSizes([]);
+    setReferenceImages([]);
+    setNewPaletteColors([]);
+    setPrintType(undefined);
+    setTextileId(null);
+    setPreferredDesignerId(null);
+    setCanvasSnapshot(null);
+    setPreferredDate(null);
+    setDateError(null);
+  }, []);
 
   const createNewRequestMutation = useMutation(api.design_requests.createRequest);
   const saveSelectedColorsMutation = useMutation(api.colors.saveSelectedColors);

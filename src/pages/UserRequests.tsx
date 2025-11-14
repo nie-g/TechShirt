@@ -82,6 +82,7 @@ const UserRequests: React.FC = () => {
 
   const cancelRequest = useMutation(api.design_requests.cancelDesignRequest);
   const [showRequestForm, setShowRequestForm] = useState(false);
+  const [formKey, setFormKey] = useState(0);
   const [selectedRequest, setSelectedRequest] = useState<any | null>(null);
   const [isSubmitting, _setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
@@ -151,7 +152,10 @@ const UserRequests: React.FC = () => {
                 <p className="text-gray-600 text-sm">Manage and track your submitted t-shirt requests</p>
               </div>
               <button
-                onClick={() => setShowRequestForm(true)}
+                onClick={() => {
+                  setShowRequestForm(true);
+                  setFormKey(prev => prev + 1);
+                }}
                 disabled={isSubmitting}
                 className={`px-4 py-2 text-sm font-medium text-white rounded-lg flex items-center gap-2 transition-all ${
                   isSubmitting
@@ -319,7 +323,7 @@ const UserRequests: React.FC = () => {
 
       {/* Form Modal */}
       {showRequestForm && (
-        <ShirtDesignForm onClose={() => setShowRequestForm(false)} onSubmit={() => setShowRequestForm(false)} />
+        <ShirtDesignForm key={formKey} onClose={() => setShowRequestForm(false)} onSubmit={() => setShowRequestForm(false)} />
       )}
 
       {/* Request Details Modal */}

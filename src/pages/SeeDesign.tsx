@@ -237,9 +237,26 @@ const handleAddComment = async () => {
 const designer = useQuery(api.designers.getByUserId,design?.designer_id ? { userId: design.designer_id } : "skip");
 const portfolios = useQuery(api.portfolio.getByDesignerId,designer?._id ? { designer_id: designer._id } : "skip");
 const addRatingMutation = useMutation(api.ratings_and_feedback.addRating);
+// ✅ Fetch existing rating if user is viewing the modal
+const existingRating = useQuery(api.ratings_and_feedback.getExistingRating,
+  (design?._id && reviewer?._id) ? { designId: design._id, reviewerId: reviewer._id } : "skip"
+);
 const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
 const [rating, setRating] = useState(0);
 const [feedback, setFeedback] = useState("");
+
+// ✅ Pre-populate form with existing rating when modal opens
+useEffect(() => {
+  if (isRatingModalOpen && existingRating) {
+    setRating(existingRating.rating);
+    setFeedback(existingRating.feedback || "");
+  } else if (isRatingModalOpen && !existingRating) {
+    // Reset form if no existing rating
+    setRating(0);
+    setFeedback("");
+  }
+}, [isRatingModalOpen, existingRating]);
+
 const RevisionConfirmModal = () => (
   <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
     <div className="bg-white rounded-2xl shadow-lg p-6 max-w-sm w-full">
@@ -787,7 +804,9 @@ function createWhiteFallbackCanvas(): HTMLCanvasElement {
        {isRatingModalOpen && (
               <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
                 <div className="bg-white rounded-2xl shadow-lg p-6 max-w-sm w-full">
-                  <h3 className="text-lg font-semibold mb-2">Rate this Design</h3>
+                  <h3 className="text-lg font-semibold mb-2">
+                    {existingRating ? "Update Your Rating" : "Rate this Design"}
+                  </h3>
                   
                   <div className="flex gap-1 mb-2">
                     {[1,2,3,4,5].map((star) => (

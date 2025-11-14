@@ -4,15 +4,15 @@ import { useGLTF, Stage, PresentationControls } from "@react-three/drei";
 
 // ✅ Dynamic 3D model loader: loads a model based on normalized shirtType
 function TShirtModel({ shirtType }: { shirtType: string }) {
-  let modelPath = "/assets/tshirt.glb"; // default Round Neck model
+  let modelPath = "/assets/formModels/tshirt.glb"; // default Round Neck model
   if (shirtType === "Polo") {
-    modelPath = "/assets/polo.glb";
+    modelPath = "/assets/formModels/polo.glb";
   } else if (shirtType === "Long Sleeves") {
-    modelPath = "/assets/long_sleeve.glb"; // swap later if you have a dedicated V-neck model
+    modelPath = "/assets/formModels/long_sleeve.glb"; // swap later if you have a dedicated V-neck model
   } else if (shirtType === "Jersey") {
-    modelPath = "/assets/jersey_uv.glb"; // swap later if you have a jersey model
+    modelPath = "/assets/formModels/jersey_uv.glb"; // swap later if you have a jersey model
   }
-  const { scene } = useGLTF(modelPath, true); // true disables the default cache
+  const { scene } = useGLTF(modelPath);
   return <primitive object={scene} scale={1.2} />;
 }
 

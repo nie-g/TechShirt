@@ -26,9 +26,10 @@ import RegisterAdmin from './pages/RegisterAdmin';
 import Login from './pages/Login';
 import Reports from './pages/AdminReports';
 import AdminOrdersReport from './pages/admin/SalesReports';
+import FeaturesPage from './pages/FeaturesPage';
+import PricingPage from './pages/PricingPage';
 import { AuthenticateWithRedirectCallback } from "@clerk/clerk-react";
 import { Toaster } from "react-hot-toast";
-import { useUser } from "@clerk/clerk-react";
 import { useFirebaseNotifications } from "./hooks/useFirebaseNotifications";
 
 
@@ -54,6 +55,8 @@ function App() {
         <Route path="/register/designer" element={<RegisterDesigner />} />
         <Route path="/register/admin" element={<RegisterAdmin />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/pricing" element={<PricingPage />} />
+        <Route path="/features" element={<FeaturesPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/admin" element={<AdminDashboardPage />} />

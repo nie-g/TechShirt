@@ -64,6 +64,7 @@ export default defineSchema({
   rating: v.number(),               // numeric rating, e.g. 1-5
   feedback: v.optional(v.string()), // written review
   created_at: v.number(),
+  updated_at: v.optional(v.number()), // ✅ track when rating was last updated
 })
   .index("by_portfolio", ["portfolio_id"])
   .index("by_reviewer", ["reviewer_id"])
