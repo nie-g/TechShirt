@@ -4,9 +4,9 @@ import Navbar from "../components/Navbar";
 import about1 from "../images/picture1.jpg";
 import about2 from "../images/picture2.jpg";
 import about3 from "../images/picture3.jpg";
-import dev1 from "../images/picture1.jpg";
-import dev2 from "../images/picture1.jpg";
-import dev3 from "../images/picture1.jpg";
+import dev1 from "../images/aia.png";
+import dev2 from "../images/cj.jpeg";
+import dev3 from "../images/annie.jpg";
 
 // About items
 interface AboutItem {
@@ -14,44 +14,45 @@ interface AboutItem {
   text: string;
   image: string;
 }
-
 const aboutItems: AboutItem[] = [
   {
-    title: "Delicious Menu Options",
-    text: "We believe that creativity thrives in comfort. Our studio’s relaxed, cozy ambiance is inspired by the warmth of your favorite café, encouraging effortless design collaboration.",
+    title: "3D Real-Time Shirt Modeling",
+    text: "Visualize your ideas instantly with our interactive 3D shirt model. Rotate, zoom, and preview your designs in real time for accurate placement and print-ready results.",
     image: about1,
   },
   {
-    title: "Customizable Collaboration",
-    text: "Every t-shirt tells a story — yours. Our platform adapts to each project’s needs, letting you customize your design experience with real-time feedback, color palettes, and sizing options.",
+    title: "Live Design Syncing",
+    text: "Design changes update instantly across the platform—whether you're editing on the canvas or collaborating with a designer. No delays, no outdated versions, just seamless syncing.",
     image: about2,
   },
   {
-    title: "Seamless Experience",
-    text: "Whether you're starting a design from scratch or refining one with a designer, our smooth and intuitive process ensures your vision becomes wearable reality.",
+    title: "Designer–Client Workflow",
+    text: "Chat, review, and approve designs all in one place. Clients and designers collaborate efficiently through built-in messaging, updates, and streamlined request handling.",
     image: about3,
   },
 ];
-
 // Team members
 const developers = [
   {
-    name: "Alice Smith",
-    role: "Frontend Developer",
+    name: "Aia Celina De Tablan",
+    role: "Project Manager",
     image: dev1,
-    description: "Alice specializes in creating beautiful and responsive user interfaces using React and Tailwind CSS, ensuring smooth interactions and pixel-perfect designs."
+    description:
+      "Aia oversees project timelines, manages team coordination, and ensures every feature is delivered with clarity, alignment, and high quality."
   },
   {
-    name: "Bob Johnson",
-    role: "Backend Developer",
+    name: "Christine Joy Laureano",
+    role: "Researcher",
     image: dev2,
-    description: "Bob focuses on building robust APIs and server-side logic with Node.js and Express, making sure data flows seamlessly across the platform."
+    description:
+      "Christine conducts in-depth research, gathers user insights, and analyzes data to guide the team in developing meaningful and user-focused features."
   },
   {
-    name: "Charlie Lee",
-    role: "Fullstack Developer",
+    name: "Annie Gonora",
+    role: "Programmer",
     image: dev3,
-    description: "Charlie bridges the frontend and backend, implementing features end-to-end and optimizing performance for a fast and reliable user experience."
+    description:
+      "Annie develops core platform functionalities, implements new features, and ensures the system runs smoothly with reliable and optimized code."
   }
 ];
 const AboutPage: React.FC = () => {
@@ -112,7 +113,7 @@ const AboutPage: React.FC = () => {
             <img
               src={dev.image}
               alt={dev.name}
-              className="w-32 h-32 rounded-full object-cover mb-4 shadow-md"
+              className="w-40 h-40 rounded-full object-cover mb-4 shadow-md"
             />
             <h3 className="text-lg font-semibold text-gray-800">{dev.name}</h3>
             <p className="text-teal-600 text-sm font-medium mb-2">{dev.role}</p>
@@ -139,7 +140,7 @@ const AboutPage: React.FC = () => {
           whileTap={{ scale: 0.95 }}
           className="px-6 py-3 mt-6 font-semibold text-teal-500 bg-white rounded-lg"
         >
-          <a href="/signup">Start Your Journey</a>
+          <a href="/register">Start Your Journey</a>
         </motion.button>
       </motion.section>
 

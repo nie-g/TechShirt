@@ -99,6 +99,70 @@ export const addGalleryImage = mutation({
   },
 });
 
+// Update gallery title and caption
+export const updateGallery = mutation({
+  args: {
+    galleryId: v.id("galleries"),
+    title: v.optional(v.string()),
+    caption: v.optional(v.string()),
+  },
+  handler: async (ctx, { galleryId, title, caption }) => {
+    await ctx.db.patch(galleryId, {
+      title,
+      caption,
+    });
+    return { success: true };
+  },
+});
+
+// Delete a single gallery image
+export const deleteGalleryImage = mutation({
+  args: { imageId: v.id("gallery_images") },
+  handler: async (ctx, { imageId }) => {
+    // Get the image record
+    const image = await ctx.db.get(imageId);
+    if (!image) throw new Error("Image not found");
+
+    // Delete from storage
+    try {
+      await ctx.storage.delete(image.image);
+    } catch (err) {
+      console.warn("Failed to delete image from storage:", err);
+    }
+
+    // Delete image record from DB
+    await ctx.db.delete(imageId);
+    return { success: true };
+  },
+});
+
+// Delete gallery and its images
+export const deleteGallery = mutation({
+  args: { galleryId: v.id("galleries") },
+  handler: async (ctx, { galleryId }) => {
+    // Get all images for this gallery
+    const images = await ctx.db
+      .query("gallery_images")
+      .withIndex("by_gallery", (q) => q.eq("gallery_id", galleryId))
+      .collect();
+
+    // Delete images from storage
+    for (const img of images) {
+      try {
+        await ctx.storage.delete(img.image);
+      } catch (err) {
+        console.warn("Failed to delete image from storage:", err);
+      }
+      // Delete image record from DB
+      await ctx.db.delete(img._id);
+    }
+
+    // Delete gallery record
+    await ctx.db.delete(galleryId);
+    return { success: true };
+  },
+});
+
 /* =========================
  *       ACTIONS
  * ========================= */

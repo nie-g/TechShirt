@@ -124,7 +124,7 @@ const Users: React.FC = () => {
       <div className="flex-1 flex flex-col">
         <ClientNavbar />
 
-        <div className="flex-1 p-6 overflow-y-auto">
+        <div className="flex-1 p-4 md:p-6 overflow-y-auto">
           {/* ✅ Tabs */}
           <div className="flex gap-2 mb-4">
             <button
@@ -147,7 +147,7 @@ const Users: React.FC = () => {
 
          {/* ✅ Search + Filters */}
           <motion.div
-            className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6"
+            className="flex flex-col gap-3 mb-6"
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.2 }}
@@ -158,16 +158,16 @@ const Users: React.FC = () => {
                 <input
                   type="text"
                   placeholder="Search by name or email..."
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-1/2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-teal-500"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
 
                 {/* Users Filter + Invite */}
-                <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row gap-2 w-full">
                   <select
                     aria-label="Filter users by role"
-                    className="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="border border-gray-300 rounded-lg px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-teal-500"
                     value={roleFilter}
                     onChange={(e) => setRoleFilter(e.target.value)}
                   >
@@ -178,6 +178,7 @@ const Users: React.FC = () => {
                   </select>
 
                   <button
+                    type="button"
                     onClick={openInviteModal}
                     className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 whitespace-nowrap"
                   >
@@ -191,16 +192,16 @@ const Users: React.FC = () => {
                 <input
                   type="text"
                   placeholder="Search by email..."
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-1/2 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-teal-500"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
 
                 {/* Invitations Status Filter */}
-                <div className="flex items-center gap-2 w-full sm:w-auto">
+                <div className="flex flex-col sm:flex-row gap-2 w-full">
                   <select
                     aria-label="Filter invitations by status"
-                    className="border border-gray-300 rounded-lg px-3 py-2 w-full sm:w-40 focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    className="border border-gray-300 rounded-lg px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-teal-500"
                     value={inviteStatusFilter}
                     onChange={(e) => _setInviteStatusFilter(e.target.value)}
                   >
@@ -215,97 +216,182 @@ const Users: React.FC = () => {
           </motion.div>
 
 
-          {/* ✅ Table */}
-          <motion.div className="overflow-x-auto bg-white shadow-md rounded-lg p-4">
-            {activeTab === "users" ? (
-              <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">First Name</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Last Name</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Email</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Role</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.map((user: any, idx: number) => (
-                    <motion.tr
-                      key={user._id}
-                      className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100`}
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3, delay: idx * 0.05 }}
-                    >
-                      <td className="px-4 py-3 text-sm text-gray-700">{user.firstName}</td>
-                      <td className="px-4 py-3 text-sm text-gray-700">{user.lastName}</td>
-                      <td className="px-4 py-3 text-sm text-gray-700">{user.email}</td>
-                      <td className="px-4 py-3 text-sm capitalize text-gray-700">{user.role}</td>
-                      <td className="px-4 py-3 text-sm">
-                        <button
-                          className="px-6 py-1 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
-                          onClick={() => openEditModal(user)}
-                        >
-                          Edit
-                        </button>
-                      </td>
-                    </motion.tr>
-                  ))}
-                </tbody>
-              </table>
-            ) : (
-              <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
-                <thead className="bg-gray-100">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Email</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Created At</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredInvites.map((inv: any, idx: number) => (
-                    <tr
-                      key={inv._id}
-                      className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100`}
-                    >
-                      <td className="px-4 py-3 text-sm text-gray-700">{inv.email}</td>
-                      <td className="px-4 py-3 text-sm capitalize text-gray-700">{inv.status}</td>
-                      <td className="px-4 py-3 text-sm text-gray-700">{new Date(inv.createdAt).toLocaleString()}</td>
-                       <td className="px-4 py-3 text-sm">
-                        {inv.status === "pending" ? (
-                          <button
-                            onClick={async () => {
-                              if (confirm(`Revoke invite for ${inv.email}?`)) {
-                                const result = await revokeInvite({ email: inv.email });
-                                if (result?.success) {
-                                  alert(`✅ Invitation revoked for ${inv.email}`);
-                                } else {
-                                  alert(`❌ Failed to revoke invite`);
-                                }
-                              }
-                            }}
-                            className="px-4 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                          >
-                            Revoke
-                          </button>
-                        ) : (
-                          <span className="text-gray-400 italic">—</span>
-                        )}
-                      </td>
+          {/* ✅ Table / Cards */}
+          <motion.div className="bg-white shadow-md rounded-lg p-4">
+            {/* Desktop Table View */}
+            <div className="hidden md:block overflow-x-auto">
+              {activeTab === "users" ? (
+                <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">First Name</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Last Name</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Email</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Role</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            )}
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map((user: any, idx: number) => (
+                      <motion.tr
+                        key={user._id}
+                        className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3, delay: idx * 0.05 }}
+                      >
+                        <td className="px-4 py-3 text-sm text-gray-700">{user.firstName}</td>
+                        <td className="px-4 py-3 text-sm text-gray-700">{user.lastName}</td>
+                        <td className="px-4 py-3 text-sm text-gray-700">{user.email}</td>
+                        <td className="px-4 py-3 text-sm capitalize text-gray-700">{user.role}</td>
+                        <td className="px-4 py-3 text-sm">
+                          <button
+                            type="button"
+                            className="px-6 py-1 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+                            onClick={() => openEditModal(user)}
+                          >
+                            Edit
+                          </button>
+                        </td>
+                      </motion.tr>
+                    ))}
+                  </tbody>
+                </table>
+              ) : (
+                <table className="min-w-full border border-gray-200 rounded-lg overflow-hidden">
+                  <thead className="bg-gray-100">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Email</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Status</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Created At</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium text-gray-700">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredInvites.map((inv: any, idx: number) => (
+                      <tr
+                        key={inv._id}
+                        className={`${idx % 2 === 0 ? "bg-white" : "bg-gray-50"} hover:bg-gray-100`}
+                      >
+                        <td className="px-4 py-3 text-sm text-gray-700">{inv.email}</td>
+                        <td className="px-4 py-3 text-sm capitalize text-gray-700">{inv.status}</td>
+                        <td className="px-4 py-3 text-sm text-gray-700">{new Date(inv.createdAt).toLocaleString()}</td>
+                        <td className="px-4 py-3 text-sm">
+                          {inv.status === "pending" ? (
+                            <button
+                              type="button"
+                              onClick={async () => {
+                                if (confirm(`Revoke invite for ${inv.email}?`)) {
+                                  const result = await revokeInvite({ email: inv.email });
+                                  if (result?.success) {
+                                    alert(`✅ Invitation revoked for ${inv.email}`);
+                                  } else {
+                                    alert(`❌ Failed to revoke invite`);
+                                  }
+                                }
+                              }}
+                              className="px-4 py-1 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                            >
+                              Revoke
+                            </button>
+                          ) : (
+                            <span className="text-gray-400 italic">—</span>
+                          )}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
+              {activeTab === "users" ? (
+                filteredUsers.map((user: any) => (
+                  <motion.div
+                    key={user._id}
+                    className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-700">Name:</span>
+                        <span className="text-gray-700">{user.firstName} {user.lastName}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-700">Email:</span>
+                        <span className="text-gray-700 text-sm">{user.email}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-700">Role:</span>
+                        <span className="capitalize text-gray-700">{user.role}</span>
+                      </div>
+                      <button
+                        type="button"
+                        className="w-full mt-3 px-4 py-2 bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+                        onClick={() => openEditModal(user)}
+                      >
+                        Edit
+                      </button>
+                    </div>
+                  </motion.div>
+                ))
+              ) : (
+                filteredInvites.map((inv: any) => (
+                  <motion.div
+                    key={inv._id}
+                    className="border border-gray-200 rounded-lg p-4 bg-gray-50"
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.3 }}
+                  >
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-700">Email:</span>
+                        <span className="text-gray-700 text-sm">{inv.email}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-700">Status:</span>
+                        <span className="capitalize text-gray-700">{inv.status}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="font-medium text-gray-700">Created:</span>
+                        <span className="text-gray-700 text-sm">{new Date(inv.createdAt).toLocaleDateString()}</span>
+                      </div>
+                      {inv.status === "pending" ? (
+                        <button
+                          type="button"
+                          onClick={async () => {
+                            if (confirm(`Revoke invite for ${inv.email}?`)) {
+                              const result = await revokeInvite({ email: inv.email });
+                              if (result?.success) {
+                                alert(`✅ Invitation revoked for ${inv.email}`);
+                              } else {
+                                alert(`❌ Failed to revoke invite`);
+                              }
+                            }
+                          }}
+                          className="w-full mt-3 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                        >
+                          Revoke
+                        </button>
+                      ) : null}
+                    </div>
+                  </motion.div>
+                ))
+              )}
+            </div>
           </motion.div>
         </div>
       </div>
 
       {/* 🟢 Invite Modal */}
       {inviteModalOpen && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-xl font-bold mb-6 text-gray-600">Invite New User</h2>
             <input
               type="email"
@@ -326,12 +412,14 @@ const Users: React.FC = () => {
             </select>
             <div className="flex justify-end gap-2">
               <button
+                type="button"
                 className="px-4 py-2 bg-gray-300 rounded-lg"
                 onClick={closeInviteModal}
               >
                 Cancel
               </button>
               <button
+                type="button"
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg"
                 onClick={handleInviteUser}
               >
@@ -344,8 +432,8 @@ const Users: React.FC = () => {
 
       {/* Edit Modal */}
       {editingUser && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50">
-          <div className="bg-white rounded-lg p-6 w-96">
+        <div className="fixed inset-0 flex items-center justify-center bg-black/60 z-50 p-4">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
             <h2 className="text-2xl font-bold mb-8 text-gray-800">Update User Profile</h2>
             <input
               className="border border-gray-400 w-full rounded-lg p-2 mb-3"
@@ -367,12 +455,14 @@ const Users: React.FC = () => {
             />
             <div className="flex justify-end gap-2 mt-4">
               <button
+                type="button"
                 className="px-4 py-2 bg-gray-300 rounded-lg"
                 onClick={closeEditModal}
               >
                 Cancel
               </button>
               <button
+                type="button"
                 className="px-4 py-2 bg-teal-600 text-white rounded-lg"
                 onClick={handleUpdate}
               >

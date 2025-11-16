@@ -241,23 +241,10 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
 
   return (
     <div className="p-2 relative">
-      {/* Top row: Back button + Controls */}
-      <div className="flex justify-between items-center mb-4">
-        {/* Back button on the left */}
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.95 }}
-          type="button"
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 px-3 py-2 bg-gray-100  border border-gray-300 rounded hover:bg-gray-300"
-        >
-          <ArrowLeft size={18} />
-          <span className="text-sm font-medium">Back</span>
-        </motion.button>
-
-
+      {/* Top row: Controls */}
+      <div className="flex items-center mb-4 gap-2 flex-wrap justify-end">
         {/* Right-side controls: Details, Tools, Save, Post */}
-        <div className="flex gap-2">
+        <div className="flex gap-2 flex-wrap items-center">
           {/* See Bill button – only show if billing exists */}
           {billingDoc && (
             <motion.button
@@ -272,6 +259,18 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
             </motion.button>
           )}
 
+          {/* Back button - before sketch on mobile, visible on desktop */}
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            type="button"
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 px-3 py-2 bg-gray-100 border border-gray-300 rounded hover:bg-gray-300"
+          >
+            <ArrowLeft size={18} />
+            <span className="text-sm font-medium">Back</span>
+          </motion.button>
+
           {/*See Sketch*/}
           <motion.button
             whileHover={{ scale: 1.1 }}
@@ -284,7 +283,7 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
             title="Sketch"
           >
           <Notebook size={18} />
-         
+
           </motion.button>
           {/* Comments button – only show if comments exist */}
           {comments && comments.length > 0 && (
@@ -423,7 +422,6 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
         >
           <ImageDown size={18} />
         </motion.button>
-
 
         </div>
       </div>

@@ -324,7 +324,7 @@ const Designs: React.FC = () => {
                        <button
                           onClick={() =>
                             navigate(`/designer/canvas/${d.request_id}`, {
-                              state: { designId: d._id, requestId: d.request_id },
+                              state: { request: { ...requestsMap[d.request_id], designId: d._id } },
                             })
                           }
                           className="flex-1 px-3 py-1 text-sm bg-teal-500 text-white rounded hover:bg-teal-700 transition"

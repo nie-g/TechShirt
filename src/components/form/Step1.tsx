@@ -2,16 +2,12 @@ import React from "react";
 import { Canvas as ThreeCanvas } from "@react-three/fiber";
 import { useGLTF, Stage, PresentationControls } from "@react-three/drei";
 
-// ✅ Dynamic 3D model loader: loads a model based on normalized shirtType
 function TShirtModel({ shirtType }: { shirtType: string }) {
-  let modelPath = "/assets/formModels/tshirt.glb"; // default Round Neck model
-  if (shirtType === "Polo") {
-    modelPath = "/assets/formModels/polo.glb";
-  } else if (shirtType === "Long Sleeves") {
-    modelPath = "/assets/formModels/long_sleeve.glb"; // swap later if you have a dedicated V-neck model
-  } else if (shirtType === "Jersey") {
-    modelPath = "/assets/formModels/jersey_uv.glb"; // swap later if you have a jersey model
-  }
+  let modelPath = "/assets/formModels/tshirt.glb";
+  if (shirtType === "Polo") modelPath = "/assets/formModels/polo.glb";
+  else if (shirtType === "Long Sleeves") modelPath = "/assets/formModels/long_sleeve.glb";
+  else if (shirtType === "Jersey") modelPath = "/assets/formModels/jersey_uv.glb";
+
   const { scene } = useGLTF(modelPath);
   return <primitive object={scene} scale={1.2} />;
 }
@@ -21,7 +17,6 @@ interface Step1Props {
   setShirtType: (type: string) => void;
 }
 
-// ✅ Label → normalized value mapping
 const shirtOptions = [
   { label: "Round Neck tshirt", value: "Round Neck" },
   { label: "Long Sleeves", value: "Long Sleeves" },
@@ -29,46 +24,62 @@ const shirtOptions = [
   { label: "Jersey", value: "Jersey" },
 ];
 
-
-
-
 const Step1: React.FC<Step1Props> = ({ shirtType, setShirtType }) => {
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div
+      className="
+        grid 
+        grid-cols-1 
+        md:grid-cols-2   /* desktop remains 2 columns */
+        gap-6
+      "
+    >
       {/* 3D Preview */}
-      <div className="flex items-center justify-center bg-gray-100 rounded-lg shadow-md h-80">
+      <div
+        className="
+          flex items-center justify-center bg-gray-100 rounded-lg shadow-md 
+          h-64 md:h-80     /* mobile shorter height */
+          w-full
+        "
+      >
         {shirtType ? (
-         <ThreeCanvas
-          key={shirtType || "empty"} // ensures remount even if shirtType is null
-          camera={{ position: [0, 1, 2.5], fov: 45 }}
-          className="w-full h-full"
-        >
-          <color attach="background" args={["#F8F9FA"]} />
-          <PresentationControls>
-            <Stage>
-              {shirtType && <TShirtModel shirtType={shirtType} />}
-            </Stage>
-          </PresentationControls>
-        </ThreeCanvas>
-
+          <ThreeCanvas
+            key={shirtType || "empty"}
+            camera={{ position: [0, 1, 2.5], fov: 45 }}
+            className="w-full h-full"
+          >
+            <color attach="background" args={["#F8F9FA"]} />
+            <PresentationControls>
+              <Stage>
+                {shirtType && <TShirtModel shirtType={shirtType} />}
+              </Stage>
+            </PresentationControls>
+          </ThreeCanvas>
         ) : (
-          <p className="text-gray-500">Select a shirt type to see the preview</p>
+          <p className="text-gray-500 text-center px-2">
+            Select a shirt type to see the preview
+          </p>
         )}
       </div>
 
       {/* Shirt Type Selector */}
-      <div>
+      <div className="px-1 md:px-0">
         <h3 className="text-lg font-semibold text-gray-700">Select Shirt Type</h3>
+
         <div className="mt-4 space-y-3 text-gray-700">
           {shirtOptions.map((opt) => (
             <button
               key={opt.value}
-              onClick={() => setShirtType(opt.value)} // ✅ always normalized
-              className={`w-full p-3 border rounded-lg transition duration-200 ${
-                shirtType === opt.value
-                  ? "border-teal-500 bg-teal-100 text-teal-700 font-medium"
-                  : "border-gray-300 hover:bg-gray-100"
-              }`}
+              onClick={() => setShirtType(opt.value)}
+              className={`
+                w-full p-3 border rounded-lg transition duration-200
+                text-sm md:text-base    /* slightly smaller mobile buttons */
+                ${
+                  shirtType === opt.value
+                    ? "border-teal-500 bg-teal-100 text-teal-700 font-medium"
+                    : "border-gray-300 hover:bg-gray-100"
+                }
+              `}
             >
               {opt.label}
             </button>

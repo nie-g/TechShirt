@@ -43,6 +43,7 @@ import type * as portfolio from "../portfolio.js";
 import type * as print_pricing from "../print_pricing.js";
 import type * as ratings_and_feedback from "../ratings_and_feedback.js";
 import type * as sendEmail from "../sendEmail.js";
+import type * as sendEmailWithImage from "../sendEmailWithImage.js";
 import type * as sendNotification from "../sendNotification.js";
 import type * as sendPushNotification from "../sendPushNotification.js";
 import type * as shirt_sizes from "../shirt_sizes.js";
@@ -91,6 +92,7 @@ declare const fullApi: ApiFromModules<{
   print_pricing: typeof print_pricing;
   ratings_and_feedback: typeof ratings_and_feedback;
   sendEmail: typeof sendEmail;
+  sendEmailWithImage: typeof sendEmailWithImage;
   sendNotification: typeof sendNotification;
   sendPushNotification: typeof sendPushNotification;
   shirt_sizes: typeof shirt_sizes;

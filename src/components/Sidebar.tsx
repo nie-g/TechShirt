@@ -16,6 +16,7 @@ import {
   BarChart,
   Layers,
   Box,
+  CircleUser,
   BookText,
   Menu,
   X,
@@ -83,7 +84,7 @@ const Sidebar: React.FC = () => {
           { name: "Gallery", icon: <Images />, route: "/designer/gallery" },
           { name: "My Designs", icon: <Palette />, route: "/designer/designs" },
           { name: "Notifications", icon: <BellIcon />, route: "/notifications" },
-          { name: "Settings", icon: <Settings />, route: "/designer/settings" },
+          { name: "Profile", icon: <CircleUser />, route: "/designer/settings" },
         ];
       default:
         return [
