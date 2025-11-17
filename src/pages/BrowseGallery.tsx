@@ -44,6 +44,7 @@ type PortfolioRecord = {
 const BrowseGallery: React.FC = () => {
   const [search, setSearch] = useState("");
   const [expandedDesigners, setExpandedDesigners] = useState<Record<string, boolean>>({});
+  const [expandedPortfolios, setExpandedPortfolios] = useState<Record<string, boolean>>({});
 
   // Queries
   const designers = useQuery(api.designers.listAllDesignersWithUsers) as DesignerRecord[] | undefined;
@@ -101,7 +102,7 @@ const BrowseGallery: React.FC = () => {
         <ClientNavbar />
         <main className="p-8 md:p-10 overflow-auto w-full max-w-6xl mx-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-            <h1 className="text-2xl font-bold mb-6 text-gray-700">Browse Designer Galleries</h1>
+            <h1 className="text-2xl font-semibold mb-6 text-gray-700"> Designer Galleries and Portfolio</h1>
 
             {/* Search Bar */}
             <div className="flex items-center mb-10 max-w-lg w-full border border-gray-300 rounded-full shadow-sm bg-white/70 backdrop-blur-md focus-within:ring-2 focus-within:ring-teal-500 transition-all">
@@ -138,21 +139,85 @@ const BrowseGallery: React.FC = () => {
                       className="w-full bg-white/70 backdrop-blur-md rounded-2xl border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden"
                     >
                       {/* Designer Header */}
-                      <div className="flex items-center justify-between p-6 border-b border-gray-100 bg-gradient-to-r from-teal-50 to-white">
-                        <div>
-                          <h2 className="text-xl font-semibold text-gray-800 flex items-center gap-3">
-                            <span>
-                              {designer.first_name} {designer.last_name}
-                            </span>
+                      <div className="p-4 sm:p-6 border-b border-gray-100 bg-gradient-to-r from-teal-50 to-white">
+                        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
+                          {designer.first_name} {designer.last_name}
+                        </h2>
+                        <div className="flex flex-col gap-2 sm:gap-3">
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                             {specialization && (
-                              <span className="text-sm font-medium text-teal-600 bg-teal-100 px-2 py-1 rounded-full">
+                              <span className="text-xs sm:text-sm font-medium text-teal-600 bg-teal-100 px-2.5 py-1 rounded-full w-fit">
                                 {specialization}
                               </span>
                             )}
-                          </h2>
-                          <p className="text-sm text-gray-500">Featured Works</p>
+                            {designerPortfolios.length > 0 && (
+                              <button
+                                type="button"
+                                onClick={() => setExpandedPortfolios((prev) => ({
+                                  ...prev,
+                                  [designer._id]: !prev[designer._id],
+                                }))}
+                                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-teal-700 bg-teal-100 hover:bg-teal-200 rounded-full transition-all whitespace-nowrap w-fit"
+                              >
+                                {expandedPortfolios[designer._id] ? "Hide" : "See Portfolio"}
+                              </button>
+                            )}
+                          </div>
                         </div>
                       </div>
+
+                      {/* Portfolio Details Section */}
+                      {designerPortfolios.length > 0 && designerPortfolios[0] && expandedPortfolios[designer._id] && (
+                        <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
+                          <div className="space-y-3">
+                            {designerPortfolios[0].title && (
+                              <div>
+                                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Portfolio Title</p>
+                                <p className="text-sm text-gray-800 font-medium">{designerPortfolios[0].title}</p>
+                              </div>
+                            )}
+
+                            {designerPortfolios[0].description && (
+                              <div>
+                                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">About</p>
+                                <p className="text-sm text-gray-700 line-clamp-2">{designerPortfolios[0].description}</p>
+                              </div>
+                            )}
+
+                            {designerPortfolios[0].skills && designerPortfolios[0].skills.length > 0 && (
+                              <div>
+                                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Skills</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {designerPortfolios[0].skills.map((skill, idx) => (
+                                    <span key={idx} className="text-xs bg-teal-100 text-teal-700 px-2.5 py-1 rounded-full font-medium">
+                                      {skill}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {designerPortfolios[0].social_links && designerPortfolios[0].social_links.length > 0 && (
+                              <div>
+                                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Connect</p>
+                                <div className="flex flex-wrap gap-2">
+                                  {designerPortfolios[0].social_links.map((link, idx) => (
+                                    <a
+                                      key={idx}
+                                      href={link.url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-xs bg-white border border-teal-300 text-teal-700 px-2.5 py-1 rounded-full font-medium hover:bg-teal-50 transition-colors"
+                                    >
+                                      {link.platform}
+                                    </a>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
 
                       {/* Image Gallery */}
                       {designerImages.length > 0 ? (

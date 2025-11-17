@@ -3,23 +3,7 @@ import { useNavigate, Link } from "react-router-dom";
 import { useClerk, useUser } from "@clerk/clerk-react";
 import { motion } from "framer-motion";
 import {
-  Home,
-  Clock,
-  Settings,
-  LogOut,
-  Palette,
-  Images,
-  Bell as BellIcon,
-  Users,
-  FileText,
-  BookImage,
-  BarChart,
-  Layers,
-  Box,
-  CircleUser,
-  BookText,
-  Menu,
-  X,
+  Home, Clock, LogOut, Palette, Images, Bell as BellIcon, Users, FileText, BookImage, BarChart, Layers, Box, CircleUser, BookText, Menu, X,
 } from "lucide-react";
 import logoIcon from "../images/TechShirt.png";
 import { useUnreadNotificationCount } from "../hooks/UnreadNotificationsCount";
@@ -93,7 +77,7 @@ const Sidebar: React.FC = () => {
           { name: "My Orders", icon: <BookText />, route: "/client/designs" },
           { name: "Browse Galleries", icon: <BookImage />, route: "/client/browse" },
           { name: "Notifications", icon: <BellIcon />, route: "/notifications" },
-          { name: "Settings", icon: <Settings />, route: "/client/settings" },
+          { name: "Profile", icon: <CircleUser />, route: "/client/settings" },
         ];
     }
   };

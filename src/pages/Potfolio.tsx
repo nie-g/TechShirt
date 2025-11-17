@@ -203,38 +203,44 @@ const Portfolio: React.FC = () => {
       <DynamicSidebar />
       <div className="flex-1 flex flex-col">
         <ClientNavbar />
-        <main className="p-6 md:p-8 overflow-auto">
-          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-5xl space-y-6">
-            
+        <main className="p-3 sm:p-6 md:p-8 overflow-auto">
+          <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="max-w-5xl space-y-4 sm:space-y-6">
+
             {/* === Account Info === */}
-            <div className="p-4 bg-white rounded-2xl shadow-md flex items-center gap-6">
-              <img src={user?.imageUrl} alt="Profile" className="w-20 h-20 rounded-full border-2 border-gray-200" />
-              <div>
-                <p className="text-gray-600 text-sm">{dbUser.email}</p>
-                <h2 className="text-lg font-semibold text-gray-900">{dbUser.firstName} {dbUser.lastName}</h2>
-              </div>
-              <button onClick={() => openUserProfile()} className="ml-auto flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-100 transition">
-                <span className="text-sm font-medium text-gray-600">Manage Account</span>
-                <Settings className="w-5 h-5 text-gray-600" />
+            <div className="p-3 sm:p-4 bg-white rounded-2xl shadow-md relative">
+              <button type="button" onClick={() => openUserProfile()} className="absolute top-3 right-3 sm:static flex items-center gap-2 px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg hover:bg-gray-100 transition text-xs sm:text-sm whitespace-nowrap">
+                <span className="font-medium text-gray-600">Manage</span>
+                <Settings className="hidden sm:block w-5 h-5 text-gray-600" />
+                <Settings className="sm:hidden w-4 h-4 text-gray-600" />
               </button>
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-6">
+                <img src={user?.imageUrl} alt="Profile" className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-gray-200" />
+                <div className="flex-1">
+                  <p className="text-gray-600 text-xs sm:text-sm">{dbUser.email}</p>
+                  <h2 className="text-base sm:text-lg font-semibold text-gray-900">{dbUser.firstName} {dbUser.lastName}</h2>
+                </div>
+              </div>
             </div>
 
             {/* === Contact Info === */}
-            <div className="p-6 bg-white rounded-2xl shadow-md">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <Phone size={18} strokeWidth={2.5} className="text-gray-700" />
+            <div className="p-3 sm:p-6 bg-white rounded-2xl shadow-md relative">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3 sm:mb-4">
+                <h2 className="text-base sm:text-lg font-semibold flex items-center gap-2 pr-12 sm:pr-0">
+                  <Phone className="hidden sm:block w-[18px] h-[18px] text-gray-700" strokeWidth={2.5} />
+                  <Phone className="sm:hidden w-4 h-4 text-gray-700" strokeWidth={2.5} />
                   Contact Information
                 </h2>
                 {!editContact && (
-                  <div>
+                  <div className="absolute top-3 right-3 sm:static">
                     {isContactInfoEmpty ? (
-                      <button onClick={() => setEditContact(true)} className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm transition">
-                        Set up your Contact Information
+                      <button type="button" onClick={() => setEditContact(true)} className="w-auto bg-teal-500 hover:bg-teal-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm transition">
+                        Set up
                       </button>
                     ) : (
-                      <button onClick={() => setEditContact(true)} className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg text-sm">
-                        <Edit size={16} /> Edit
+                      <button type="button" onClick={() => setEditContact(true)} className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm">
+                        <Edit className="hidden sm:block w-4 h-4" />
+                        <Edit className="sm:hidden w-3.5 h-3.5" />
+                        Edit
                       </button>
                     )}
                   </div>
@@ -243,41 +249,44 @@ const Portfolio: React.FC = () => {
 
               {!editContact ? (
                 isContactInfoEmpty ? (
-                  <p className="text-gray-500 italic">Contact information not set up yet.</p>
+                  <p className="text-gray-500 italic text-sm">Contact information not set up yet.</p>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-1 sm:space-y-2 text-sm sm:text-base">
                     <p className="text-gray-700"><span className="font-medium">Phone:</span> {designerProfile?.contact_number}</p>
                     <p className="text-gray-700"><span className="font-medium">Address:</span> {designerProfile?.address}</p>
                   </div>
                 )
               ) : (
-                <div className="space-y-3">
-                  <input type="text" placeholder="Contact Number" value={designerForm.contact_number} onChange={(e) => setDesignerForm({ ...designerForm, contact_number: e.target.value })} className="w-full border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2" />
-                  <input type="text" placeholder="Address" value={designerForm.address} onChange={(e) => setDesignerForm({ ...designerForm, address: e.target.value })} className="w-full border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2" />
-                  <div className="flex justify-end gap-3">
-                    <button onClick={() => setEditContact(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition">Cancel</button>
-                    <button onClick={saveContactInfo} className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg">Save</button>
+                <div className="space-y-2 sm:space-y-3">
+                  <input type="text" placeholder="Contact Number" value={designerForm.contact_number} onChange={(e) => setDesignerForm({ ...designerForm, contact_number: e.target.value })} className="w-full border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2 text-sm" />
+                  <input type="text" placeholder="Address" value={designerForm.address} onChange={(e) => setDesignerForm({ ...designerForm, address: e.target.value })} className="w-full border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2 text-sm" />
+                  <div className="flex justify-end gap-2 sm:gap-3">
+                    <button type="button" onClick={() => setEditContact(false)} className="px-3 sm:px-4 py-1.5 sm:py-2 border rounded-lg hover:bg-gray-50 transition text-sm">Cancel</button>
+                    <button type="button" onClick={saveContactInfo} className="px-3 sm:px-4 py-1.5 sm:py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg text-sm">Save</button>
                   </div>
                 </div>
               )}
             </div>
 
             {/* === Portfolio Info === */}
-            <div className="p-6 bg-white rounded-2xl shadow-md">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-semibold flex items-center gap-2">
-                  <NotebookPenIcon size={18} strokeWidth={2.5} className="text-gray-700" />
+            <div className="p-3 sm:p-6 bg-white rounded-2xl shadow-md relative">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-0 mb-3 sm:mb-4">
+                <h2 className="text-base sm:text-lg font-semibold flex items-center gap-2 pr-12 sm:pr-0">
+                  <NotebookPenIcon className="hidden sm:block w-[18px] h-[18px] text-gray-700" strokeWidth={2.5} />
+                  <NotebookPenIcon className="sm:hidden w-4 h-4 text-gray-700" strokeWidth={2.5} />
                   Portfolio
                 </h2>
                 {!editPortfolio && (
-                  <div>
+                  <div className="absolute top-3 right-3 sm:static">
                     {isPortfolioEmpty ? (
-                      <button onClick={() => setEditPortfolio(true)} className="bg-teal-500 hover:bg-teal-600 text-white px-4 py-2 rounded-lg text-sm transition">
-                        Set up your Portfolio
+                      <button type="button" onClick={() => setEditPortfolio(true)} className="w-auto bg-teal-500 hover:bg-teal-600 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm transition">
+                        Set up
                       </button>
                     ) : (
-                      <button onClick={() => setEditPortfolio(true)} className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-4 py-2 rounded-lg text-sm">
-                        <Edit size={16} /> Edit
+                      <button type="button" onClick={() => setEditPortfolio(true)} className="flex items-center gap-2 bg-gray-100 hover:bg-gray-200 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm">
+                        <Edit className="hidden sm:block w-4 h-4" />
+                        <Edit className="sm:hidden w-3.5 h-3.5" />
+                        Edit
                       </button>
                     )}
                   </div>
@@ -286,16 +295,16 @@ const Portfolio: React.FC = () => {
 
               {!editPortfolio ? (
                 isPortfolioEmpty ? (
-                  <p className="text-gray-500 italic">Portfolio not set up yet.</p>
+                  <p className="text-gray-500 italic text-sm">Portfolio not set up yet.</p>
                 ) : (
-                  <div className="space-y-3 text-gray-700">
-                    <p><span className="font-medium">Portfolio Title:</span> {currentPortfolio?.title || "Untitled"}</p>
+                  <div className="space-y-2 sm:space-y-3 text-gray-700 text-sm sm:text-base">
+                    <p><span className="font-medium">Title:</span> {currentPortfolio?.title || "Untitled"}</p>
                     <p><span className="font-medium">Description:</span> {currentPortfolio?.description || "No description yet"}</p>
                     <p><span className="font-medium">Specialization:</span> {currentPortfolio?.specialization || "Not specified"}</p>
                     <p><span className="font-medium">Skills:</span> {currentPortfolio?.skills?.join(", ") || "No skills added"}</p>
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-1 sm:gap-2 mt-1 sm:mt-2">
                       {currentPortfolio?.social_links?.map((link, idx) => (
-                        <a key={idx} href={link.url} target="_blank" className="text-sm bg-teal-50 text-teal-700 px-3 py-1 rounded-full hover:bg-teal-100 transition">
+                        <a key={idx} href={link.url} target="_blank" rel="noopener noreferrer" className="text-xs sm:text-sm bg-teal-50 text-teal-700 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full hover:bg-teal-100 transition">
                           {link.platform}
                         </a>
                       ))}
@@ -303,24 +312,28 @@ const Portfolio: React.FC = () => {
                   </div>
                 )
               ) : (
-                <div className="space-y-3">
-                  <input type="text" placeholder="Portfolio Title *" value={portfolioForm.title} onChange={(e) => setPortfolioForm({ ...portfolioForm, title: e.target.value })} className="w-full border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2" required />
-                  <textarea placeholder="Description *" value={portfolioForm.description} onChange={(e) => setPortfolioForm({ ...portfolioForm, description: e.target.value })} className="w-full border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2" required />
-                  <input type="text" placeholder="Specialization *" value={portfolioForm.specialization} onChange={(e) => setPortfolioForm({ ...portfolioForm, specialization: e.target.value })} className="w-full border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2" required />
+                <div className="space-y-2 sm:space-y-3">
+                  <input type="text" placeholder="Portfolio Title *" value={portfolioForm.title} onChange={(e) => setPortfolioForm({ ...portfolioForm, title: e.target.value })} className="w-full border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2 text-sm" required />
+                  <textarea placeholder="Description *" value={portfolioForm.description} onChange={(e) => setPortfolioForm({ ...portfolioForm, description: e.target.value })} className="w-full border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2 text-sm min-h-20" required />
+                  <input type="text" placeholder="Specialization *" value={portfolioForm.specialization} onChange={(e) => setPortfolioForm({ ...portfolioForm, specialization: e.target.value })} className="w-full border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2 text-sm" required />
 
                   {/* Skills with Add/Remove */}
                   <div>
-                    <label className="font-medium text-sm text-gray-700">Skills *</label>
-                    <div className="flex gap-2 mt-2">
-                      <input type="text" placeholder="Enter a skill" value={newSkill} onChange={(e) => setNewSkill(e.target.value)} className="flex-1 border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2" />
-                      <button aria-label="Add skill" type="button" onClick={addSkill} className="px-3 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600"><Plus size={16} /></button>
+                    <label className="font-medium text-xs sm:text-sm text-gray-700">Skills *</label>
+                    <div className="flex gap-1 sm:gap-2 mt-1 sm:mt-2">
+                      <input type="text" placeholder="Enter a skill" value={newSkill} onChange={(e) => setNewSkill(e.target.value)} className="flex-1 border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2 text-sm" />
+                      <button aria-label="Add skill" type="button" onClick={addSkill} className="px-2 sm:px-3 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600">
+                        <Plus className="hidden sm:block w-4 h-4" />
+                        <Plus className="sm:hidden w-3.5 h-3.5" />
+                      </button>
                     </div>
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-1 sm:gap-2 mt-1 sm:mt-2">
                       {portfolioForm.skills.map((skill, idx) => (
-                        <span key={idx} className="flex items-center gap-1 bg-gray-50 text-gray-500 border border-gray-700 px-3 py-1 rounded-full text-sm">
+                        <span key={idx} className="flex items-center gap-1 bg-gray-50 text-gray-500 border border-gray-700 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm">
                           {skill}
-                          <button aria-label="Remove skill" type="button" onClick={() => removeSkill(skill)} className="ml-1 text-gray -500 hover:text-gray-700">
-                            <X size={14} />
+                          <button aria-label="Remove skill" type="button" onClick={() => removeSkill(skill)} className="ml-1 text-gray-500 hover:text-gray-700">
+                            <X className="hidden sm:block w-3.5 h-3.5" />
+                            <X className="sm:hidden w-3 h-3" />
                           </button>
                         </span>
                       ))}
@@ -328,17 +341,17 @@ const Portfolio: React.FC = () => {
                   </div>
                   {/* Social Links with Add/Remove */}
                   <div>
-                    <label className="font-medium text-sm text-gray-700">Social Links</label>
+                    <label className="font-medium text-xs sm:text-sm text-gray-700">Social Links</label>
 
-                    <div className="flex gap-2 mt-2">
+                    <div className="flex flex-col sm:flex-row gap-1 sm:gap-2 mt-1 sm:mt-2">
                       <input
                         type="text"
-                        placeholder="Platform (e.g. LinkedIn, Behance)"
+                        placeholder="Platform"
                         value={newSocial.platform}
                         onChange={(e) =>
                           setNewSocial({ ...newSocial, platform: e.target.value })
                         }
-                        className="flex-1 border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2"
+                        className="flex-1 border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2 text-sm"
                       />
                       <input
                         type="text"
@@ -347,23 +360,24 @@ const Portfolio: React.FC = () => {
                         onChange={(e) =>
                           setNewSocial({ ...newSocial, url: e.target.value })
                         }
-                        className="flex-1 border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2"
+                        className="flex-1 border border-gray-300 focus:ring-2 focus:ring-teal-400 rounded-lg px-3 py-2 text-sm"
                       />
                       <button
                         aria-label="Add social link"
                         type="button"
                         onClick={addSocialLink}
-                        className="px-3 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600"
+                        className="px-2 sm:px-3 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600"
                       >
-                        <Plus size={16} />
+                        <Plus className="hidden sm:block w-4 h-4" />
+                        <Plus className="sm:hidden w-3.5 h-3.5" />
                       </button>
                     </div>
 
-                    <div className="flex flex-wrap gap-2 mt-2">
+                    <div className="flex flex-wrap gap-1 sm:gap-2 mt-1 sm:mt-2">
                       {portfolioForm.social_links.map((link, idx) => (
                         <span
                           key={idx}
-                          className="flex items-center gap-2 bg-gray-50 text-gray-500 border border-gray-700 px-3 py-1 rounded-full text-sm"
+                          className="flex items-center gap-1 sm:gap-2 bg-gray-50 text-gray-500 border border-gray-700 px-2 sm:px-3 py-0.5 sm:py-1 rounded-full text-xs sm:text-sm"
                         >
                           <a
                             href={link.url}
@@ -379,7 +393,8 @@ const Portfolio: React.FC = () => {
                             onClick={() => removeSocialLink(idx)}
                             className="ml-1 text-gray-500 hover:text-gray-700"
                           >
-                            <X size={14} />
+                            <X className="hidden sm:block w-3.5 h-3.5" />
+                            <X className="sm:hidden w-3 h-3" />
                           </button>
                         </span>
                       ))}
@@ -387,9 +402,9 @@ const Portfolio: React.FC = () => {
                   </div>
 
 
-                  <div className="flex justify-end gap-3">
-                    <button onClick={() => setEditPortfolio(false)} className="px-4 py-2 border rounded-lg hover:bg-gray-50 transition">Cancel</button>
-                    <button onClick={savePortfolio} className="px-4 py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg">Save</button>
+                  <div className="flex justify-end gap-2 sm:gap-3 pt-2">
+                    <button type="button" onClick={() => setEditPortfolio(false)} className="px-3 sm:px-4 py-1.5 sm:py-2 border rounded-lg hover:bg-gray-50 transition text-sm">Cancel</button>
+                    <button type="button" onClick={savePortfolio} className="px-3 sm:px-4 py-1.5 sm:py-2 bg-teal-500 hover:bg-teal-600 text-white rounded-lg text-sm">Save</button>
                   </div>
                 </div>
               )}
