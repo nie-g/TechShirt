@@ -101,6 +101,17 @@ export const getRequestsByClient = query({
       requests.map(async (req) => {
         const clientDoc = req.client_id ? await ctx.db.get(req.client_id) : null;
 
+        // Fetch the design record to get the designer
+        const design = await ctx.db
+          .query("design")
+          .withIndex("by_request", (q) => q.eq("request_id", req._id))
+          .first();
+
+        let designerDoc = null;
+        if (design && design.designer_id) {
+          designerDoc = await ctx.db.get(design.designer_id);
+        }
+
         const sizes = await ctx.db
           .query("request_sizes")
           .withIndex("by_request", (q) => q.eq("request_id", req._id))
@@ -116,6 +127,10 @@ export const getRequestsByClient = query({
         return {
           ...req,
           client: formatClient(clientDoc),
+          designer: designerDoc ? {
+            full_name: `${designerDoc.firstName || ""} ${designerDoc.lastName || ""}`.trim(),
+            email: designerDoc.email,
+          } : null,
           sizes: sizeDetails,
         };
       })

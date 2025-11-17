@@ -471,7 +471,7 @@ const handleReferenceImageUpload = async (
             {printPricing.map((p: any) => (
               <option key={p._id.toString()} value={p.print_type}>
                 {p.print_type}{" "}
-                {p.recommended_for ? `– for ${p.recommended_for}` : ""}
+                {p.recommended_for ? `– recommended for ${p.recommended_for}` : ""}
               </option>
             ))}
           </select>
