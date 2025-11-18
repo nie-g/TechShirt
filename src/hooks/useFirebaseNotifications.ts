@@ -57,21 +57,14 @@ export function useFirebaseNotifications() {
       const { notification, data } = payload;
 
       if (notification) {
-        // Show toast notification
+        // Show toast notification only (browser notification is handled by service worker)
         toast.success(`${notification.title}: ${notification.body}`, {
           duration: 5000,
           icon: "🔔",
         });
 
-        // Optional: Show browser notification
-        if (Notification.permission === "granted") {
-          new Notification(notification.title || "Notification", {
-            body: notification.body,
-            icon: "/logo192.png",
-            badge: "/logo192.png",
-            data: data,
-          });
-        }
+        // Note: Browser notification is already handled by the service worker (firebase-messaging-sw.js)
+        // Do NOT create a duplicate notification here to avoid showing the same notification twice
       }
     });
 

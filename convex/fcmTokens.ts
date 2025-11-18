@@ -10,22 +10,23 @@ export const saveFcmToken = mutation({
     // Convert Convex ID to string for storage
     const userIdStr = userId.toString();
 
-    // Check if this exact token already exists for this user
-    const existing = await ctx.db.query("fcmTokens")
+    // Check if user already has ANY FCM token
+    const existingToken = await ctx.db.query("fcmTokens")
       .withIndex("by_userId", (q: any) => q.eq("userId", userIdStr))
-      .filter((q: any) => q.eq(q.field("token"), token))
       .first();
 
-    // Only insert if this token doesn't already exist for this user
-    if (!existing) {
+    // Only insert if user doesn't already have a token
+    if (!existingToken) {
       console.log(`💾 Saving FCM token for user ${userIdStr}`);
       await ctx.db.insert("fcmTokens", {
         userId: userIdStr,
         token,
       });
       console.log(`✅ FCM token saved successfully`);
+      return { success: true, message: "FCM token saved" };
     } else {
-      console.log(`⚠️ FCM token already exists for user ${userIdStr}`);
+      console.log(`⚠️ User ${userIdStr} already has an FCM token. Cannot create another one.`);
+      return { success: false, message: "User already has an FCM token" };
     }
   },
 });

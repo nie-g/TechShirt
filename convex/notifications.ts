@@ -46,20 +46,21 @@ export const createNotification = mutation({
       console.log(`📱 Found ${fcmTokens.length} FCM tokens for user ${userId}`);
 
       if (fcmTokens.length > 0) {
-        // Send push notification to all user's devices
-        const tokens = fcmTokens.map((t: any) => t.token);
-        console.log(`🚀 Sending push notification to ${tokens.length} devices`);
+        // Send push notification to each device individually
+        for (const fcmTokenRecord of fcmTokens) {
+          console.log(`🚀 Sending push notification to device with token: ${fcmTokenRecord.token}`);
 
-        // Schedule action to send push notifications
-        await ctx.scheduler.runAfter(0, api.sendPushNotification.sendPushNotificationToMultipleUsers, {
-          fcmTokens: tokens,
-          title: title || "🔔 TechShirt Notification",
-          body: message,
-          data: {
-            notificationId: userId.toString(),
-            type: type || "notification",
-          },
-        });
+          // Schedule action to send push notification to single device
+          await ctx.scheduler.runAfter(0, api.sendPushNotification.sendPushNotification, {
+            fcmToken: fcmTokenRecord.token,
+            title: title || "🔔 TechShirt Notification",
+            body: message,
+            data: {
+              notificationId: userId.toString(),
+              type: type || "notification",
+            },
+          });
+        }
       } else {
         console.log(`⚠️ No FCM tokens found for user ${userId}`);
       }
