@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import { motion } from "framer-motion";
-import { FileSpreadsheet, FileText, Filter } from "lucide-react";
+import { FileSpreadsheet, FileText, Filter, ChevronDown } from "lucide-react";
 
 import { exportRequestToPDF } from "../utils/exportRequestToPdf";
 import { exportRequestToExcel } from "../utils/exportRequestToExcel";
@@ -12,6 +12,7 @@ const AdminRequestReports: React.FC = () => {
   const requests = useQuery(api.design_requests.listAllRequests) || [];
 
   const [statusFilter, setStatusFilter] = useState("all");
+  const [showMobileFilter, setShowMobileFilter] = useState(false);
 
   // ✅ Filter requests by status
   const filteredRequests = useMemo(() => {
@@ -42,14 +43,11 @@ const AdminRequestReports: React.FC = () => {
         {/* Header */}
         <div className="mb-4">
           <div className="p-6 bg-white rounded-lg border border-slate-50 shadow-md w-full">
+            {/* Header Row */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
               <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">
-                  Design Request Reports
-                </h1>
-                <p className="text-gray-600">
-                  View and export all client design requests
-                </p>
+                <h1 className="text-xl sm:text-2xl font-bold text-gray-900">Design Request Reports</h1>
+                <p className="text-gray-600">View and export all client design requests</p>
               </div>
 
               {/* Export Buttons */}
@@ -79,41 +77,98 @@ const AdminRequestReports: React.FC = () => {
               </div>
             </div>
 
-            {/* Filters */}
-            <div className="mt-6 flex flex-wrap gap-3 items-center">
-              <div className="flex items-center gap-2 text-gray-700">
-                <Filter size={16} />
-                <span className="text-sm font-medium">Filter by Status:</span>
-              </div>
-              {["all", "pending", "approved", "declined", "cancelled"].map(
-                (status) => (
-                  <button
-                    key={status}
-                    onClick={() => setStatusFilter(status)}
-                    className={`px-3 py-1 text-sm rounded-full border transition ${
-                      statusFilter === status
-                        ? "bg-teal-500 text-white border-teal-500"
-                        : "border-gray-300 text-gray-600 hover:bg-gray-100"
-                    }`}
+            {/* Filters - Dropdown on mobile, buttons on desktop */}
+            <div className="mt-6">
+              {/* Mobile Dropdown */}
+              <div className="md:hidden relative">
+                <button
+                  type="button"
+                  onClick={() => setShowMobileFilter(!showMobileFilter)}
+                  className="w-full flex items-center justify-between gap-2 px-3 py-2 text-sm border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition"
+                >
+                  <div className="flex items-center gap-2">
+                    <Filter size={16} />
+                    <span className="font-medium">
+                      {statusFilter === "all" ? "All Statuses" : statusFilter.charAt(0).toUpperCase() + statusFilter.slice(1)}
+                    </span>
+                  </div>
+                  <ChevronDown size={16} className={`transition-transform ${showMobileFilter ? "rotate-180" : ""}`} />
+                </button>
+                {showMobileFilter && (
+                  <motion.div
+                    className="absolute top-full left-0 right-0 mt-2 bg-white border border-gray-300 rounded-lg shadow-lg z-10"
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -10 }}
                   >
-                    {status.charAt(0).toUpperCase() + status.slice(1)}
-                  </button>
-                )
-              )}
+                    {["all", "pending", "approved", "declined", "cancelled"].map((status) => (
+                      <button
+                        key={status}
+                        type="button"
+                        onClick={() => {
+                          setStatusFilter(status);
+                          setShowMobileFilter(false);
+                        }}
+                        className={`w-full text-left px-4 py-2 text-sm transition ${
+                          statusFilter === status
+                            ? "bg-teal-50 text-teal-600 font-medium"
+                            : "text-gray-700 hover:bg-gray-50"
+                        }`}
+                      >
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </button>
+                    ))}
+                  </motion.div>
+                )}
+              </div>
+
+              {/* Desktop Buttons */}
+              <div className="hidden md:flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4">
+                <div className="flex items-center gap-2 text-gray-700 whitespace-nowrap">
+                  <Filter size={16} />
+                  <span className="text-xs sm:text-sm font-medium">Filter:</span>
+                </div>
+                <div className="flex gap-2">
+                  {["all", "pending", "approved", "declined", "cancelled"].map(
+                    (status) => (
+                      <button
+                        key={status}
+                        type="button"
+                        onClick={() => setStatusFilter(status)}
+                        className={`px-3 py-1 text-xs sm:text-sm rounded-full border transition whitespace-nowrap ${
+                          statusFilter === status
+                            ? "bg-teal-500 text-white border-teal-500"
+                            : "border-gray-300 text-gray-600 hover:bg-gray-100"
+                        }`}
+                      >
+                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                      </button>
+                    )
+                  )}
+                </div>
+              </div>
             </div>
 
-            {/* Stats */}
-            <div className="mt-6 text-sm text-gray-600">
-              Total Requests:{" "}
-              <span className="font-semibold text-gray-900">
-                {formattedData.length}
-              </span>
+            {/* Stats Summary */}
+            <div className="mt-6 grid sm:grid-cols-2 gap-3 text-sm text-gray-600">
+              <div>
+                Total Requests:{" "}
+                <span className="font-semibold text-gray-900">
+                  {formattedData.length}
+                </span>
+              </div>
+              <div>
+                Approved:{" "}
+                <span className="font-semibold text-teal-600">
+                  {formattedData.filter((r: any) => r.status === "approved").length}
+                </span>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Table Section */}
-        <div className="bg-white rounded-lg border border-slate-50 shadow-md overflow-hidden w-full">
+        <div className="bg-white rounded-lg border border-slate-50 shadow-md overflow-x-auto w-full">
           {formattedData.length === 0 ? (
             <div className="p-8 text-center">
               <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
@@ -200,18 +255,13 @@ const AdminRequestReports: React.FC = () => {
               </div>
 
               {/* Mobile Cards */}
-              <div className="md:hidden grid grid-cols-1 gap-4 p-4">
+              <div className="md:hidden space-y-4 p-4">
                 {formattedData.map((r, idx) => (
-                  <div
-                    key={idx}
-                    className="bg-white border rounded-lg p-4 shadow-sm"
-                  >
-                    <div className="flex justify-between items-start mb-2">
-                      <div className="text-sm font-medium text-gray-900">
-                        Request #{idx + 1}
-                      </div>
+                  <div key={idx} className="bg-white border rounded-lg p-4 shadow-sm">
+                    <div className="flex justify-between items-start mb-2 gap-2">
+                      <div className="text-sm font-medium text-gray-900">Request #{idx + 1}</div>
                       <span
-                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                        className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium whitespace-nowrap flex-shrink-0 ${
                           r.status === "approved"
                             ? "bg-green-100 text-green-800"
                             : r.status === "pending"
@@ -224,41 +274,31 @@ const AdminRequestReports: React.FC = () => {
                         {r.status}
                       </span>
                     </div>
-                    <div className="space-y-1 text-sm text-gray-600">
-                      <div>
-                        <span className="font-medium">Client:</span> {r.client}
-                      </div>
-                      <div>
-                        <span className="font-medium">Title:</span> {r.title}
-                      </div>
-                      <div>
-                        <span className="font-medium">T-shirt Type:</span>{" "}
-                        {r.tshirtType}
-                      </div>
-                      <div>
-                        <span className="font-medium">Print Type:</span>{" "}
-                        {r.printType}
-                      </div>
-                      <div>
-                        <span className="font-medium">Date:</span> {r.createdAt}
-                      </div>
+                    <div className="space-y-1 text-sm text-gray-600 mb-3">
+                      <div className="break-words"><span className="font-medium">Client:</span> {r.client}</div>
+                      <div className="break-words"><span className="font-medium">Title:</span> {r.title}</div>
+                      <div className="break-words"><span className="font-medium">T-shirt Type:</span> {r.tshirtType}</div>
+                      <div className="break-words"><span className="font-medium">Print Type:</span> {r.printType}</div>
+                      <div className="break-words"><span className="font-medium">Date:</span> {r.createdAt}</div>
                     </div>
-                    <div className="flex space-x-2 mt-3">
+                    <div className="flex gap-2">
                       <button
+                        type="button"
                         onClick={() =>
                           exportRequestToPDF([r], `Request_${idx + 1}`)
                         }
-                        className="flex-1 px-3 py-2 text-sm bg-cyan-600 text-white rounded hover:bg-cyan-700 transition"
+                        className="flex-1 px-3 py-2 text-xs sm:text-sm bg-cyan-600 text-white rounded hover:bg-cyan-700 transition"
                       >
-                        PDF
+                        Export PDF
                       </button>
                       <button
+                        type="button"
                         onClick={() =>
                           exportRequestToExcel([r], `Request_${idx + 1}`)
                         }
-                        className="flex-1 px-3 py-2 text-sm bg-teal-600 text-white rounded hover:bg-teal-700 transition"
+                        className="flex-1 px-3 py-2 text-xs sm:text-sm bg-teal-600 text-white rounded hover:bg-teal-700 transition"
                       >
-                        Excel
+                        Export Excel
                       </button>
                     </div>
                   </div>

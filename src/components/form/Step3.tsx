@@ -69,7 +69,7 @@ const Step3: React.FC<Step3Props> = ({
     "V-neck": "tshirt",      // V-neck is still a tshirt in schema
     "Polo": "polo",
     "Jersey": "jersey",
-    "Long Sleeves": "long_sleeve",
+    "Long Sleeves": "long sleeves",
   };
 
   const filteredShirtSizes = useMemo(() => {

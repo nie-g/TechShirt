@@ -24,6 +24,7 @@ import Register from './pages/Register';
 import RegisterDesigner from './pages/RegisterDesigner';
 import RegisterAdmin from './pages/RegisterAdmin';
 import Login from './pages/Login';
+import ForgotPassword from './pages/ForgotPassword';
 import Reports from './pages/AdminReports';
 import AdminOrdersReport from './pages/admin/SalesReports';
 import FeaturesPage from './pages/FeaturesPage';
@@ -55,6 +56,7 @@ function App() {
         <Route path="/register/designer" element={<RegisterDesigner />} />
         <Route path="/register/admin" element={<RegisterAdmin />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/forgot-password" element={<ForgotPassword />} />
         <Route path="/pricing" element={<PricingPage />} />
         <Route path="/features" element={<FeaturesPage />} />
         <Route path="/about" element={<AboutPage />} />

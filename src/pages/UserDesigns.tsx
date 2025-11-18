@@ -300,16 +300,16 @@ const UserDesigns: React.FC = () => {
 
                         return (
                           <tr key={d._id} className="hover:bg-gray-50">
-                            <td className="px-6 py-4 break-words">
+                            <td className="px-4 py-4 break-words">
                               {requestsMap[d.request_id]?.request_title ?? "Loading..."}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
+                            <td className="px-4 py-4 whitespace-nowrap">
                               <StatusBadge status={d.status} />
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                            <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
                               {formatTimeAgo(d.created_at ?? d._creationTime)}
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
+                            <td className="px-4 py-4 whitespace-nowrap">
                               <span className={`text-sm font-medium px-2 py-1 rounded ${
                                 isOverdue
                                   ? 'bg-red-100 text-red-800'
@@ -324,14 +324,14 @@ const UserDesigns: React.FC = () => {
                               <button
                                 type="button"
                                 onClick={() => navigate(`/client/seeDesign/${d._id}`)}
-                                className="px-3 py-1 text-sm bg-teal-500 text-white rounded hover:bg-teal-700 transition"
+                                className="px-2 py-2 text-sm font-medium bg-teal-500 text-white rounded-lg hover:bg-teal-600 active:bg-teal-700 transition-colors duration-200 shadow-sm hover:shadow-md"
                               >
                                 See Design
                               </button>
                               <button
                                 type="button"
                                 onClick={() => openModal(d)}
-                                className="px-3 py-1 text-sm bg-cyan-600 text-white rounded hover:bg-indigo-600 transition"
+                                className="px-2 py-2 text-sm font-medium bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 active:bg-cyan-800 transition-colors duration-200 shadow-sm hover:shadow-md"
                               >
                                 See Order Details
                               </button>
@@ -380,14 +380,14 @@ const UserDesigns: React.FC = () => {
                           <button
                             type="button"
                             onClick={() => navigate(`/client/seeDesign/${d._id}`)}
-                            className="flex-1 px-3 py-1 text-sm bg-teal-500 text-white rounded hover:bg-teal-700 transition"
+                            className="flex-1 px-4 py-2 text-sm font-medium bg-teal-500 text-white rounded-lg hover:bg-teal-600 active:bg-teal-700 transition-colors duration-200 shadow-sm hover:shadow-md"
                           >
                             See Design
                           </button>
                           <button
                             type="button"
                             onClick={() => openModal(d)}
-                            className="flex-1 px-3 py-1 text-sm bg-cyan-600 text-white rounded hover:bg-indigo-600 transition"
+                            className="flex-1 px-4 py-2 text-sm font-medium bg-cyan-600 text-white rounded-lg hover:bg-cyan-700 active:bg-cyan-800 transition-colors duration-200 shadow-sm hover:shadow-md"
                           >
                             View Details
                           </button>

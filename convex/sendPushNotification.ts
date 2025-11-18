@@ -74,10 +74,6 @@ export const sendPushNotification = action({
       const accessToken = await getAccessToken(serviceAccount);
 
       const message = {
-        notification: {
-          title,
-          body,
-        },
         webpush: {
           notification: {
             title,
@@ -172,10 +168,6 @@ export const sendPushNotificationToMultipleUsers = action({
     for (const token of fcmTokens) {
       try {
         const message = {
-          notification: {
-            title,
-            body,
-          },
           webpush: {
             notification: {
               title,

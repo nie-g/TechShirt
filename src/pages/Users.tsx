@@ -128,6 +128,7 @@ const Users: React.FC = () => {
           {/* ✅ Tabs */}
           <div className="flex gap-2 mb-4">
             <button
+              type="button"
               className={`px-4 py-2 rounded-lg text-sm font-medium ${
                 activeTab === "users" ? " text-teal-600 bg-gray-100" : " text-gray-700 hover:bg-gray-200"
               }`}
@@ -136,6 +137,7 @@ const Users: React.FC = () => {
               Users
             </button>
             <button
+              type="button"
               className={`px-4 py-2 rounded-lg text-sm font-medium ${
                 activeTab === "invites" ? " text-teal-600 bg-gray-100" :  " text-gray-700 hover:bg-gray-200"
               }`}
@@ -154,17 +156,27 @@ const Users: React.FC = () => {
           >
             {activeTab === "users" ? (
               <>
-                {/* Users Search */}
+                {/* Mobile: Users Search */}
                 <input
                   type="text"
                   placeholder="Search by name or email..."
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="md:hidden border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-teal-500"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
 
-                {/* Users Filter + Invite */}
+                {/* Users Filter + Invite + Search (Desktop) */}
                 <div className="flex flex-col sm:flex-row gap-2 w-full">
+                  {/* Desktop Search - 2/3 width */}
+                  <input
+                    type="text"
+                    placeholder="Search by name or email..."
+                    className="hidden md:block border border-gray-300 rounded-lg px-3 py-2 flex-[2] focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+
+                  {/* Filter - 1/3 width */}
                   <select
                     aria-label="Filter users by role"
                     className="border border-gray-300 rounded-lg px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-teal-500"
@@ -188,17 +200,27 @@ const Users: React.FC = () => {
               </>
             ) : (
               <>
-                {/* Invitations Search */}
+                {/* Mobile: Invitations Search */}
                 <input
                   type="text"
                   placeholder="Search by email..."
-                  className="border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-teal-500"
+                  className="md:hidden border border-gray-300 rounded-lg px-3 py-2 w-full focus:outline-none focus:ring-2 focus:ring-teal-500"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
 
-                {/* Invitations Status Filter */}
+                {/* Invitations Status Filter + Search (Desktop) */}
                 <div className="flex flex-col sm:flex-row gap-2 w-full">
+                  {/* Desktop Search - 2/3 width */}
+                  <input
+                    type="text"
+                    placeholder="Search by email..."
+                    className="hidden md:block border border-gray-300 rounded-lg px-3 py-2 flex-[2] focus:outline-none focus:ring-2 focus:ring-teal-500"
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                  />
+
+                  {/* Filter - 1/3 width */}
                   <select
                     aria-label="Filter invitations by status"
                     className="border border-gray-300 rounded-lg px-3 py-2 flex-1 focus:outline-none focus:ring-2 focus:ring-teal-500"

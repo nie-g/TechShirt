@@ -1,5 +1,5 @@
 import React from "react";
-import { Shirt, FileText, Calendar, User, type LucideIcon } from "lucide-react";
+import { Shirt, FileText, Calendar, User, Clock, type LucideIcon } from "lucide-react";
 import { useQuery } from "convex/react";
 import { api } from "../../../convex/_generated/api";
 import type { Id } from "../../../convex/_generated/dataModel";
@@ -35,6 +35,40 @@ interface Props {
   setSelectedDesigner: React.Dispatch<React.SetStateAction<Id<"users"> | "">>;
 }
 
+// Helper function to calculate days from today
+const calculateDaysFromToday = (dateString?: string) => {
+  if (!dateString) return null;
+
+  try {
+    const preferredDate = new Date(dateString);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    preferredDate.setHours(0, 0, 0, 0);
+
+    const diffTime = preferredDate.getTime() - today.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+    return diffDays;
+  } catch {
+    return null;
+  }
+};
+
+// Helper function to format deadline status
+const formatDeadlineStatus = (daysLeft?: number | null) => {
+  if (daysLeft === null || daysLeft === undefined) return "No deadline";
+
+  if (daysLeft < 0) {
+    return `${Math.abs(daysLeft)} days overdue`;
+  } else if (daysLeft === 0) {
+    return "Due today";
+  } else if (daysLeft === 1) {
+    return "Due tomorrow";
+  } else {
+    return `${daysLeft} days left`;
+  }
+};
+
 const RequestDetailsSection: React.FC<Props> = ({
   request,
   userType,
@@ -43,6 +77,17 @@ const RequestDetailsSection: React.FC<Props> = ({
 }) => {
   const designers = useQuery(api.userQueries.listDesigners) || [];
   const isAdmin = userType?.toLowerCase() === "admin";
+
+  // Fetch request sizes
+  const requestSizes = useQuery(api.design_requests.getRequestSizes, {
+    requestId: request._id
+  }) || [];
+
+  // Calculate deadline status
+  const daysLeft = calculateDaysFromToday(request.preferred_date);
+  const deadlineStatus = formatDeadlineStatus(daysLeft);
+  const isOverdue = daysLeft !== null && daysLeft < 0;
+  const isDueSoon = daysLeft !== null && daysLeft >= 0 && daysLeft <= 3;
 
   return (
     <div className="space-y-6">
@@ -68,6 +113,53 @@ const RequestDetailsSection: React.FC<Props> = ({
               : "N/A"
           }
         />
+
+        {/* Deadline */}
+        {request.preferred_date && (
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-gray-100 text-gray-600">
+              <Clock size={18} />
+            </div>
+            <div>
+              <p className="text-sm font-medium text-gray-500">Deadline</p>
+              <div className="flex items-center gap-2 mt-1">
+                <span className="text-base text-gray-900">{new Date(request.preferred_date).toLocaleDateString()}</span>
+                <span className={`text-xs font-medium px-2 py-1 rounded ${
+                  isOverdue
+                    ? 'bg-red-100 text-red-800'
+                    : isDueSoon
+                    ? 'bg-yellow-100 text-yellow-800'
+                    : 'bg-gray-100 text-gray-800'
+                }`}>
+                  {deadlineStatus}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Shirt Sizes */}
+        {requestSizes && requestSizes.length > 0 && (
+          <div className="flex items-start gap-3">
+            <div className="p-2 rounded-lg bg-gray-100 text-gray-600">
+              <Shirt size={18} />
+            </div>
+            <div className="flex-1">
+              <p className="text-sm font-medium text-gray-500">Shirt Sizes</p>
+              <div className="mt-2 space-y-1">
+                {requestSizes.map((size: any, idx: number) => (
+                  <div key={idx} className="text-sm text-gray-900">
+                    {size.size_label && (
+                      <span>
+                        {size.size_label} × {size.quantity}
+                      </span>
+                    )}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Designer Dropdown (admin only) */}
         {isAdmin && (

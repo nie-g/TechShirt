@@ -10,22 +10,30 @@ export default function HeaderSection() {
   const userName = user?.fullName || "Admin";
 
 
-  return (
+ return (
     <div className="p-6 bg-white rounded-2xl shadow-md">
       <h1 className="text-2xl font-bold text-gray-900">Admin Dashboard</h1>
       <p className="text-gray-600">Welcome back, {userName}!</p>
-      <div className="flex flex-wrap mt-6 gap-4">
+
+      {/* Buttons */}
+      <div className="flex mt-6 gap-4 flex-wrap sm:flex-nowrap">
         <button
           onClick={() => navigate('/admin/requests')}
-          className="px-6 py-3 text-teal-500 transition border-2 border-teal-500 rounded-lg hover:bg-teal-500 hover:text-white flex items-center gap-2"
+          className="flex-1 sm:flex-none px-3 sm:px-6 py-2 sm:py-3 text-xs sm:text-sm text-teal-500 border-2 border-teal-500 rounded-lg hover:bg-teal-500 hover:text-white flex items-center justify-center gap-2"
         >
-          <FileText size={18} /> View All Requests
+          <FileText size={18} />
+          <span className="hidden sm:inline">View All Request</span>
+          <span className="sm:hidden">View Request</span>
         </button>
+
+        {/* View All Requests */}
         <button
-          onClick={() => navigate('/admin/users')}
-          className="px-6 py-3 text-teal-500 transition border-2 border-teal-500 rounded-lg hover:bg-teal-500 hover:text-white flex items-center gap-2"
+           onClick={() => navigate('/admin/users')}
+          className="flex-1 sm:flex-none px-3 sm:px-6 py-3 sm:py-3 text-xs sm:text-sm text-teal-500 border-2 border-teal-500 rounded-lg hover:bg-teal-500 hover:text-white flex items-center justify-center gap-2"
         >
-          <Users size={18} /> Manage Users
+          <Users size={18} />
+          <span className="hidden sm:inline">Manage Users</span>
+          <span className="sm:hidden">Manage Users </span>
         </button>
       </div>
     </div>

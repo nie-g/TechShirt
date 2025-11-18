@@ -218,21 +218,21 @@ const UserRequests: React.FC = () => {
                       <tbody className="bg-white divide-y divide-gray-200">
                         {filteredRequests.map((req) => (
                           <tr key={req._id.toString()} className="hover:bg-gray-50 transition-colors">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900">{req.request_title ||"Loading ..."}</div>
+                            <td className="px-6 py-4 max-w-xs">
+                              <div className="text-sm font-medium text-gray-900 truncate">{req.request_title ||"Loading ..."}</div>
                               <div className="text-sm text-gray-500 line-clamp-1">{req.description || "No description"}</div>
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">{req.tshirt_type || "T-shirt"}</td>
-                            <td className="px-6 py-4">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">{req.tshirt_type || "T-shirt"}</td>
+                            <td className="px-6 py-4 whitespace-nowrap">
                               <StatusBadge status={req.status} />
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-700">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
                               {req.designer?.full_name || "Unassigned"}
                             </td>
-                            <td className="px-6 py-4 text-sm text-gray-500">
+                            <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                               {formatTimeAgo(req.created_at ?? req._creationTime)}
                             </td>
-                            <td className="px-6 py-4 text-right space-x-2">
+                            <td className="px-6 py-4 text-right space-x-2 whitespace-nowrap">
                               {req.status === "pending" && (
                                 <button
                                   onClick={() => handleCancelRequest(req._id)}

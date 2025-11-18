@@ -128,6 +128,16 @@ const Login = () => {
                 />
               </div>
 
+              {/* Forgot Password Link */}
+              <div className="text-right">
+                <a
+                  href="/forgot-password"
+                  className="text-sm text-teal-600 hover:text-teal-700 font-medium transition"
+                >
+                  Forgot password?
+                </a>
+              </div>
+
               {error && <p className="text-red-500 text-sm">{error}</p>}
 
             <motion.button

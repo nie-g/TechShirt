@@ -519,6 +519,32 @@ export const rejectDesignRequestWithReason = mutation({
 });
 
 
+// Get request sizes with shirt size details
+export const getRequestSizes = query({
+  args: { requestId: v.id("design_requests") },
+  handler: async (ctx, { requestId }) => {
+    // Fetch all request sizes for this request
+    const reqSizes = await ctx.db
+      .query("request_sizes")
+      .withIndex("by_request", (q) => q.eq("request_id", requestId))
+      .collect();
+
+    // Join with shirt_sizes to get size details
+    const sizes = await Promise.all(
+      reqSizes.map(async (rs) => {
+        const sizeDoc = await ctx.db.get(rs.size_id);
+        return {
+          ...rs,
+          size_label: sizeDoc?.size_label || "Unknown",
+          quantity: rs.quantity,
+        };
+      })
+    );
+
+    return sizes;
+  },
+});
+
 export const getFullRequestDetails = query({
   args: { requestId: v.id("design_requests") },
   handler: async (ctx, { requestId }) => {

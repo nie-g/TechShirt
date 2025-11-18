@@ -40,7 +40,22 @@ const DesignerCanvasPage: React.FC = () => {
     setCanvasModifiedKey((prev) => prev + 1);
   }, []);
    // Determine shirt type: prefer request.tshirt_type, fallback to 'tshirt'
-  
+
+  // Map shirt type names to model keys
+  const normalizeShirtType = (type: string | undefined): string => {
+    if (!type) return "tshirt";
+    const normalized = type.toLowerCase().replace(/\s+/g, "_");
+    const typeMap: Record<string, string> = {
+      "round_neck": "tshirt",
+      "v-neck": "tshirt",
+      "v_neck": "tshirt",
+      "polo": "polo",
+      "jersey": "jersey",
+      "long_sleeves": "long_sleeve",
+      "long sleeves": "long_sleeve",
+    };
+    return typeMap[normalized] || normalized;
+  };
 
   const screenshotRef = useRef<() => string>(() => "");
 
@@ -50,7 +65,7 @@ const DesignerCanvasPage: React.FC = () => {
     request?.designId ? { designId: request.designId } : "skip"
   ) as FabricCanvasRecord | undefined;
 
-  const shirtType = (request?.tshirt_type?.toLowerCase?.() || "tshirt");
+  const shirtType = normalizeShirtType(request?.tshirt_type);
 
 
   // Left panel content

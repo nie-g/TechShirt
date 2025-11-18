@@ -329,26 +329,28 @@ const Designs: React.FC = () => {
                                 {deadlineStatus}
                               </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                onClick={() =>
-                                  navigate(`/designer/canvas/${d.request_id}`, {
-                                    state: { request: { ...requestsMap[d.request_id], designId: d._id } },
-                                  })
-                                }
-                                className="px-3 py-1 text-sm bg-teal-500 text-white rounded hover:bg-teal-700 transition"
-                              >
-                                Open Design
-                              </button>
+                            <td className="px-6 py-4 whitespace-nowrap">
+                              <div className="flex gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    navigate(`/designer/canvas/${d.request_id}`, {
+                                      state: { request: { ...requestsMap[d.request_id], designId: d._id } },
+                                    })
+                                  }
+                                  className="px-3 py-1 text-sm bg-teal-500 text-white rounded hover:bg-teal-700 transition"
+                                >
+                                  Open Design
+                                </button>
 
-                              <button
-                                type="button"
-                                onClick={() => openModal(d)}
-                                className="px-3 py-1 text-sm bg-cyan-600 text-white rounded hover:bg-indigo-600 transition"
-                              >
-                                See Details
-                              </button>
+                                <button
+                                  type="button"
+                                  onClick={() => openModal(d)}
+                                  className="px-3 py-1 text-sm bg-cyan-600 text-white rounded hover:bg-indigo-600 transition"
+                                >
+                                  See Details
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );

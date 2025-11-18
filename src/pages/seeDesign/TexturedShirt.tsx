@@ -60,14 +60,17 @@ const FabricTexturedTShirt: React.FC<Props> = ({
   const drawToTexture = () => {
     if (!fabricCanvas) return;
 
-    // Mirror the fabric canvas horizontally
+    // Mirror the fabric canvas horizontally for tshirt and jersey only, NOT for long_sleeve or polo
+    const shouldFlip = !["long_sleeve", "polo"].includes(shirtType);
     const flippedCanvas = document.createElement("canvas");
     flippedCanvas.width = fabricCanvas.width;
     flippedCanvas.height = fabricCanvas.height;
     const ctx = flippedCanvas.getContext("2d");
     if (ctx) {
-      ctx.translate(fabricCanvas.width, 0);
-      ctx.scale(-1, 1);
+      if (shouldFlip) {
+        ctx.translate(fabricCanvas.width, 0);
+        ctx.scale(-1, 1);
+      }
       ctx.drawImage(fabricCanvas, 0, 0);
     }
 

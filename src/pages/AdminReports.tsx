@@ -20,6 +20,7 @@ import {
   Tooltip,
   Legend,
   TimeScale,
+  Filler,
 } from "chart.js";
 import "chartjs-adapter-date-fns";
 
@@ -30,7 +31,8 @@ ChartJS.register(
   LineElement,
   Tooltip,
   Legend,
-  TimeScale
+  TimeScale,
+  Filler
 );
 
 // Helpers
@@ -264,49 +266,53 @@ const AdminReports: React.FC = () => {
       <DynamicSidebar />
       <div className="flex-1 flex flex-col">
         <AdminNavbar />
-        <main className="p-6 md:p-8 flex-1 overflow-auto">
+        <main className="p-3 sm:p-6 md:p-8 flex-1 overflow-auto">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }}>
-            {/* Sub Navigation */}
-            <div className="flex gap-3 mt-2 mb-6">
+            {/* Sub Navigation - Scrollable on mobile */}
+            <div className="flex gap-2 sm:gap-3 mt-2 mb-6 overflow-x-auto pb-2 -mx-3 sm:mx-0 px-3 sm:px-0">
               <button
+                type="button"
                 onClick={() => setActiveTab("overview")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition ${
                   activeTab === "overview"
-                    ? " text-teal-600 bg-gray-100"
-                    : " text-gray-700 hover:bg-gray-200"
+                    ? "text-teal-600 bg-gray-100"
+                    : "text-gray-700 hover:bg-gray-200"
                 }`}
               >
                 Overview
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab("orders")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition ${
                   activeTab === "orders"
-                   ? " text-teal-600 bg-gray-100"
-                    : " text-gray-700 hover:bg-gray-200"
+                   ? "text-teal-600 bg-gray-100"
+                    : "text-gray-700 hover:bg-gray-200"
                 }`}
               >
                 Sales Report
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab("requests")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition ${
                   activeTab === "requests"
-                    ? " text-teal-600 bg-gray-100"
-                    : " text-gray-700 hover:bg-gray-200"
+                    ? "text-teal-600 bg-gray-100"
+                    : "text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                Design Request Report
+                Design Request
               </button>
               <button
+                type="button"
                 onClick={() => setActiveTab("designs")}
-                className={`px-4 py-2 rounded-lg text-sm font-medium ${
+                className={`px-3 sm:px-4 py-2 rounded-lg text-xs sm:text-sm font-medium whitespace-nowrap transition ${
                   activeTab === "designs"
-                    ? " text-teal-600 bg-gray-100"
-                    : " text-gray-700 hover:bg-gray-200"
+                    ? "text-teal-600 bg-gray-100"
+                    : "text-gray-700 hover:bg-gray-200"
                 }`}
               >
-                Design Report
+                Order Report
               </button>
             </div>
 
