@@ -76,6 +76,7 @@ http.route({
         const clerkId = user?.id ?? "";
         const firstName = user?.first_name ?? "";
         const lastName = user?.last_name ?? "";
+        const profileImageUrl = user?.image_url ?? "";
         const role =
           (user?.unsafe_metadata?.userType as
             | "client"
@@ -91,6 +92,7 @@ http.route({
               email,
               firstName,
               lastName,
+              profileImageUrl,
               role,
             });
             await ctx.runMutation(internal.users.storeClerkUser, {
@@ -98,6 +100,7 @@ http.route({
               email,
               firstName,
               lastName,
+              profileImageUrl,
               role,
             });
             console.log("✅ ctx.runMutation(internal.users.storeClerkUser) finished");

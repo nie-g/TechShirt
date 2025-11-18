@@ -31,6 +31,7 @@ import type * as designs from "../designs.js";
 import type * as fabric_canvases from "../fabric_canvases.js";
 import type * as fcmTokens from "../fcmTokens.js";
 import type * as files from "../files.js";
+import type * as functions_getClerkProfileImage from "../functions/getClerkProfileImage.js";
 import type * as functions_invites from "../functions/invites.js";
 import type * as functions_updateClerkUser from "../functions/updateClerkUser.js";
 import type * as gallery from "../gallery.js";
@@ -80,6 +81,7 @@ declare const fullApi: ApiFromModules<{
   fabric_canvases: typeof fabric_canvases;
   fcmTokens: typeof fcmTokens;
   files: typeof files;
+  "functions/getClerkProfileImage": typeof functions_getClerkProfileImage;
   "functions/invites": typeof functions_invites;
   "functions/updateClerkUser": typeof functions_updateClerkUser;
   gallery: typeof gallery;

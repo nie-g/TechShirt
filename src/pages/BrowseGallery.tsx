@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { motion } from "framer-motion";
-import { useQuery } from "convex/react";
+import { useQuery, useAction } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { ImageIcon, Search } from "lucide-react";
 import type { Id } from "../../convex/_generated/dataModel";
@@ -14,6 +14,8 @@ type DesignerRecord = {
   first_name?: string;
   last_name?: string;
   specialization?: string;
+  clerkId?: string;
+  profileImageUrl?: string;
 };
 
 type GalleryRecord = {
@@ -45,9 +47,13 @@ const BrowseGallery: React.FC = () => {
   const [search, setSearch] = useState("");
   const [expandedDesigners, setExpandedDesigners] = useState<Record<string, boolean>>({});
   const [expandedPortfolios, setExpandedPortfolios] = useState<Record<string, boolean>>({});
+  const [profileImages, setProfileImages] = useState<Record<string, string>>({});
+
+  // Actions
+  const getClerkProfileImage = useAction(api.functions.getClerkProfileImage.getClerkProfileImage);
 
   // Queries
-  const designers = useQuery(api.designers.listAllDesignersWithUsers) as DesignerRecord[] | undefined;
+  const designers = useQuery(api.designers.listAllDesignersWithClerkIds) as DesignerRecord[] | undefined;
   const galleries = useQuery(api.gallery.listAllGalleries) as GalleryRecord[] | undefined;
   const imagesByGallery = useQuery(api.gallery.getAllImages) as Record<string, GalleryImageRecord[]> | undefined;
   const portfolios = useQuery(api.portfolio.listAllPortfolios) as PortfolioRecord[] | undefined;
@@ -61,6 +67,32 @@ const BrowseGallery: React.FC = () => {
     api.gallery.getPreviewUrls,
     allStorageIds.length > 0 ? { storageIds: allStorageIds } : "skip"
   ) as Record<string, string> | undefined;
+
+  // Fetch Clerk profile images for all designers
+  useEffect(() => {
+    if (!designers || designers.length === 0) return;
+
+    const fetchProfileImages = async () => {
+      const images: Record<string, string> = {};
+
+      for (const designer of designers) {
+        if (designer.clerkId) {
+          try {
+            const result = await getClerkProfileImage({ clerkId: designer.clerkId });
+            if (result.success && result.imageUrl) {
+              images[designer._id] = result.imageUrl;
+            }
+          } catch (err) {
+            console.error(`Failed to fetch profile image for designer ${designer._id}:`, err);
+          }
+        }
+      }
+
+      setProfileImages(images);
+    };
+
+    fetchProfileImages();
+  }, [designers, getClerkProfileImage]);
 
   // Filter designers by search
   const filteredDesigners = useMemo(() => {
@@ -140,56 +172,75 @@ const BrowseGallery: React.FC = () => {
                     >
                       {/* Designer Header */}
                       <div className="p-4 sm:p-6 border-b border-gray-100 bg-gradient-to-r from-teal-50 to-white">
-                        <h2 className="text-lg sm:text-xl font-semibold text-gray-800 mb-3">
-                          {designer.first_name} {designer.last_name}
-                        </h2>
-                        <div className="flex flex-col gap-2 sm:gap-3">
-                          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                        <div className="flex items-start gap-4">
+                          {/* Designer Profile Picture */}
+                          {profileImages[designer._id] ? (
+                            <img
+                              src={profileImages[designer._id]}
+                              alt={`${designer.first_name} ${designer.last_name}`}
+                              className="w-12 h-12 sm:w-14 sm:h-14 rounded-full object-cover border-2 border-teal-200 shadow-sm"
+                            />
+                          ) : (
+                            <div className="w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-gradient-to-br from-teal-400 to-teal-600 flex items-center justify-center text-white font-semibold text-sm">
+                              {designer.first_name?.[0]}{designer.last_name?.[0]}
+                            </div>
+                          )}
+
+                          {/* Designer Name and Specialization */}
+                          <div className="flex-1">
+                            <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
+                              {designer.first_name} {designer.last_name}
+                            </h2>
                             {specialization && (
-                              <span className="text-xs sm:text-sm font-medium text-teal-600 bg-teal-100 px-2.5 py-1 rounded-full w-fit">
+                              <p className="text-xs sm:text-sm text-teal-600 font-medium mt-1">
                                 {specialization}
-                              </span>
-                            )}
-                            {designerPortfolios.length > 0 && (
-                              <button
-                                type="button"
-                                onClick={() => setExpandedPortfolios((prev) => ({
-                                  ...prev,
-                                  [designer._id]: !prev[designer._id],
-                                }))}
-                                className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-teal-700 bg-teal-100 hover:bg-teal-200 rounded-full transition-all whitespace-nowrap w-fit"
-                              >
-                                {expandedPortfolios[designer._id] ? "Hide" : "See Portfolio"}
-                              </button>
+                              </p>
                             )}
                           </div>
+
+                          {/* See Portfolio Button */}
+                          {designerPortfolios.length > 0 && (
+                            <button
+                              type="button"
+                              onClick={() => setExpandedPortfolios((prev) => ({
+                                ...prev,
+                                [designer._id]: !prev[designer._id],
+                              }))}
+                              className="px-3 sm:px-4 py-1.5 sm:py-2 text-xs sm:text-sm font-medium text-teal-700 bg-teal-100 hover:bg-teal-200 rounded-full transition-all whitespace-nowrap h-fit"
+                            >
+                              {expandedPortfolios[designer._id] ? "Hide" : "See Portfolio"}
+                            </button>
+                          )}
                         </div>
                       </div>
 
                       {/* Portfolio Details Section */}
                       {designerPortfolios.length > 0 && designerPortfolios[0] && expandedPortfolios[designer._id] && (
-                        <div className="px-6 py-4 bg-gray-50 border-b border-gray-100">
-                          <div className="space-y-3">
+                        <div className="px-4 sm:px-6 py-6 bg-gradient-to-b from-white to-gray-50 border-b border-gray-200">
+                          <div className="space-y-5">
                             {designerPortfolios[0].title && (
-                              <div>
-                                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">Portfolio Title</p>
-                                <p className="text-sm text-gray-800 font-medium">{designerPortfolios[0].title}</p>
+                              <div className="border-l-4 border-teal-500 pl-4">
+                                <p className="text-xs font-bold text-teal-600 uppercase tracking-widest mb-1">Portfolio Title</p>
+                                <p className="text-base sm:text-lg text-gray-900 font-semibold">{designerPortfolios[0].title}</p>
                               </div>
                             )}
 
                             {designerPortfolios[0].description && (
                               <div>
-                                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide">About</p>
-                                <p className="text-sm text-gray-700 line-clamp-2">{designerPortfolios[0].description}</p>
+                                <p className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-2">About</p>
+                                <p className="text-sm text-gray-700 leading-relaxed">{designerPortfolios[0].description}</p>
                               </div>
                             )}
 
                             {designerPortfolios[0].skills && designerPortfolios[0].skills.length > 0 && (
                               <div>
-                                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Skills</p>
+                                <p className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-3">Core Skills</p>
                                 <div className="flex flex-wrap gap-2">
                                   {designerPortfolios[0].skills.map((skill, idx) => (
-                                    <span key={idx} className="text-xs bg-teal-100 text-teal-700 px-2.5 py-1 rounded-full font-medium">
+                                    <span
+                                      key={idx}
+                                      className="text-xs bg-gradient-to-r from-teal-50 to-teal-100 text-teal-700 px-3 py-1.5 rounded-lg font-semibold border border-teal-200 shadow-sm hover:shadow-md transition-all"
+                                    >
                                       {skill}
                                     </span>
                                   ))}
@@ -199,7 +250,7 @@ const BrowseGallery: React.FC = () => {
 
                             {designerPortfolios[0].social_links && designerPortfolios[0].social_links.length > 0 && (
                               <div>
-                                <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Connect</p>
+                                <p className="text-xs font-bold text-gray-700 uppercase tracking-widest mb-3">Connect</p>
                                 <div className="flex flex-wrap gap-2">
                                   {designerPortfolios[0].social_links.map((link, idx) => (
                                     <a
@@ -207,7 +258,7 @@ const BrowseGallery: React.FC = () => {
                                       href={link.url}
                                       target="_blank"
                                       rel="noopener noreferrer"
-                                      className="text-xs bg-white border border-teal-300 text-teal-700 px-2.5 py-1 rounded-full font-medium hover:bg-teal-50 transition-colors"
+                                      className="text-xs bg-white border-2 border-teal-400 text-teal-700 px-3 py-1.5 rounded-lg font-semibold hover:bg-teal-50 hover:border-teal-500 transition-all shadow-sm hover:shadow-md"
                                     >
                                       {link.platform}
                                     </a>

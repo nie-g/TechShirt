@@ -74,7 +74,7 @@ export const listAllWithUsers = query({
 
 export const listAllDesignersWithUsers = query(async ({ db }) => {
   const designers = await db.query("designers").collect();
-  
+
   const results = await Promise.all(
     designers.map(async (designer) => {
       const user = await db.get(designer.user_id);
@@ -82,6 +82,29 @@ export const listAllDesignersWithUsers = query(async ({ db }) => {
         ...designer,
         first_name: user?.firstName ?? "",
         last_name: user?.lastName ?? "",
+        profileImageUrl: user?.profileImageUrl ?? "",
+      };
+    })
+  );
+
+  return results;
+});
+
+/**
+ * Fetch all designers with their Clerk IDs for profile image fetching
+ */
+export const listAllDesignersWithClerkIds = query(async ({ db }) => {
+  const designers = await db.query("designers").collect();
+
+  const results = await Promise.all(
+    designers.map(async (designer) => {
+      const user = await db.get(designer.user_id);
+      return {
+        _id: designer._id,
+        user_id: designer.user_id,
+        first_name: user?.firstName ?? "",
+        last_name: user?.lastName ?? "",
+        clerkId: user?.clerkId ?? "",
       };
     })
   );

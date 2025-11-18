@@ -9,6 +9,7 @@ export default defineSchema({
     firstName: v.string(),
     lastName: v.string(),
     role: v.union(v.literal("client"), v.literal("designer"), v.literal("admin")),
+    profileImageUrl: v.optional(v.string()),
     createdAt: v.number(),
   }).index("by_clerk_id", ["clerkId"]),
   

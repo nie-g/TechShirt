@@ -8,6 +8,7 @@ export const storeClerkUser = internalMutation({
     email: v.string(),
     firstName: v.string(),
     lastName: v.string(),
+    profileImageUrl: v.optional(v.string()),
     role: v.union(v.literal("client"), v.literal("designer"), v.literal("admin")),
   },
   handler: async (ctx, args) => {
@@ -25,6 +26,7 @@ export const storeClerkUser = internalMutation({
         email: args.email,
         firstName: args.firstName,
         lastName: args.lastName,
+        profileImageUrl: args.profileImageUrl,
         role: args.role,
       });
       userId = existing._id;
@@ -36,6 +38,7 @@ export const storeClerkUser = internalMutation({
         email: args.email,
         firstName: args.firstName,
         lastName: args.lastName,
+        profileImageUrl: args.profileImageUrl,
         role: args.role,
         createdAt: Date.now(),
       });
