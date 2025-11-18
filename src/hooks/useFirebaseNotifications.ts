@@ -54,7 +54,7 @@ export function useFirebaseNotifications() {
     const unsubscribe = onMessage(messaging, (payload) => {
       console.log("📬 Foreground message received:", payload);
 
-      const { notification, data } = payload;
+      const { notification } = payload;
 
       if (notification) {
         // Show toast notification only (browser notification is handled by service worker)
