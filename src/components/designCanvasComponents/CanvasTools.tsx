@@ -55,33 +55,54 @@ async function flattenCanvasBeforeAdding(canvas: fabric.Canvas) {
   return new Promise<fabric.Image>((resolve) => {
     disableActiveObjectEditing(canvas);
 
+    const canvasWidth = canvas.getWidth();
+    const canvasHeight = canvas.getHeight();
+
+    // Reset zoom and pan before rasterizing
+    canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
+
     const raster = document.createElement("canvas");
-    raster.width = canvas.getWidth();
-    raster.height = canvas.getHeight();
+    raster.width = canvasWidth;
+    raster.height = canvasHeight;
     const ctx = raster.getContext("2d")!;
+    ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+
     canvas.renderAll();
-    ctx.drawImage(canvas.lowerCanvasEl, 0, 0);
-    ctx.drawImage(canvas.upperCanvasEl, 0, 0);
+    ctx.drawImage(canvas.lowerCanvasEl, 0, 0, canvasWidth, canvasHeight);
+    ctx.drawImage(canvas.upperCanvasEl, 0, 0, canvasWidth, canvasHeight);
 
     const imgEl = new Image();
-    imgEl.src = raster.toDataURL("image/png");
     imgEl.onload = () => {
       const flattenedImage = new fabric.Image(imgEl, {
+        left: 0,
+        top: 0,
+        scaleX: 1,
+        scaleY: 1,
         selectable: false,
-        evented: true,
-        hasControls: true,
-        hasBorders: true,
+        hasControls: false,
+        hasBorders: false,
         erasable: true,
+      });
+
+      // Match image logical dimensions to canvas
+      flattenedImage.set({
+        width: canvasWidth,
+        height: canvasHeight,
       });
 
       // Clear canvas and add flattened image
       canvas.clear();
       canvas.add(flattenedImage);
       (canvas as AnyCanvas).sendToBack?.(flattenedImage);
+
+      // Reset zoom again to avoid compounding transforms
+      canvas.setViewportTransform([1, 0, 0, 1, 0, 0]);
       canvas.requestRenderAll();
 
       resolve(flattenedImage);
     };
+
+    imgEl.src = raster.toDataURL("image/png");
   });
 }
 
