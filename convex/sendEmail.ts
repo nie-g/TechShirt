@@ -41,7 +41,7 @@ export const sendEmailAction = action({
 
               <tr>
                 <td align="center" style="padding: 20px;">
-                  <a href="https://techshirt-by-tuttifrutti.vercel.app/notifications"
+                  <a href="https://tech-shirt.vercel.app/notifications"
                     style="
                       background-color: #008080;
                       color: #ffffff;
