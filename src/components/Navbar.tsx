@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { SignedOut, SignedIn, useClerk, UserButton } from "@clerk/clerk-react";
-import Logo from "../images/Techshirt.png";
+import Logo from "../images/TechShirt.png";
 
 const Navbar = () => {
   const clerk = useClerk();
