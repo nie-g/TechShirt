@@ -383,25 +383,9 @@ const handleReferenceImageUpload = async (
         </button>
       </div>
 
-      {/* Gender */}
-      <div className="grid grid-cols-2 gap-4">
-      <div>
-        <label className="block mb-2 text-sm font-semibold text-gray-700">
-          Gender
-        </label>
-        <select
-          aria-label="Select a gender"
-          value={gender}
-          onChange={(e) => setGender(e.target.value)}
-          className="w-full p-3 text-gray-700 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-        >
-          <option value="unisex">Unisex</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-        </select>
-      </div>
       {/* Preferred Date */}
-        <div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:flex-row-reverse">
+        <div className="order-2 md:order-1">
           <label className="block mb-2 text-sm font-semibold text-gray-700">
             Preferred Date (Optional)
           </label>
@@ -426,58 +410,72 @@ const handleReferenceImageUpload = async (
             <p className="mt-1 text-xs text-red-500">{dateError}</p>
           )}
         </div>
+
+        {/* Gender */}
+        <div className="order-1 md:order-2">
+          <label className="block mb-2 text-sm font-semibold text-gray-700">
+            Gender
+          </label>
+          <select
+            aria-label="Select a gender"
+            value={gender}
+            onChange={(e) => setGender(e.target.value)}
+            className="w-full p-3 text-gray-700 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+          >
+            <option value="unisex">Unisex</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
       </div>
       
 
 
-      {/* Fabric/Textile + Print Type */}
-      <div className="grid grid-cols-2 gap-4">
-        {/* Fabric/Textile */}
-        <div>
-          <label className="block mb-2 text-sm font-semibold text-gray-700">
-            Fabric / Textile
-          </label>
-          <select
-            aria-label="Select a fabric"
-            value={textileId || ""}
-            onChange={(e) => setTextileId(e.target.value || null)}
-            className="w-full p-3 text-gray-700 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-          >
-            <option value="">Select a fabric</option>
-            {textiles.map((fabric: any) => (
-              <option key={fabric._id.toString()} value={fabric._id.toString()}>
-                {fabric.name} - {fabric.description}
-              </option>
-            ))}
-          </select>
-        </div>
+      {/* Fabric/Textile */}
+      <div>
+        <label className="block mb-2 text-sm font-semibold text-gray-700">
+          Fabric / Textile
+        </label>
+        <select
+          aria-label="Select a fabric"
+          value={textileId || ""}
+          onChange={(e) => setTextileId(e.target.value || null)}
+          className="w-full p-3 text-gray-700 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+        >
+          <option value="">Select a fabric</option>
+          {textiles.map((fabric: any) => (
+            <option key={fabric._id.toString()} value={fabric._id.toString()}>
+              {fabric.name} - {fabric.description}
+            </option>
+          ))}
+        </select>
+      </div>
 
-        {/* Print Type */}
-        {/* Print Type */}
-        <div>
-          <label className="block mb-2 text-sm font-semibold text-gray-700">
-            Print Type
-          </label>
+      {/* Print Type */}
+      <div>
+        <label className="block mb-2 text-sm font-semibold text-gray-700">
+          Print Type
+        </label>
 
-          <select
-            aria-label="Select a print type"
-            value={printType || ""}
-            onChange={(e) =>
-              setPrintType(e.target.value ? (e.target.value as any) : undefined)
-            }
-            className="w-full p-3 text-gray-700 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
-          >
-            <option value="">Select a print type</option>
-            {printPricing.map((p: any) => (
-              <option key={p._id.toString()} value={p.print_type}>
-                {p.print_type}{" "}
-                {p.recommended_for ? `– recommended for ${p.recommended_for}` : ""}
-              </option>
-            ))}
-          </select>
+        <select
+          aria-label="Select a print type"
+          value={printType || ""}
+          onChange={(e) =>
+            setPrintType(e.target.value ? (e.target.value as any) : undefined)
+          }
+          className="w-full p-3 text-gray-700 bg-white border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
+        >
+          <option value="">Select a print type</option>
+          {printPricing.map((p: any) => (
+            <option key={p._id.toString()} value={p.print_type}>
+              {p.print_type}{" "}
+              {p.recommended_for ? `– recommended for ${p.recommended_for}` : ""}
+            </option>
+          ))}
+        </select>
 
-          {/* Auto recommendation based on Convex data */}
-          {selectedFabric && printPricing.length > 0 && (() => {
+        {/* Auto recommendation based on Convex data */}
+        {selectedFabric && printPricing.length > 0 && (() => {
             const fabricName = selectedFabric.name?.toLowerCase() || "";
             const match = printPricing.find(
               (p: any) =>
@@ -519,9 +517,6 @@ const handleReferenceImageUpload = async (
 
             return null;
           })()}
-        </div>
-
-
       </div>
 
       {/* Preferred Designer */}

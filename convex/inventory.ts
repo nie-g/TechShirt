@@ -72,6 +72,8 @@ export const updateInventoryItem = mutation({
       throw new Error("Inventory item not found");
     }
 
+    console.log("updateInventoryItem called (ADD STOCK MODE) - current stock:", currentItem.stock, "adding:", args.stock);
+
     // Compute how much stock the user is trying to add
     const stockAdded = args.stock;
     let newStock = currentItem.stock;
@@ -91,6 +93,8 @@ export const updateInventoryItem = mutation({
       }
     }
 
+    console.log("updateInventoryItem - new stock will be:", newStock);
+
     // Apply updates
     await ctx.db.patch(args.id, {
       name: args.name,
@@ -104,6 +108,57 @@ export const updateInventoryItem = mutation({
   },
 });
 
+
+// Update inventory item for edit modal (direct replacement without pending restock logic)
+export const updateInventoryItemForEdit = mutation({
+  args: {
+    id: v.id("inventory_items"),
+    name: v.string(),
+    categoryId: v.id("inventory_categories"),
+    unit: v.string(),
+    stock: v.number(),
+    pendingRestock: v.number(),
+    description: v.optional(v.string()),
+  },
+  handler: async (ctx, args) => {
+    const now = Date.now();
+
+    // Fetch current inventory item
+    const currentItem = await ctx.db.get(args.id);
+    if (!currentItem) {
+      throw new Error("Inventory item not found");
+
+    }
+
+    // Compute how much stock the user is trying to add
+     let newPendingRestock = currentItem.pending_restock ?? 0;
+     if (args.stock > 0) {
+      if (args.stock < args.pendingRestock) {
+        // Not enough to fulfill pending restock → stock stays the same
+
+        newPendingRestock -= args.stock;
+      } else if (args.stock >= args.pendingRestock)  {
+        // Stock added covers pending restock and more
+        newPendingRestock = 0;
+      } else {
+      }
+    }
+    console.log("updateInventoryItemForEdit called - replacing stock from", currentItem.stock, "to", args.stock);
+
+    // Apply updates directly without any logic - DIRECT REPLACEMENT
+    await ctx.db.patch(args.id, {
+      name: args.name,
+      category_id: args.categoryId,
+      unit: args.unit,
+      stock: args.stock,
+      pending_restock: args.pendingRestock,
+      description: args.description,
+      updated_at: now,
+    });
+
+    console.log("updateInventoryItemForEdit completed - stock is now", args.stock);
+  },
+});
 
 // Delete an inventory item
 export const deleteInventoryItem = mutation({

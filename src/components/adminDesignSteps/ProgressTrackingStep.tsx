@@ -14,18 +14,48 @@ interface ProgressTrackingStepProps {
   designId: Id<"design">;
 }
 
-const PreviewWithComments: React.FC<{ preview: Preview; url?: string }> = ({
+const PreviewWithComments: React.FC<{ preview: Preview; url?: string; index: number; total: number }> = ({
   preview,
   url,
+  index,
+  total,
 }) => {
   const comments = useQuery(api.comments.listByPreview, {
     preview_id: preview._id,
   });
 
+  const formatDate = (timestamp?: number) => {
+    if (!timestamp) return "No date available";
+    return new Date(timestamp).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  };
+
   return (
-    <div className="flex flex-col md:flex-row gap-6 border-b pb-6">
-      {/* Preview Image */}
-      <div className="flex-1">
+    <div className="flex flex-col border-b pb-6">
+      {/* Progress Label */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-3">
+          <div className="flex items-center justify-center w-8 h-8 rounded-full bg-teal-500 text-white font-bold text-sm">
+            {index + 1}
+          </div>
+          <span className="text-xs font-semibold text-gray-600">
+            Progress {index + 1} of {total}
+          </span>
+        </div>
+        <span className="text-xs text-gray-500">
+          Date Posted: {formatDate(preview.created_at)}
+        </span>
+      </div>
+
+      {/* Content Container */}
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Preview Image */}
+        <div className="flex-1">
         {url ? (
           <div className="w-full h-64 flex items-center justify-center bg-white rounded-lg border border-gray-300 overflow-hidden">
             <img
@@ -39,16 +69,11 @@ const PreviewWithComments: React.FC<{ preview: Preview; url?: string }> = ({
             No image available
           </div>
         )}
-        <p className="text-sm text-gray-500 mt-2">
-          {preview.created_at
-            ? `Created: ${new Date(preview.created_at).toLocaleString()}`
-            : "No date available"}
-        </p>
-      </div>
+        </div>
 
-      {/* Comments Section */}
-      <div className="flex-1">
-        <h3 className="font-semibold mb-2">Client Suggestions</h3>
+        {/* Comments Section */}
+        <div className="flex-1">
+          <h3 className="font-semibold mb-2">Client Suggestions</h3>
         <div className="space-y-2 mb-3 max-h-48 overflow-y-auto">
           {comments && comments.length > 0 ? (
             comments.map((c) => (
@@ -65,6 +90,7 @@ const PreviewWithComments: React.FC<{ preview: Preview; url?: string }> = ({
           ) : (
             <p className="text-gray-400 text-sm">No comments to show.</p>
           )}
+        </div>
         </div>
       </div>
     </div>
@@ -95,6 +121,8 @@ const ProgressTrackingStep: React.FC<ProgressTrackingStepProps> = ({
           key={p._id}
           preview={p}
           url={urls[idx] ?? undefined}
+          index={idx}
+          total={previews.length}
         />
       ))}
     </div>

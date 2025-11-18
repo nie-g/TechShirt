@@ -27,6 +27,7 @@ const Step2: React.FC<Step2Props> = ({
   const [localCanvas, setLocalCanvas] = useState<fabric.Canvas | null>(null);
   const isLoadingRef = useRef(false);
   const lastSentStateRef = useRef<string | null>(null);
+  const isUndoRedoRef = useRef(false);
 
   const undoStack = useRef<string[]>([]);
   const redoStack = useRef<string[]>([]);
@@ -96,13 +97,16 @@ const Step2: React.FC<Step2Props> = ({
     const savedCanvas = localStorage.getItem("savedCanvas");
     if (savedCanvas) {
       try {
+        isLoadingRef.current = true;
         canvas.loadFromJSON(JSON.parse(savedCanvas), () => {
           canvas.renderAll();
           undoStack.current.push(savedCanvas);
           lastSentStateRef.current = savedCanvas;
+          isLoadingRef.current = false;
         });
       } catch (err) {
         console.error("Failed to load saved canvas from localStorage:", err);
+        isLoadingRef.current = false;
       }
     } else {
       saveState();
@@ -124,7 +128,7 @@ const Step2: React.FC<Step2Props> = ({
   // ---------------- STATE SYNC ----------------
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !canvasState) return;
+    if (!canvas || !canvasState || isUndoRedoRef.current) return;
 
     try {
       const incomingJson = JSON.stringify(canvasState);
@@ -139,7 +143,7 @@ const Step2: React.FC<Step2Props> = ({
         const jsonStr = JSON.stringify(canonical);
         lastSentStateRef.current = jsonStr;
         setCanvasState(canonical);
-        undoStack.current.push(jsonStr);
+        // Don't push to undoStack here - it's already handled by updateState()
         isLoadingRef.current = false;
       });
     } catch (err) {
@@ -194,24 +198,53 @@ const Step2: React.FC<Step2Props> = ({
 
   const handleUndo = () => {
     if (!localCanvas || undoStack.current.length < 2) return;
+
+    isLoadingRef.current = true;
+    isUndoRedoRef.current = true;
+
+    // Save current state to redo stack
     const currentState = undoStack.current.pop();
     if (currentState) redoStack.current.push(currentState);
 
+    // Get previous state from undo stack
     const prevState = undoStack.current[undoStack.current.length - 1];
     if (prevState) {
+      // Clear canvas and deselect before loading
+      localCanvas.discardActiveObject();
+      localCanvas.clear();
+      localCanvas.backgroundColor = "#f5f5f5";
+
       localCanvas.loadFromJSON(JSON.parse(prevState), () => {
+        localCanvas.discardActiveObject();
         localCanvas.renderAll();
+        lastSentStateRef.current = prevState;
+        isLoadingRef.current = false;
+        isUndoRedoRef.current = false;
       });
     }
   };
 
   const handleRedo = () => {
     if (!localCanvas || redoStack.current.length === 0) return;
+
+    isLoadingRef.current = true;
+    isUndoRedoRef.current = true;
+
     const state = redoStack.current.pop();
     if (state) {
       undoStack.current.push(state);
+
+      // Clear canvas and deselect before loading
+      localCanvas.discardActiveObject();
+      localCanvas.clear();
+      localCanvas.backgroundColor = "#f5f5f5";
+
       localCanvas.loadFromJSON(JSON.parse(state), () => {
+        localCanvas.discardActiveObject();
         localCanvas.renderAll();
+        lastSentStateRef.current = state;
+        isLoadingRef.current = false;
+        isUndoRedoRef.current = false;
       });
     }
   };
@@ -302,24 +335,28 @@ const Step2: React.FC<Step2Props> = ({
 
           <div className="flex flex-wrap justify-end gap-2 mt-4">
             <button
+              type="button"
               onClick={handleUndo}
               className="px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
             >
               Undo
             </button>
             <button
+              type="button"
               onClick={handleRedo}
               className="px-3 py-1 text-sm bg-gray-500 text-white rounded hover:bg-gray-600"
             >
               Redo
             </button>
             <button
+              type="button"
               onClick={handleClearCanvas}
               className="px-3 py-1 text-sm bg-red-500 text-white rounded hover:bg-red-600"
             >
               Clear
             </button>
             <button
+              type="button"
               onClick={handleSaveCanvas}
               className="px-3 py-1 text-sm bg-teal-500 text-white rounded hover:bg-teal-600"
             >

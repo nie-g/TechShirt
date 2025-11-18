@@ -14,6 +14,7 @@ interface InventoryItem {
   categoryName: string;
   unit: string;
   stock: number;
+  pending_restock?: number;
   description?: string;
   created_at: number;
   updated_at: number;
@@ -29,6 +30,7 @@ const InventoryPage: React.FC = () => {
   const inventoryCategories = useQuery(api.inventory.getInventoryCategories);
   const createItem = useMutation(api.inventory.createInventoryItem);
   const updateItem = useMutation(api.inventory.updateInventoryItem);
+  const updateItemForEdit = useMutation(api.inventory.updateInventoryItemForEdit);
   const deleteItem = useMutation(api.inventory.deleteInventoryItem);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,7 +43,7 @@ const InventoryPage: React.FC = () => {
   });
 
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
-  const [stockAmount, setStockAmount] = useState(0);
+  const [stockAmount, setStockAmount] = useState("");
   const [stockItem, setStockItem] = useState<InventoryItem | null>(null);
 
   const [formState, setFormState] = useState({
@@ -56,36 +58,43 @@ const InventoryPage: React.FC = () => {
     if (isEditMode && currentItem) {
       setFormState({
         name: currentItem.name || "",
-        categoryId: currentItem.category_id || "",
+        categoryId: currentItem.category_id as unknown as string,
         unit: currentItem.unit || "",
-        stock: currentItem.stock || 0,
+        stock: currentItem.stock ?? 0,
         description: currentItem.description || "",
       });
     } else {
       setFormState({ name: "", categoryId: "", unit: "", stock: 0, description: "" });
     }
-  }, [isModalOpen, isEditMode, currentItem]);
+  }, [isEditMode, currentItem]);
 
   const handleOpenStockModal = (item: InventoryItem) => {
     setStockItem(item);
-    setStockAmount(0);
+    setStockAmount("");
     setIsStockModalOpen(true);
   };
 
   const handleAddStockSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!stockItem) return;
+    if (!stockItem || !stockAmount || Number(stockAmount) <= 0) return;
 
     try {
-     await updateItem({
+      const amountToAdd = Number(stockAmount);
+      // Pass the amount to add as 'stock' parameter
+      // The backend will handle the logic:
+      // - If amountToAdd >= pending_restock: stock increases by (amountToAdd - pending_restock), pending_restock = 0
+      // - If amountToAdd < pending_restock: stock stays same, pending_restock decreases by amountToAdd
+      await updateItem({
         id: stockItem._id,
         name: stockItem.name,
         categoryId: stockItem.category_id,
         unit: stockItem.unit,
-        stock: stockAmount,
+        stock: amountToAdd,
+        pendingRestock: stockItem.pending_restock ?? 0,
         description: stockItem.description ?? "",
       });
       setIsStockModalOpen(false);
+      setStockAmount("");
     } catch (err) {
       console.error("Failed to update stock:", err);
       alert("Failed to update stock. Check console for details.");
@@ -126,14 +135,18 @@ const InventoryPage: React.FC = () => {
     e.preventDefault();
     try {
       if (isEditMode && currentItem._id) {
-        await updateItem({
+      
+
+        const result = await updateItemForEdit({
           id: currentItem._id,
           name: formState.name,
           categoryId: formState.categoryId as Id<"inventory_categories">,
           unit: formState.unit,
           stock: formState.stock,
+          pendingRestock: currentItem.pending_restock ?? 0,
           description: formState.description,
         });
+        console.log("updateItemForEdit completed successfully, result:", result);
       } else {
         await createItem({
           name: formState.name,
@@ -363,6 +376,9 @@ const InventoryPage: React.FC = () => {
                     </div>
                   </div>
 
+                  {/* Stock Change Preview for Edit Mode */}
+              
+
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">Description</label>
                     <textarea
@@ -417,6 +433,20 @@ const InventoryPage: React.FC = () => {
                   Add Stock – {stockItem.name}
                 </h2>
 
+                {/* Current Stock & Pending Restock Info */}
+                <div className="mb-4 grid grid-cols-2 gap-3">
+                  <div className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                    <p className="text-xs text-gray-600 mb-1">Current Stock</p>
+                    <p className="text-2xl font-bold text-teal-600">{stockItem.stock}</p>
+                    <p className="text-xs text-gray-500">{stockItem.unit}</p>
+                  </div>
+                  <div className="p-3 bg-orange-50 rounded-lg border border-orange-200">
+                    <p className="text-xs text-orange-600 mb-1">Pending Restock</p>
+                    <p className="text-2xl font-bold text-orange-600">{stockItem.pending_restock ?? 0}</p>
+                    <p className="text-xs text-gray-500">{stockItem.unit}</p>
+                  </div>
+                </div>
+
                 <form onSubmit={handleAddStockSubmit} className="space-y-3">
                   <div>
                     <label className="block text-xs font-medium text-gray-600 mb-1">
@@ -425,13 +455,53 @@ const InventoryPage: React.FC = () => {
                     <input
                       type="number"
                       min="1"
+                      step="1"
                       aria-label="Amount to add"
                       value={stockAmount}
-                      onChange={(e) => setStockAmount(Number(e.target.value))}
-                      className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500"
+                      onChange={(e) => setStockAmount(e.target.value)}
+                      className="w-full border rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-teal-500 focus:border-teal-500"
                       required
+                      placeholder="Enter amount"
+                      autoFocus
                     />
                   </div>
+
+                  {/* New Stock Preview - Calculate based on backend logic */}
+                  {stockAmount && Number(stockAmount) > 0 && (
+                    <div className="p-3 bg-teal-50 rounded-lg border border-teal-200 space-y-2">
+                      <p className="text-xs text-teal-700 font-semibold">After Adding Stock:</p>
+                      {(() => {
+                        const amountToAdd = Number(stockAmount);
+                        const pendingRestock = stockItem.pending_restock ?? 0;
+                        let newStock = stockItem.stock;
+                        let newPending = pendingRestock;
+
+                        if (amountToAdd >= pendingRestock) {
+                          // Stock added covers pending restock and more
+                          const excess = amountToAdd - pendingRestock;
+                          newStock = stockItem.stock + excess;
+                          newPending = 0;
+                        } else {
+                          // Not enough to fulfill pending restock
+                          newStock = stockItem.stock;
+                          newPending = pendingRestock - amountToAdd;
+                        }
+
+                        return (
+                          <>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-teal-700">New Stock:</span>
+                              <span className="font-semibold text-teal-600">{newStock} {stockItem.unit}</span>
+                            </div>
+                            <div className="flex justify-between text-sm">
+                              <span className="text-orange-700">New Pending:</span>
+                              <span className="font-semibold text-orange-600">{newPending} {stockItem.unit}</span>
+                            </div>
+                          </>
+                        );
+                      })()}
+                    </div>
+                  )}
 
                   <div className="flex justify-end gap-2 pt-2">
                     <button
@@ -443,7 +513,8 @@ const InventoryPage: React.FC = () => {
                     </button>
                     <button
                       type="submit"
-                      className="px-3 py-1.5 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700"
+                      disabled={!stockAmount || Number(stockAmount) <= 0}
+                      className="px-3 py-1.5 text-sm bg-teal-600 text-white rounded-lg hover:bg-teal-700 disabled:bg-gray-300 disabled:cursor-not-allowed"
                     >
                       Add
                     </button>

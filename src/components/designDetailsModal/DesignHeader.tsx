@@ -8,20 +8,17 @@ interface DesignHeaderProps {
   onClose: () => void;
 }
 
-const DesignHeader: React.FC<DesignHeaderProps> = ({ onClose, designId }) => {
+const DesignHeader: React.FC<DesignHeaderProps> = ({ onClose }) => {
   return (
-    <div className="flex justify-between items-center border-b pb-3 mb-4">
-      <h2 className="text-xl font-semibold">Design Details</h2>
-      <div className="flex items-center gap-4">
-        <span className="text-sm text-gray-500">ID: {designId}</span>
-        <button
-          aria-label="Close"
-          onClick={onClose}
-          className="text-gray-500 hover:text-gray-700"
-        >
-          <X size={20} />
-        </button>
-      </div>
+    <div className="flex justify-between items-center border-b pb-2 sm:pb-3 mb-3 sm:mb-4">
+      <h2 className="text-lg sm:text-xl font-semibold truncate">Design Details</h2>
+      <button
+        aria-label="Close"
+        onClick={onClose}
+        className="text-gray-500 hover:text-gray-700 flex-shrink-0"
+      >
+        <X size={20} />
+      </button>
     </div>
   );
 };

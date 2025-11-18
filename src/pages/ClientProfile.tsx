@@ -111,14 +111,14 @@ const Profile: React.FC = () => {
             <h1 className="text-2xl font-bold mb-6 text-gray-600">My Profile</h1>
 
             {/* === First Container: Profile Info === */}
-            <div className="p-4 bg-white rounded-2xl shadow-md border border-gray-200 flex items-center gap-6">
+            <div className="p-4 bg-white rounded-2xl shadow-md border border-gray-200 flex flex-col md:flex-row md:items-center gap-4 md:gap-6">
               <img
                 src={user?.imageUrl}
                 alt="Profile"
                 className="w-20 h-20 rounded-full border-2 border-gray-200"
               />
 
-              <div>
+              <div className="flex-1">
                 <p className="text-gray-600 text-sm">{dbUser.email}</p>
                 <h2 className="text-lg font-semibold text-gray-900">
                   {dbUser.firstName} {dbUser.lastName}
@@ -127,7 +127,7 @@ const Profile: React.FC = () => {
 
               <button
                 onClick={() => openUserProfile()}
-                className="ml-auto flex items-center gap-2 px-3 py-2  rounded-lg bg-gray-100 border border-gray-300 hover:bg-gray-200 transition"
+                className="md:ml-auto flex items-center gap-2 px-3 py-2 rounded-lg bg-gray-100 border border-gray-300 hover:bg-gray-200 transition w-full md:w-auto justify-center md:justify-start"
                 aria-label="Manage Account"
               >
                 <span className="text-sm font-medium text-gray-600">
@@ -160,32 +160,40 @@ const Profile: React.FC = () => {
 
                       <div className="mt-6 flex justify-end">
                         <button
+                          type="button"
                           onClick={() => setIsEditing(true)}
-                          className="flex items-center gap-2 bg-gray-100 border font-semibold border-gray-300 text-gray-700 px-6 py-2 rounded-lg shadow hover:bg-gray-200 transition"
+                          className="flex items-center justify-center gap-2 bg-gray-100 border font-semibold border-gray-300 text-gray-700 px-6 py-2 rounded-lg shadow hover:bg-gray-200 transition w-full md:w-auto"
                         >
                           <Settings size={18} />
-                          {(!clientProfile?.phone && !clientProfile?.address)
-                            ? "Set up your contact information"
-                            : "Edit Information"}
+                          <span className="hidden sm:inline">
+                            {(!clientProfile?.phone && !clientProfile?.address)
+                              ? "Set up your contact information"
+                              : "Edit Information"}
+                          </span>
+                          <span className="sm:hidden">
+                            {(!clientProfile?.phone && !clientProfile?.address)
+                              ? "Set up"
+                              : "Edit"}
+                          </span>
                         </button>
                       </div>
                     </>
                   ) : (
                     <>
                       <form
-                        className="space-y-4 "
+                        className="space-y-4 p-3"
                         onSubmit={(e) => {
                           e.preventDefault();
                           handleSave();
                         }}
                       >
                         {/* ✅ Contact number with label beside input */}
-                        <div className="flex items-center gap-4">
-                          <label className="w-1/3 text-sm font-medium text-gray-600">
+                        <div className="flex flex-col md:flex-row md:items-center gap-2 md:gap-4">
+                          <label className="md:w-1/3 text-sm font-medium text-gray-600">
                             Please enter your Contact Number <span className="text-red-500">*</span>
                           </label>
                           {/* ✅ Phone input */}
-                          <div className="flex-1">  
+                          <div className="flex-1">
                             <PhoneInput
                               country={"ph"} // default to PH
                               value={form.phone}
@@ -193,15 +201,15 @@ const Profile: React.FC = () => {
                               inputClass="!w-full !h-10 !text-sm !rounded-lg !border-gray-300 focus:!ring-teal-400 required"
                             />
                           </div>
-                          
+
                         </div>
 
                         {/* ✅ Address with inline label */}
-                        <div className="flex items-center gap-4">
-                          <label className="w-1/3 text-sm font-medium text-gray-600">
+                        <div className="flex flex-col md:flex-row md:items-start gap-2 md:gap-4">
+                          <label className="md:w-1/3 text-sm font-medium text-gray-600">
                             Please enter your current address <span className="text-red-500">*</span>
                           </label>
-                          <div className="flex-1">  
+                          <div className="flex-1">
                             <textarea
                               aria-label="Address"
                               value={form.address}
@@ -212,21 +220,21 @@ const Profile: React.FC = () => {
                               required
                             />
                           </div>
-                          
+
                         </div>
 
                         {/* Actions */}
-                        <div className="mt-6 flex justify-end gap-3">
+                        <div className="mt-6 flex flex-col-reverse md:flex-row justify-end gap-3">
                           <button
                             type="button"
                             onClick={() => setIsEditing(false)}
-                            className="px-6 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition"
+                            className="px-6 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition w-full md:w-auto"
                           >
                             Cancel
                           </button>
                           <button
                             type="submit"
-                            className="flex items-center gap-2 bg-teal-500 text-white px-6 py-2 rounded-lg shadow hover:bg-teal-600 transition"
+                            className="flex items-center justify-center gap-2 bg-teal-500 text-white px-6 py-2 rounded-lg shadow hover:bg-teal-600 transition w-full md:w-auto"
                           >
                             <Save size={18} /> Save Changes
                           </button>

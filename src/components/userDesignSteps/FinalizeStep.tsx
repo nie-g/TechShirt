@@ -111,49 +111,51 @@ const FinalizeDesignStep: React.FC<FinalizeDesignStepProps> = ({ design }) => {
 
 
   return (
-    <div className="p-6 bg-white rounded-xl shadow-md space-y-6" ref={invoiceRef}>
+    <div className="p-2 sm:p-6 bg-white rounded-xl shadow-md space-y-3 sm:space-y-6 text-xs sm:text-sm" ref={invoiceRef}>
       {isFinished ? (
         <div>
           {/* ✅ Header */}
           <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold text-gray-800">TechShirt</h2>
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-800">TechShirt</h2>
            <button
+              type="button"
               id="download-btn" // 👈 add this line
               onClick={handleDownloadPDF}
               aria-label="Download invoice"
               title="Download Invoice"
-              className="flex items-center justify-center gap-2 px-2 py-1.5 rounded-lg bg-gray-100 text-gray-600 hover:text-teal-600 transition"
+              className="flex items-center justify-center gap-1 sm:gap-2 px-2 py-1.5 rounded-lg bg-gray-100 text-gray-600 hover:text-teal-600 transition text-xs sm:text-sm"
             >
-              <FileDown size={20} />
-              <span className="text-sm font-medium">Download PDF</span>
+              <FileDown size={16} className="sm:w-5 sm:h-5" />
+              <span className="hidden sm:inline font-medium">Download PDF</span>
+              <span className="sm:hidden font-medium">PDF</span>
             </button>
           </div>
 
           {/* ✅ Client Info */}
-          <div className="flex justify-between mt-6">
+          <div className="flex flex-col sm:flex-row sm:justify-between mt-3 sm:mt-6 gap-3 sm:gap-0">
             <div>
-              <h4 className="font-bold text-gray-700 mb-1">Billed To:</h4>
-              <p className="text-sm text-gray-700">
+              <h4 className="font-bold text-gray-700 mb-1 text-xs sm:text-sm">Billed To:</h4>
+              <p className="text-xs sm:text-sm text-gray-700">
                 {clientInfo
                   ? `${clientInfo.firstName} ${clientInfo.lastName}`
                   : "Client Name"}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-xs text-gray-500">
                 {clientInfo?.phone || "No contact number"}
               </p>
-              <p className="text-sm text-gray-500">
+              <p className="text-xs text-gray-500 line-clamp-2">
                 {clientInfo?.address || "No address provided"}
               </p>
             </div>
 
-            <div className="text-right">
-              <p className="text-sm font-medium text-gray-700">
+            <div className="sm:text-right">
+              <p className="text-xs sm:text-sm font-medium text-gray-700">
                 Invoice No:{" "}
                 <span className="text-gray-900 font-semibold">
                   #{String(invoiceNo).padStart(4, "0")}
                 </span>
               </p>
-              <p className="text-sm text-gray-700">
+              <p className="text-xs sm:text-sm text-gray-700">
                 Date:{" "}
                 <span className="text-gray-900">
                   {new Date(createdAt).toLocaleDateString()}
@@ -163,19 +165,19 @@ const FinalizeDesignStep: React.FC<FinalizeDesignStepProps> = ({ design }) => {
           </div>
 
           {/* ✅ Table */}
-          <div className="mt-6 overflow-x-auto">
-            <table className="w-full text-sm border-t border-b border-gray-300">
+          <div className="mt-3 sm:mt-6 overflow-x-auto">
+            <table className="w-full text-xs sm:text-sm border-t border-b border-gray-300">
               <thead className="bg-gray-100">
                 <tr>
-                  <th className="py-2 px-3 text-left">Item</th>
-                  <th className="py-2 px-3 text-center">Quantity</th>
-                  <th className="py-2 px-3 text-center">Unit Price</th>
-                  <th className="py-2 px-3 text-right">Total</th>
+                  <th className="py-1 sm:py-2 px-1 sm:px-3 text-left">Item</th>
+                  <th className="py-1 sm:py-2 px-1 sm:px-3 text-center">Qty</th>
+                  <th className="py-1 sm:py-2 px-1 sm:px-3 text-center">Unit Price</th>
+                  <th className="py-1 sm:py-2 px-1 sm:px-3 text-right">Total</th>
                 </tr>
               </thead>
               <tbody>
                 <tr className="border-t border-gray-200">
-                  <td className="py-2 px-3">Printing</td>
+                  <td className="py-1 sm:py-2 px-1 sm:px-3">Printing</td>
                   <td className="text-center">{breakdown.shirtCount}</td>
                   <td className="text-center">₱{breakdown.printFee}</td>
                   <td className="text-right">
@@ -184,7 +186,7 @@ const FinalizeDesignStep: React.FC<FinalizeDesignStepProps> = ({ design }) => {
                 </tr>
                 {breakdown.revisionFee >= 0 && (
                   <tr className="border-t border-gray-200">
-                    <td className="py-2 px-3">Revision Fee</td>
+                    <td className="py-1 sm:py-2 px-1 sm:px-3">Revision Fee</td>
                     <td className="text-center">-</td>
                     <td className="text-center">₱{breakdown.revisionFee}</td>
                     <td className="text-right">₱{breakdown.revisionFee}</td>
@@ -192,7 +194,7 @@ const FinalizeDesignStep: React.FC<FinalizeDesignStepProps> = ({ design }) => {
                 )}
                 {breakdown.designerFee >= 0 && (
                   <tr className="border-t border-gray-200">
-                    <td className="py-2 px-3">Designer Fee</td>
+                    <td className="py-1 sm:py-2 px-1 sm:px-3">Designer Fee</td>
                     <td className="text-center">-</td>
                     <td className="text-center">₱{breakdown.designerFee}</td>
                     <td className="text-right">₱{breakdown.designerFee}</td>
@@ -203,22 +205,22 @@ const FinalizeDesignStep: React.FC<FinalizeDesignStepProps> = ({ design }) => {
           </div>
 
           {/* ✅ Totals */}
-          <div className="flex justify-end mt-6">
-            <div className="w-1/2 text-sm space-y-1">
+          <div className="flex justify-end mt-3 sm:mt-6">
+            <div className="w-full sm:w-1/2 text-xs sm:text-sm space-y-1">
               <div className="flex justify-between border-b border-gray-200 pb-1">
                 <span>Subtotal</span>
                 <span>₱{displayTotal.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between font-bold text-gray-800 text-lg bg-gray-50 px-3 py-2 rounded-md">
+              <div className="flex justify-between font-bold text-gray-800 text-sm sm:text-lg bg-gray-50 px-2 sm:px-3 py-1 sm:py-2 rounded-md">
                 <span>Total</span>
                 <span>₱{displayTotal.toLocaleString()}</span>
               </div>
             </div>
           </div>
 
-          
+
            {/* Footer */}
-            <div className="mt-8 text-center text-gray-600 text-sm border-t pt-3">
+            <div className="mt-4 sm:mt-8 text-center text-gray-600 text-xs sm:text-sm border-t pt-2 sm:pt-3">
               <p className="font-medium">Thank you for choosing TechShirt!</p>
               <p className="text-xs text-gray-500">
                 Please keep this invoice for your records.
