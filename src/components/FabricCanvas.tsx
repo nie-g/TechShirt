@@ -15,6 +15,11 @@ import CommentsModal from "./designCanvasComponents/CanvasComments";
 import ReferencesGallery from "./designCanvasComponents/CanvasDesignReferences";
 import CanvasSketch from "./designCanvasComponents/CanvasSketchModal";
 import { motion } from "framer-motion";
+// 🔹 Import guide overlay images
+import TshirtGuide from "../images/Tshirt.png";
+import PoloGuide from "../images/Polo.png";
+import LongsleeveGuide from "../images/Longsleeve.png";
+import JerseyGuide from "../images/Jersey.png";
 // 🔹 Bigger canvas size
 const CANVAS_WIDTH = 730;
 const CANVAS_HEIGHT = 515;
@@ -124,23 +129,23 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
 
   // 🔹 Function to get guide image based on shirt type
   const getGuideImagePath = (shirtType?: string): string => {
-    if (!shirtType) return "/src/images/Tshirt.png";
+    if (!shirtType) return TshirtGuide;
 
     const normalized = shirtType.toLowerCase().trim();
     const guideMap: Record<string, string> = {
-      "round neck": "/src/images/Tshirt.png",
-      "round_neck": "/src/images/Tshirt.png",
-      "tshirt": "/src/images/Tshirt.png",
-      "t-shirt": "/src/images/Tshirt.png",
-      "polo": "/src/images/Polo.png",
-      "polo shirt": "/src/images/Polo.png",
-      "long sleeves": "/src/images/Longsleeve.png",
-      "long_sleeves": "/src/images/Longsleeve.png",
-      "longsleeve": "/src/images/Longsleeve.png",
-      "jersey": "/src/images/Jersey.png",
+      "round neck": TshirtGuide,
+      "round_neck": TshirtGuide,
+      "tshirt": TshirtGuide,
+      "t-shirt": TshirtGuide,
+      "polo": PoloGuide,
+      "polo shirt": PoloGuide,
+      "long sleeves": LongsleeveGuide,
+      "long_sleeves": LongsleeveGuide,
+      "longsleeve": LongsleeveGuide,
+      "jersey": JerseyGuide,
     };
 
-    return guideMap[normalized] || "/src/images/Tshirt.png";
+    return guideMap[normalized] || TshirtGuide;
   };
 
   const [showComments, setShowComments] = useState(false);
