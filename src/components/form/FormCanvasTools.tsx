@@ -173,24 +173,6 @@ export async function addLine(canvas: fabric.Canvas) {
   canvas.requestRenderAll();
 }
 
-export async function addFreeform(canvas: fabric.Canvas) {
-  await flattenCanvasBeforeAdding(canvas);
-
-  const path = new fabric.Path("M 0 0 Q 50 100 100 0 T 200 0", {
-    left: 100,
-    top: 200,
-    stroke: getDefaultColor(canvas),
-    fill: "",
-    strokeWidth: 2,
-    erasable: true,
-  });
-
-  canvas.add(path);
-  canvas.selection = true;
-  canvas.skipTargetFind = false;
-  canvas.setActiveObject(path);
-  canvas.requestRenderAll();
-}
 /* ---------- drawing helpers ---------- */
 export function disableDrawingMode(canvas: fabric.Canvas) {
   const c = canvas as AnyCanvas;

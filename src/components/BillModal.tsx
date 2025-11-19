@@ -4,6 +4,7 @@ import { X, CheckCircle, HandCoins } from "lucide-react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
+import ResponseModal from "./ResponseModal";
 
 interface BillModalProps {
   designId: Id<"design">;
@@ -32,9 +33,20 @@ const BillModal: React.FC<BillModalProps> = ({
       if (!designId) return;
       try {
        await approveBill({ designId });
-        alert("✅ Bill approved successfully!");
+        setResponseModal({
+          isOpen: true,
+          type: "success",
+          title: "Success!",
+          message: "Bill approved successfully!",
+        });
       } catch (err) {
         console.error("Failed to approve bill:", err);
+        setResponseModal({
+          isOpen: true,
+          type: "error",
+          title: "Error",
+          message: "Failed to approve bill. Please try again.",
+        });
       }
     };
   if (!billingDoc && !billing) return null;
@@ -53,8 +65,14 @@ const BillModal: React.FC<BillModalProps> = ({
   const status = billingDoc?.status ?? billing?.status ?? "pending";
   const isApproved = status === "approved";
 
+  // Calculate subtotal including all fees
+  const subtotal =
+    (breakdown.printFee * breakdown.shirtCount) +
+    (breakdown.revisionFee || 0) +
+    (breakdown.designerFee || 0);
+
   // Use final_amount if exists
-  const displayTotal = billingDoc?.starting_amount ?? breakdown.total;
+  const displayTotal = billingDoc?.starting_amount ?? subtotal;
    // Final total fallback logic
   const getFinalTotal = () => {
     if (!billingDoc) return displayTotal;
@@ -69,6 +87,14 @@ const BillModal: React.FC<BillModalProps> = ({
   const [isNegotiating, setIsNegotiating] = React.useState(false);
   const [negotiatedAmount, setNegotiatedAmount] = React.useState(displayTotal);
   const submitNegotiation = useMutation(api.billing.submitNegotiation);
+  const createNotification = useMutation(api.notifications.createNotification);
+
+  const [responseModal, setResponseModal] = React.useState({
+    isOpen: false,
+    type: "success" as "success" | "error",
+    title: "",
+    message: "",
+  });
 
   const handleNegotiate = () => {
     setIsNegotiating(true);
@@ -178,16 +204,22 @@ const BillModal: React.FC<BillModalProps> = ({
                   <span>₱{displayTotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between border-b border-gray-300">
-                  <span>Tax (12%)</span>
+                  <span>Tax/VAT (12%)</span>
                   <span>₱{(displayTotal * 0.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between border-b border-gray-300">
                   <span>Total</span>
-                  <span>₱{(displayTotal * 1.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                  <span>₱{displayTotal.toLocaleString()}</span>
                 </div>
+                {finalTotal < displayTotal && (
+                  <div className="flex justify-between border-b border-gray-300 text-green-600">
+                    <span>Client Discount</span>
+                    <span>-₱{(displayTotal - finalTotal).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                  </div>
+                )}
                 <div className="flex justify-between font-bold text-lg bg-gray-50 text-gray-800 px-2 py-1 rounded">
                   <span>Final Negotiated Price</span>
-                  <span>₱{(finalTotal * 1.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                  <span>₱{finalTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
 
                 </div>
               </div>
@@ -218,9 +250,11 @@ const BillModal: React.FC<BillModalProps> = ({
                 <span>Total</span>
                 <span>₱{displayTotal.toLocaleString()}</span>
               </div>
-               <p className="text-sm text-gray-600 mb-2">
-                Current negotiated Price Offered by designer: ₱{finalTotal.toLocaleString()}
-              </p>
+              {(billingDoc?.negotiation_rounds ?? 0) < 5 && (
+                <p className="text-sm text-gray-600 mb-2">
+                  Current negotiated Price Offered by designer: ₱{finalTotal.toLocaleString()}
+                </p>
+              )}
             </div>
 
                       {/* Negotiation History */}
@@ -240,6 +274,15 @@ const BillModal: React.FC<BillModalProps> = ({
             </div>
           )}
 
+
+            {/* Negotiation Limit Warning */}
+            {(billingDoc?.negotiation_rounds ?? 0) >= 5 && (
+              <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-600 font-medium">
+                  ⚠️ You can only negotiate 5 times. Negotiation limit reached.
+                </p>
+              </div>
+            )}
 
             {/* Actions */}
             <div className="flex justify-end gap-3 mt-6">
@@ -273,10 +316,6 @@ const BillModal: React.FC<BillModalProps> = ({
           <motion.div className="bg-white rounded-2xl shadow-xl p-6 w-96">
             <h3 className="text-lg font-semibold mb-4">Negotiate Price</h3>
 
-            <p className="text-sm text-red-600 mb-2">
-              You can negotiate a maximum of 5 times.
-            </p>
-
             <p className="text-sm text-gray-600 mb-2">
               Current total: ₱{displayTotal.toLocaleString()}
             </p>
@@ -302,9 +341,12 @@ const BillModal: React.FC<BillModalProps> = ({
                 onClick={async () => {
                   const minAllowed = displayTotal * 0.9; // 10% of starting amount
                   if (negotiatedAmount < minAllowed) {
-                    alert(
-                      `⚠️ The negotiated amount cannot be less than 10% of the starting amount (₱${minAllowed.toLocaleString()}).`
-                    );
+                    setResponseModal({
+                      isOpen: true,
+                      type: "error",
+                      title: "Invalid Amount",
+                      message: `The negotiated amount cannot be less than 10% of the starting amount (₱${minAllowed.toLocaleString()}).`,
+                    });
                     return;
                   }
 
@@ -313,11 +355,34 @@ const BillModal: React.FC<BillModalProps> = ({
                       designId,
                       newAmount: negotiatedAmount,
                     });
-                    alert("✅ Negotiation submitted!");
+
+                    // Notify designer about negotiation request
+                    if (billingDoc?.design_id && clientInfo) {
+                      const clientName = `${clientInfo.firstName} ${clientInfo.lastName}`.trim() || "A client";
+                      await createNotification({
+                        userId: billingDoc.designer_id,
+                        userType: "designer",
+                        message: `${clientName} requested a price negotiation. Proposed amount: ₱${negotiatedAmount.toLocaleString()}`,
+                        title: "Price Negotiation Request",
+                        type: "negotiation",
+                      });
+                    }
+
+                    setResponseModal({
+                      isOpen: true,
+                      type: "success",
+                      title: "Success!",
+                      message: "Negotiation submitted successfully!",
+                    });
                     setIsNegotiating(false);
                   } catch (err) {
                     console.error(err);
-                    alert("⚠️ Failed to submit negotiation.");
+                    setResponseModal({
+                      isOpen: true,
+                      type: "error",
+                      title: "Error",
+                      message: "Failed to submit negotiation. Please try again.",
+                    });
                   }
                 }}
                 className="px-4 py-2 rounded-lg bg-teal-600 text-white hover:bg-cyan-800 transition"
@@ -329,6 +394,13 @@ const BillModal: React.FC<BillModalProps> = ({
         </motion.div>
       )}
 
+      <ResponseModal
+        isOpen={responseModal.isOpen}
+        type={responseModal.type}
+        title={responseModal.title}
+        message={responseModal.message}
+        onClose={() => setResponseModal({ ...responseModal, isOpen: false })}
+      />
     </motion.div>
   );
 };

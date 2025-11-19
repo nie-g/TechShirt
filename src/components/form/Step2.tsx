@@ -32,9 +32,21 @@ const Step2: React.FC<Step2Props> = ({
   const undoStack = useRef<string[]>([]);
   const redoStack = useRef<string[]>([]);
 
+  // Type mapping to normalize shirt types
+  const typeMapping: Record<string, string> = {
+    "Round Neck": "round neck",
+    "V-neck": "round neck",
+    "Polo": "polo",
+    "Jersey": "jersey",
+    "Long Sleeves": "long sleeve",
+  };
+
+  // Normalize shirt type for template query
+  const normalizedShirtType = shirtType ? typeMapping[shirtType] || shirtType.toLowerCase() : undefined;
+
   // ✅ Fetch design templates (with storage IDs)
   const templates = useQuery(api.design_templates.getDesignTemplates, {
-    shirtType: shirtType || undefined,
+    shirtType: normalizedShirtType || undefined,
   });
 
   // ✅ Extract storage IDs for all template images

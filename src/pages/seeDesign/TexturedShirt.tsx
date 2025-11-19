@@ -37,10 +37,10 @@ const shirtTextureAlignments: Record<
   string,
   { repeat: [number, number]; offset: [number, number] }
 > = {
-   tshirt: { repeat: [0.9, 0.9], offset: [0.25, -0.3] },
-  long_sleeve: { repeat: [1.9, 1.9], offset: [0.30, 0.5] },
-  polo: { repeat: [0.48, 0.52], offset: [0.26, 0.02] },
-  jersey: { repeat: [0.5, 0.5], offset: [-0.3, 0.5] },
+ tshirt: { repeat: [0.6, 0.88], offset: [0.05, 0.03] },
+  long_sleeve: { repeat: [0.99, 1.2], offset: [0.09, 0.17] },
+  polo: { repeat: [0.9, 0.9], offset: [-0.08, 0.1] },
+  jersey: { repeat: [0.5, 0.65], offset: [-0.23, 0.6] },
 };
 
 const FabricTexturedTShirt: React.FC<Props> = ({
@@ -61,7 +61,7 @@ const FabricTexturedTShirt: React.FC<Props> = ({
     if (!fabricCanvas) return;
 
     // Mirror the fabric canvas horizontally for tshirt and jersey only, NOT for long_sleeve or polo
-    const shouldFlip = !["long_sleeve", "polo"].includes(shirtType);
+    const shouldFlip = !["long_sleeve", "polo","jersey"].includes(shirtType);
     const flippedCanvas = document.createElement("canvas");
     flippedCanvas.width = fabricCanvas.width;
     flippedCanvas.height = fabricCanvas.height;

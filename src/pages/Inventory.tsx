@@ -5,6 +5,7 @@ import { api } from "../../convex/_generated/api";
 import type { Id } from "../../convex/_generated/dataModel";
 import AdminNavbar from "../components/UsersNavbar";
 import DynamicSidebar from "../components/Sidebar";
+import ResponseModal from "../components/ResponseModal";
 import { Search, FileText, ArrowUpDown, Plus, Edit, Trash2, X } from "lucide-react";
 
 interface InventoryItem {
@@ -45,6 +46,12 @@ const InventoryPage: React.FC = () => {
   const [isStockModalOpen, setIsStockModalOpen] = useState(false);
   const [stockAmount, setStockAmount] = useState("");
   const [stockItem, setStockItem] = useState<InventoryItem | null>(null);
+  const [responseModal, setResponseModal] = useState({
+    isOpen: false,
+    type: "success" as "success" | "error",
+    title: "",
+    message: "",
+  });
 
   const [formState, setFormState] = useState({
     name: "",
@@ -97,7 +104,12 @@ const InventoryPage: React.FC = () => {
       setStockAmount("");
     } catch (err) {
       console.error("Failed to update stock:", err);
-      alert("Failed to update stock. Check console for details.");
+      setResponseModal({
+        isOpen: true,
+        type: "error",
+        title: "Error",
+        message: "Failed to update stock. Check console for details.",
+      });
     }
   };
 
@@ -160,7 +172,12 @@ const InventoryPage: React.FC = () => {
       setIsModalOpen(false);
     } catch (error) {
       console.error("Failed to save inventory item:", error);
-      alert("Failed to save inventory item. Check console for details.");
+      setResponseModal({
+        isOpen: true,
+        type: "error",
+        title: "Error",
+        message: "Failed to save inventory item. Check console for details.",
+      });
     }
   };
 
@@ -526,6 +543,14 @@ const InventoryPage: React.FC = () => {
           </motion.div>
         </main>
       </div>
+
+      <ResponseModal
+        isOpen={responseModal.isOpen}
+        type={responseModal.type}
+        title={responseModal.title}
+        message={responseModal.message}
+        onClose={() => setResponseModal({ ...responseModal, isOpen: false })}
+      />
     </div>
   );
 };

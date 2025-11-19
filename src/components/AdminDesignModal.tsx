@@ -21,6 +21,8 @@ interface UserDesignModalProps {
 const UserDesignModal: React.FC<UserDesignModalProps> = ({ requestId, onClose }) => {
   const [step, setStep] = useState(1);
   const { user } = useUser();
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const convexUser = useQuery(api.userQueries.getUserByClerkId, user ? { clerkId: user.id } : "skip");
   const design = useQuery(api.designs.getDesignByRequestId, { requestId });
@@ -45,10 +47,11 @@ const UserDesignModal: React.FC<UserDesignModalProps> = ({ requestId, onClose })
 
   // ✅ Helper to determine which button to show
     const renderActionButton = () => {
-       
+
        if (design.status === "approved") {
             return (
               <button
+                type="button"
                 onClick={() => {
                   if (!convexUser?._id) return;
                   setShowNeededStockModal(true);
@@ -61,9 +64,16 @@ const UserDesignModal: React.FC<UserDesignModalProps> = ({ requestId, onClose })
         if (design.status === "in_production") {
           return (
             <button
-              onClick={() => {
+              type="button"
+              onClick={async () => {
                 if (!convexUser?._id) return;
-                markPendingPickup({ designId: design._id, userId: convexUser._id });
+                try {
+                  await markPendingPickup({ designId: design._id, userId: convexUser._id });
+                  setSuccessMessage("Design marked as Pending Pickup!");
+                  setShowSuccessModal(true);
+                } catch (error) {
+                  console.error("Error updating status:", error);
+                }
               }}
               className="px-4 sm:px-6 md:px-8 py-2 text-xs sm:text-sm text-white bg-teal-500 rounded-lg shadow-md hover:bg-teal-600"
             >
@@ -74,9 +84,16 @@ const UserDesignModal: React.FC<UserDesignModalProps> = ({ requestId, onClose })
          if (design.status === "pending_pickup") {
           return (
             <button
-              onClick={() => {
+              type="button"
+              onClick={async () => {
                 if (!convexUser?._id) return;
-                markCompleted({ designId: design._id, userId: convexUser._id });
+                try {
+                  await markCompleted({ designId: design._id, userId: convexUser._id });
+                  setSuccessMessage("Design marked as Completed!");
+                  setShowSuccessModal(true);
+                } catch (error) {
+                  console.error("Error updating status:", error);
+                }
               }}
               className="px-4 sm:px-6 md:px-8 py-2 text-xs sm:text-sm text-white bg-green-500 rounded-lg shadow-md hover:bg-green-600"
             >
@@ -169,9 +186,43 @@ const UserDesignModal: React.FC<UserDesignModalProps> = ({ requestId, onClose })
             onClose={() => setShowNeededStockModal(false)}
             designId={design._id}
             userId={convexUser._id}
-            onSubmitSuccess={() => setShowNeededStockModal(false)}
+            onSubmitSuccess={() => {
+              setShowNeededStockModal(false);
+              setSuccessMessage("Design moved to Production!");
+              setShowSuccessModal(true);
+            }}
           />
         )}
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <motion.div
+          className="fixed inset-0 z-[70] flex items-center justify-center bg-black/50"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+        >
+          <motion.div
+            className="bg-white rounded-2xl shadow-xl p-8 max-w-sm w-full text-center"
+            initial={{ scale: 0.9 }}
+            animate={{ scale: 1 }}
+            exit={{ scale: 0.9 }}
+          >
+            <h3 className="text-2xl font-semibold text-gray-800 mb-2">Success!</h3>
+            <p className="text-gray-600 mb-6">{successMessage}</p>
+            <button
+              type="button"
+              onClick={() => {
+                setShowSuccessModal(false);
+                onClose();
+              }}
+              className="px-6 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition"
+            >
+              Close
+            </button>
+          </motion.div>
+        </motion.div>
+      )}
 
     </div>
   );

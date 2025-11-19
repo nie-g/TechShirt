@@ -3,6 +3,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import { Line } from "react-chartjs-2";
 import ReportsMetrics from "./AdminMetricsCard";
+import ResponseModal from "../../components/ResponseModal";
 import { Calendar, X } from "lucide-react";
 
 interface ReportsOverviewProps {
@@ -35,11 +36,22 @@ const ReportsOverview: React.FC<ReportsOverviewProps> = ({
   const [showDateFilter, setShowDateFilter] = useState(false);
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
+  const [responseModal, setResponseModal] = useState({
+    isOpen: false,
+    type: "success" as "success" | "error",
+    title: "",
+    message: "",
+  });
 
   const handleApplyDateFilter = () => {
     if (startDate && endDate) {
       if (new Date(startDate) > new Date(endDate)) {
-        alert("Start date must be before end date");
+        setResponseModal({
+          isOpen: true,
+          type: "error",
+          title: "Error",
+          message: "Start date must be before end date",
+        });
         return;
       }
       onDateRangeChange?.(startDate, endDate);
@@ -327,6 +339,14 @@ const ReportsOverview: React.FC<ReportsOverviewProps> = ({
           </div>
         </div>
       </section>
+
+      <ResponseModal
+        isOpen={responseModal.isOpen}
+        type={responseModal.type}
+        title={responseModal.title}
+        message={responseModal.message}
+        onClose={() => setResponseModal({ ...responseModal, isOpen: false })}
+      />
     </motion.div>
   );
 };

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as fabric from "fabric";
 import CanvasSettings from "./designCanvasComponents/CanvasSettings";
 import DesignDetails from "./designCanvasComponents/CanvasDesignDetails";
-import { Save, Upload, Info, Wrench, ArrowLeft, ReceiptText, Image, MessageCircleMore, Notebook, Loader2, BadgeCheck, ImageDown, Eye, EyeOff } from "lucide-react"; // added Back icon
+import { Save, Upload, Info, Wrench, ArrowLeft, ReceiptText, Image, MessageCircleMore, Notebook, Loader2, BadgeCheck, ImageDown, Eye, EyeOff, RotateCcw, RotateCw } from "lucide-react"; // added Back icon
 import { useQuery } from "convex/react";
 import toast from "react-hot-toast";
 import { api } from "../../convex/_generated/api";
@@ -40,6 +40,10 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   const navigate = useNavigate();
   const notifyClientUpdate = useMutation(api.design_notifications.notifyClientDesignUpdate);
+
+  // Undo/Redo state
+  const [history, setHistory] = useState<string[]>([]);
+  const [historyStep, setHistoryStep] = useState<number>(-1);
   // 🔹 Download canvas with guide overlay if enabled
   const handleDownloadCanvas = () => {
     if (!canvas) return;
@@ -140,7 +144,11 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
   };
 
   const [showComments, setShowComments] = useState(false);
-  const previewDoc = useQuery(api.design_preview.getByDesign, { designId });
+  const previewDoc = useQuery(api.design_preview.getLatestByDesign, { designId });
+  const comments = useQuery(
+    api.comments.listByPreview,
+    previewDoc?._id ? { preview_id: previewDoc._id } : "skip"
+  );
   const [showSketch, setShowSketch] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [isPosting, setIsPosting] = useState(false);
@@ -160,6 +168,46 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
         if (onReady && current.lowerCanvasEl) onReady(current.lowerCanvasEl);
       } catch {}
     }, 60);
+  };
+
+  // Save canvas state to history
+  const saveToHistory = (c?: fabric.Canvas) => {
+    const current = c || fabricRef.current || canvas;
+    if (!current) return;
+
+    const json = JSON.stringify(current.toJSON());
+    const newHistory = history.slice(0, historyStep + 1);
+    newHistory.push(json);
+    setHistory(newHistory);
+    setHistoryStep(newHistory.length - 1);
+  };
+
+  // Undo function
+  const handleUndo = () => {
+    if (historyStep <= 0) return;
+    const current = fabricRef.current || canvas;
+    if (!current) return;
+
+    const newStep = historyStep - 1;
+    setHistoryStep(newStep);
+    current.loadFromJSON(history[newStep], () => {
+      current.renderAll();
+      notifyParent(current);
+    });
+  };
+
+  // Redo function
+  const handleRedo = () => {
+    if (historyStep >= history.length - 1) return;
+    const current = fabricRef.current || canvas;
+    if (!current) return;
+
+    const newStep = historyStep + 1;
+    setHistoryStep(newStep);
+    current.loadFromJSON(history[newStep], () => {
+      current.renderAll();
+      notifyParent(current);
+    });
   };
 
   // Initialize Fabric.js canvas
@@ -213,15 +261,26 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
           canvas.backgroundColor = "#f5f5f5";
           canvas.selection = false;
           canvas.skipTargetFind = true;
-          
+
           canvas.renderAll();
-          
+
+          // Save initial state to history
+          const json = JSON.stringify(canvas.toJSON());
+          setHistory([json]);
+          setHistoryStep(0);
+
           notifyParent(canvas);
         });
       } catch {
         canvas.clear();
         canvas.backgroundColor = "#f5f5f5";
         canvas.renderAll();
+
+        // Save initial state to history
+        const json = JSON.stringify(canvas.toJSON());
+        setHistory([json]);
+        setHistoryStep(0);
+
         notifyParent(canvas);
       }
     } else {
@@ -231,6 +290,22 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
       notifyParent(canvas);
     }
   }, [canvas, initialCanvasJson]);
+
+  // Add history tracking for canvas modifications
+  useEffect(() => {
+    if (!canvas) return;
+
+    const historyHandler = () => {
+      saveToHistory(canvas);
+    };
+
+    const historyEvents = ["object:added", "object:modified", "object:removed", "path:created"];
+    historyEvents.forEach((ev) => canvas.on(ev as any, historyHandler));
+
+    return () => {
+      historyEvents.forEach((ev) => canvas.off(ev as any, historyHandler));
+    };
+  }, [canvas, history, historyStep]);
 
   // 🔹 Save only JSON
   const handleSave = async () => {
@@ -295,10 +370,6 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
   };
   const billingDoc = useQuery(api.billing.getBillingByDesign, { designId });
   const [isDesignerBillOpen, setIsDesignerBillOpen] = useState(false);
-  const comments = useQuery(
-  api.comments.listByPreview,
-  previewDoc?._id ? { preview_id: previewDoc._id } : "skip"
-  );
 
   
 
@@ -348,7 +419,7 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
           <Notebook size={18} />
 
           </motion.button>
-          {/* Comments button – only show if comments exist */}
+          {/* Comments button – only show if there are comments */}
           {comments && comments.length > 0 && (
             <motion.button
               whileHover={{ scale: 1.1 }}
@@ -422,6 +493,44 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
               title="Tools"
             >
               <Wrench size={18} />
+            </motion.button>
+          )}
+
+          {/* Undo button */}
+          {!isDisabled && (
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              type="button"
+              disabled={historyStep <= 0}
+              onClick={handleUndo}
+              className={`p-2 rounded ${
+                historyStep <= 0
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+              title="Undo"
+            >
+              <RotateCcw size={18} />
+            </motion.button>
+          )}
+
+          {/* Redo button */}
+          {!isDisabled && (
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              type="button"
+              disabled={historyStep >= history.length - 1}
+              onClick={handleRedo}
+              className={`p-2 rounded ${
+                historyStep >= history.length - 1
+                  ? "bg-gray-200 text-gray-400 cursor-not-allowed"
+                  : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+              }`}
+              title="Redo"
+            >
+              <RotateCw size={18} />
             </motion.button>
           )}
 
@@ -563,27 +672,29 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
 
 
         {showReferences && requestId && (
-        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg shadow-lg max-w-lg w-full p-4">
-            <h2 className="text-lg font-semibold mb-3">Design References</h2>
+        <div className="fixed inset-0 bg-black/40 flex justify-center items-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-lg max-w-2xl w-full max-h-[90vh] flex flex-col">
+            <div className="p-4 border-b border-gray-200">
+              <h2 className="text-lg font-semibold">Design References</h2>
+            </div>
 
-            <ReferencesGallery
-              requestId={requestId}
-              onSelectImage={async (url) => {
-                if (canvas) {
-                  await addImageFromUrl(canvas, url);
-                  setShowReferences(false);
-                  setActiveTab("none");
-                }
-              }}
-            />
+            <div className="flex-1 overflow-y-auto p-4">
+              <ReferencesGallery
+                requestId={requestId}
+                onSelectImage={async (url) => {
+                  if (canvas) {
+                    await addImageFromUrl(canvas, url);
+                    setShowReferences(false);
+                    setActiveTab("none");
+                  }
+                }}
+              />
+            </div>
 
-            <div className="mt-4 flex justify-end">
+            <div className="p-4 border-t border-gray-200 flex justify-end">
               <button
-                onClick={() => setShowReferences(false)
-                  
-                  
-                }
+                type="button"
+                onClick={() => setShowReferences(false)}
                 className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300"
               >
                 Close

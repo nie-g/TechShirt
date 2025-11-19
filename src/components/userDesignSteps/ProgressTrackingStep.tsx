@@ -114,15 +114,19 @@ const ProgressTrackingStep: React.FC<ProgressTrackingStepProps> = ({
     return <div className="text-gray-500">No previews yet.</div>;
   }
 
+  // Reverse previews to show from first (oldest) to last (newest)
+  const sortedPreviews = [...previews].reverse();
+  const sortedUrls = [...urls].reverse();
+
   return (
     <div className="h-[65vh] pr-2 space-y-8">
-      {previews.map((p, idx) => (
+      {sortedPreviews.map((p, idx) => (
         <PreviewWithComments
           key={p._id}
           preview={p}
-          url={urls[idx] ?? undefined}
+          url={sortedUrls[idx] ?? undefined}
           index={idx}
-          total={previews.length}
+          total={sortedPreviews.length}
         />
       ))}
     </div>

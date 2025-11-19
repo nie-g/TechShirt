@@ -16,7 +16,7 @@ export const getAll = query({
 
 export const getDesignTemplates = query({
   args: {
-    shirtType: v.optional(v.string()), // e.g. "Round Neck tshirt"
+    shirtType: v.optional(v.string()), // e.g. "round neck"
   },
   handler: async ({ db }, { shirtType }) => {
     // fetch all templates
@@ -33,11 +33,19 @@ export const getDesignTemplates = query({
       })
     );
 
+    // Debug logging
+    if (shirtType) {
+      console.log(`[getDesignTemplates] Filtering for shirtType: "${shirtType}"`);
+      console.log(`[getDesignTemplates] Available templates:`, expanded.map(t => ({ name: t.template_name, type: t.shirt_type_name })));
+    }
+
     // filter if shirtType is provided
     if (shirtType) {
-      return expanded.filter(
+      const filtered = expanded.filter(
         (t) => t.shirt_type_name?.toLowerCase() === shirtType.toLowerCase()
       );
+      console.log(`[getDesignTemplates] Filtered result count: ${filtered.length}`);
+      return filtered;
     }
 
     return expanded;

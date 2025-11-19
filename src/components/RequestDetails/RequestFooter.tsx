@@ -5,6 +5,7 @@ import { api } from "../../../convex/_generated/api";
 import type { RequestType } from "../RequestDetailsModal";
 import type { Id } from "../../../convex/_generated/dataModel";
 import { useNavigate } from "react-router-dom";
+import ResponseModal from "../ResponseModal";
 
 interface Props {
   request: RequestType;
@@ -23,6 +24,12 @@ const RequestFooter: React.FC<Props> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showRejectModal, setShowRejectModal] = useState(false);
   const [rejectReason, setRejectReason] = useState("");
+  const [responseModal, setResponseModal] = useState({
+    isOpen: false,
+    type: "success" as "success" | "error",
+    title: "",
+    message: "",
+  });
 
   const assignDesigner = useMutation(api.design_requests.assignDesignRequest);
   const rejectRequest = useMutation(api.design_requests.rejectDesignRequestWithReason);
@@ -42,7 +49,15 @@ const RequestFooter: React.FC<Props> = ({
   };
 
   const confirmReject = async () => {
-    if (!rejectReason.trim()) return alert("Please provide a reason before submitting.");
+    if (!rejectReason.trim()) {
+      setResponseModal({
+        isOpen: true,
+        type: "error",
+        title: "Error",
+        message: "Please provide a reason before submitting.",
+      });
+      return;
+    }
     setIsSubmitting(true);
     try {
       await rejectRequest({
@@ -154,6 +169,14 @@ const RequestFooter: React.FC<Props> = ({
           </div>
         </div>
       )}
+
+      <ResponseModal
+        isOpen={responseModal.isOpen}
+        type={responseModal.type}
+        title={responseModal.title}
+        message={responseModal.message}
+        onClose={() => setResponseModal({ ...responseModal, isOpen: false })}
+      />
     </>
   );
 };

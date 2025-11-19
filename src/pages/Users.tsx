@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 // ✅ Shared components
 import ClientNavbar from "../components/UsersNavbar";
 import ClientSidebar from "../components/Sidebar";
+import ResponseModal from "../components/ResponseModal";
 import { useUser } from "@clerk/clerk-react";
 
 const Users: React.FC = () => {
@@ -42,6 +43,14 @@ const Users: React.FC = () => {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<"admin" | "client" | "designer">("designer");
 
+  // ✅ Response modal state
+  const [responseModal, setResponseModal] = useState({
+    isOpen: false,
+    type: "success" as "success" | "error",
+    title: "",
+    message: "",
+  });
+
   // ✅ Modal handlers
   const openEditModal = (user: any) => {
     setEditingUser(user);
@@ -70,30 +79,69 @@ const Users: React.FC = () => {
     try {
       const result = await updateUserMutation(payload);
       if (result.success) {
-        alert("✅ User updated!");
+        setResponseModal({
+          isOpen: true,
+          type: "success",
+          title: "Success!",
+          message: "User updated successfully!",
+        });
         closeEditModal();
-      } else alert(`❌ Failed: ${result.message}`);
+      } else {
+        setResponseModal({
+          isOpen: true,
+          type: "error",
+          title: "Error",
+          message: `Failed: ${result.message}`,
+        });
+      }
     } catch (err) {
       console.error(err);
-      alert("❌ Error updating user");
+      setResponseModal({
+        isOpen: true,
+        type: "error",
+        title: "Error",
+        message: "Error updating user",
+      });
     }
   };
 
   // ✅ Handle invite user
   const handleInviteUser = async () => {
     if (!inviteEmail) {
-      alert("Please enter an email");
+      setResponseModal({
+        isOpen: true,
+        type: "error",
+        title: "Error",
+        message: "Please enter an email",
+      });
       return;
     }
     try {
       const result = await sendInvite({ email: inviteEmail, role: inviteRole });
       if (result.emailSent) {
-        alert(`✅ Invitation sent to ${inviteEmail} as ${inviteRole}`);
+        setResponseModal({
+          isOpen: true,
+          type: "success",
+          title: "Success!",
+          message: `Invitation sent to ${inviteEmail} as ${inviteRole}`,
+        });
         closeInviteModal();
-      } else alert(`❌ Failed to send invite: ${result.message}`);
+      } else {
+        setResponseModal({
+          isOpen: true,
+          type: "error",
+          title: "Error",
+          message: `Failed to send invite: ${result.message}`,
+        });
+      }
     } catch (err) {
       console.error(err);
-      alert("❌ Failed to send invite. Check console for details.");
+      setResponseModal({
+        isOpen: true,
+        type: "error",
+        title: "Error",
+        message: "Failed to send invite. Check console for details.",
+      });
     }
   };
 
@@ -306,9 +354,19 @@ const Users: React.FC = () => {
                                 if (confirm(`Revoke invite for ${inv.email}?`)) {
                                   const result = await revokeInvite({ email: inv.email });
                                   if (result?.success) {
-                                    alert(`✅ Invitation revoked for ${inv.email}`);
+                                    setResponseModal({
+                                      isOpen: true,
+                                      type: "success",
+                                      title: "Success!",
+                                      message: `Invitation revoked for ${inv.email}`,
+                                    });
                                   } else {
-                                    alert(`❌ Failed to revoke invite`);
+                                    setResponseModal({
+                                      isOpen: true,
+                                      type: "error",
+                                      title: "Error",
+                                      message: "Failed to revoke invite",
+                                    });
                                   }
                                 }
                               }}
@@ -390,9 +448,19 @@ const Users: React.FC = () => {
                             if (confirm(`Revoke invite for ${inv.email}?`)) {
                               const result = await revokeInvite({ email: inv.email });
                               if (result?.success) {
-                                alert(`✅ Invitation revoked for ${inv.email}`);
+                                setResponseModal({
+                                  isOpen: true,
+                                  type: "success",
+                                  title: "Success!",
+                                  message: `Invitation revoked for ${inv.email}`,
+                                });
                               } else {
-                                alert(`❌ Failed to revoke invite`);
+                                setResponseModal({
+                                  isOpen: true,
+                                  type: "error",
+                                  title: "Error",
+                                  message: "Failed to revoke invite",
+                                });
                               }
                             }
                           }}
@@ -494,6 +562,14 @@ const Users: React.FC = () => {
           </div>
         </div>
       )}
+
+      <ResponseModal
+        isOpen={responseModal.isOpen}
+        type={responseModal.type}
+        title={responseModal.title}
+        message={responseModal.message}
+        onClose={() => setResponseModal({ ...responseModal, isOpen: false })}
+      />
     </div>
   );
 };

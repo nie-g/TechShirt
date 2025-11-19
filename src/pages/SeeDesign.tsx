@@ -14,6 +14,7 @@ import type { Id } from "../../convex/_generated/dataModel";
 import { useUser } from "@clerk/clerk-react";
 import BillModal from "../components/BillModal";
 import { OrbitControls } from "@react-three/drei";
+import ResponseModal from "../components/ResponseModal";
 
 type FabricCanvasRecord = {
   _id: Id<"fabric_canvases">;
@@ -77,6 +78,7 @@ const SeeDesign: React.FC = () => {
   const [previewImages, setPreviewImages] = useState<string[]>([]);
   const saveCommentImage = useAction(api.comments.saveCommentsImages);
   const addComment = useMutation(api.comments.add);
+  const createNotification = useMutation(api.notifications.createNotification);
  // ✅ Fetch comment images for each comment
 const commentImagesList = useQuery(
   api.comment_images.listAll,
@@ -206,6 +208,17 @@ const handleAddComment = async () => {
       }
     }
 
+    // Notify designer about the comment
+    if (design?.designer_id && user?.fullName) {
+      await createNotification({
+        userId: design.designer_id,
+        userType: "designer",
+        message: `${user.fullName} added a comment on your design`,
+        title: "New Comment",
+        type: "comment",
+      });
+    }
+
     // Reset input and previews
     setNewComment("");
     setCommentImages([]);
@@ -213,7 +226,12 @@ const handleAddComment = async () => {
 
   } catch (err) {
     console.error("❌ Failed to add comment:", err);
-    alert("⚠️ Failed to add comment. Please try again.");
+    setResponseModal({
+      isOpen: true,
+      type: "error",
+      title: "Error",
+      message: "Failed to add comment. Please try again.",
+    });
   }
 };
 
@@ -244,6 +262,12 @@ const existingRating = useQuery(api.ratings_and_feedback.getExistingRating,
 const [isRatingModalOpen, setIsRatingModalOpen] = useState(false);
 const [rating, setRating] = useState(0);
 const [feedback, setFeedback] = useState("");
+const [responseModal, setResponseModal] = useState({
+  isOpen: false,
+  type: "success" as "success" | "error",
+  title: "",
+  message: "",
+});
 
 // ✅ Pre-populate form with existing rating when modal opens
 useEffect(() => {
@@ -273,8 +297,23 @@ const RevisionConfirmModal = () => (
         <button
           onClick={async () => {
             if (!design?._id) return;
-            try { await requestRevision({ designId: design._id });alert("✅ Revision requested successfully!");
-            } catch (err) {console.error(err);alert("⚠️ Failed to request revision.");}
+            try {
+              await requestRevision({ designId: design._id });
+              setResponseModal({
+                isOpen: true,
+                type: "success",
+                title: "Success!",
+                message: "Revision requested successfully!",
+              });
+            } catch (err) {
+              console.error(err);
+              setResponseModal({
+                isOpen: true,
+                type: "error",
+                title: "Error",
+                message: "Failed to request revision.",
+              });
+            }
             setIsRevisionModalOpen(false);
           }}
           className="px-4 py-2 rounded-lg bg-teal-500 text-white hover:bg-yellow-600 transition">
@@ -307,10 +346,20 @@ const ApproveConfirmModal = () => (
             if (!design?._id) return;
             try {
               await approveDesign({ designId: design._id });
-              alert("✅ Design approved successfully!");
+              setResponseModal({
+                isOpen: true,
+                type: "success",
+                title: "Success!",
+                message: "Design approved successfully!",
+              });
             } catch (err) {
               console.error(err);
-              alert("⚠️ Failed to approve design.");
+              setResponseModal({
+                isOpen: true,
+                type: "error",
+                title: "Error",
+                message: "Failed to approve design.",
+              });
             }
             setIsApproveModalOpen(false);
           }}
@@ -437,11 +486,25 @@ function createWhiteFallbackCanvas(): HTMLCanvasElement {
 }, [canvasDoc]);
 
 
- const shirtType =
-  (designRequest?.shirt_type ||
-    (designRequest as any)?.tshirt_type ||
-    "tshirt")
-    .toLowerCase();
+  // Normalize shirt type to match model keys
+  const normalizeShirtType = (type: string | undefined): string => {
+    if (!type) return "tshirt";
+    const normalized = type.toLowerCase().replace(/\s+/g, "_");
+    const typeMap: Record<string, string> = {
+      "round_neck": "tshirt",
+      "v-neck": "tshirt",
+      "v_neck": "tshirt",
+      "polo": "polo",
+      "jersey": "jersey",
+      "long_sleeves": "long_sleeve",
+      "long sleeves": "long_sleeve",
+    };
+    return typeMap[normalized] || normalized;
+  };
+
+  const shirtType = normalizeShirtType(
+    designRequest?.shirt_type || (designRequest as any)?.tshirt_type
+  );
 
   return (
     <motion.div
@@ -852,11 +915,21 @@ function createWhiteFallbackCanvas(): HTMLCanvasElement {
                           rating,
                           feedback,
                         });
-                          alert("✅ Rating submitted!");
+                          setResponseModal({
+                            isOpen: true,
+                            type: "success",
+                            title: "Success!",
+                            message: "Rating submitted!",
+                          });
                           setIsRatingModalOpen(false);
                         } catch (err) {
                           console.error(err);
-                          alert("⚠️ Failed to submit rating.");
+                          setResponseModal({
+                            isOpen: true,
+                            type: "error",
+                            title: "Error",
+                            message: "Failed to submit rating.",
+                          });
                         }
                       }}
                       className="px-4 py-2 rounded-lg bg-yellow-500 text-white hover:bg-yellow-600 transition"
@@ -867,6 +940,14 @@ function createWhiteFallbackCanvas(): HTMLCanvasElement {
                 </div>
               </div>
             )}
+
+      <ResponseModal
+        isOpen={responseModal.isOpen}
+        type={responseModal.type}
+        title={responseModal.title}
+        message={responseModal.message}
+        onClose={() => setResponseModal({ ...responseModal, isOpen: false })}
+      />
     </motion.div>
   );
 };

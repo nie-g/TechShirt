@@ -14,6 +14,7 @@ interface ExportInvoiceProps {
   invoiceNo: number;
   billingDate: string; // ✅ change from number → string
   breakdown: InvoiceBreakdown;
+  finalAmount?: number; // Optional final negotiated price
 }
 
 export const exportInvoiceToPDF = ({
@@ -22,7 +23,10 @@ export const exportInvoiceToPDF = ({
   invoiceNo,
   billingDate,
   breakdown,
+  finalAmount,
 }: ExportInvoiceProps) => {
+  const displayTotal = breakdown.total;
+  const finalTotal = finalAmount && finalAmount > 0 ? finalAmount : displayTotal;
   const doc = new jsPDF();
   const margin = 20;
   let y = 20;
@@ -30,7 +34,7 @@ export const exportInvoiceToPDF = ({
   // 🧢 Header
   doc.setFont("helvetica", "bold");
   doc.setFontSize(18);
-  doc.text("TechShirt", margin, y);
+  doc.text("JCC Textile Printing Services", margin, y);
   y += 10;
 
   doc.setFont("helvetica", "normal");
@@ -91,20 +95,34 @@ export const exportInvoiceToPDF = ({
   y += 5;
   doc.setFont("helvetica", "normal");
   doc.text("Subtotal:", margin + 120, y);
-  doc.text(`₱${breakdown.total}`, margin + 170, y, { align: "right" });
+  doc.text(`₱${displayTotal}`, margin + 170, y, { align: "right" });
 
-  // 💰 Tax (12%)
+  // 💰 Tax/VAT (12%)
   y += 7;
-  const tax = breakdown.total * 0.12;
-  doc.text("Tax (12%):", margin + 120, y);
+  const tax = displayTotal * 0.12;
+  doc.text("Tax/VAT (12%):", margin + 120, y);
   doc.text(`₱${tax.toFixed(2)}`, margin + 170, y, { align: "right" });
 
   // 💰 Total
   y += 7;
-  doc.setFont("helvetica", "bold");
+  doc.setFont("helvetica", "normal");
   doc.text("Total:", margin + 120, y);
-  const totalWithTax = breakdown.total * 1.12;
-  doc.text(`₱${totalWithTax.toFixed(2)}`, margin + 170, y, { align: "right" });
+  doc.text(`₱${displayTotal.toFixed(2)}`, margin + 170, y, { align: "right" });
+
+  // 💰 Client Discount (if negotiated)
+  if (finalTotal < displayTotal) {
+    y += 7;
+    doc.setTextColor(34, 197, 94); // Green color
+    doc.text("Client Discount:", margin + 120, y);
+    doc.text(`-₱${(displayTotal - finalTotal).toFixed(2)}`, margin + 170, y, { align: "right" });
+    doc.setTextColor(0, 0, 0); // Reset to black
+  }
+
+  // 💰 Final Negotiated Price
+  y += 7;
+  doc.setFont("helvetica", "bold");
+  doc.text("Final Negotiated Price:", margin + 120, y);
+  doc.text(`₱${finalTotal.toFixed(2)}`, margin + 170, y, { align: "right" });
 
   // ❤️ Footer
   y += 20;

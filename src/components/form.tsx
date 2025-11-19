@@ -10,6 +10,7 @@ import Step2 from "./form/Step2";
 import Step3 from "./form/Step3";
 import toast from "react-hot-toast";
 import { BadgeCheck } from "lucide-react";
+import ResponseModal from "./ResponseModal";
 
 interface ShirtDesignFormProps {
   onClose: () => void;
@@ -19,6 +20,12 @@ interface ShirtDesignFormProps {
 const ShirtDesignForm: React.FC<ShirtDesignFormProps> = ({ onClose, onSubmit }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [step, setStep] = useState(1);
+  const [responseModal, setResponseModal] = useState({
+    isOpen: false,
+    type: "success" as "success" | "error",
+    title: "",
+    message: "",
+  });
 
   const [shirtType, setShirtType] = useState<string | null>(null);
   const [canvasState, setCanvasState] = useState<any>(null);
@@ -85,22 +92,42 @@ const ShirtDesignForm: React.FC<ShirtDesignFormProps> = ({ onClose, onSubmit }) 
 
   const saveDesign = async () => {
     if (!projectName.trim()) {
-      alert("Please enter a project name");
+      setResponseModal({
+        isOpen: true,
+        type: "error",
+        title: "Error",
+        message: "Please enter a project name",
+      });
       return;
     }
     if (!sizes || sizes.length === 0) {
-      alert("Please add at least one shirt size with quantity");
+      setResponseModal({
+        isOpen: true,
+        type: "error",
+        title: "Error",
+        message: "Please add at least one shirt size with quantity",
+      });
       return;
     }
     if (!printType) {
-      alert("Please select a print type");
+      setResponseModal({
+        isOpen: true,
+        type: "error",
+        title: "Error",
+        message: "Please select a print type",
+      });
       return;
     }
 
     setIsSubmitting(true);
 
     if (!user) {
-      alert("Please sign in to save your design");
+      setResponseModal({
+        isOpen: true,
+        type: "error",
+        title: "Error",
+        message: "Please sign in to save your design",
+      });
       setIsSubmitting(false);
       return;
     }
@@ -184,7 +211,12 @@ const ShirtDesignForm: React.FC<ShirtDesignFormProps> = ({ onClose, onSubmit }) 
       });
     } catch (error) {
       console.error("Error saving design:", error);
-      alert("Failed to save design: " + (error as Error).message);
+      setResponseModal({
+        isOpen: true,
+        type: "error",
+        title: "Error",
+        message: "Failed to save design: " + (error as Error).message,
+      });
     } finally {
        toast.custom((t) => (
               <div
@@ -430,6 +462,14 @@ const ShirtDesignForm: React.FC<ShirtDesignFormProps> = ({ onClose, onSubmit }) 
           )}
 
       </motion.div>
+
+      <ResponseModal
+        isOpen={responseModal.isOpen}
+        type={responseModal.type}
+        title={responseModal.title}
+        message={responseModal.message}
+        onClose={() => setResponseModal({ ...responseModal, isOpen: false })}
+      />
     </div>
   );
 };

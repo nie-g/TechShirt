@@ -51,7 +51,16 @@ const FinalizeDesignStep: React.FC<FinalizeDesignStepProps> = ({ design }) => {
   }
 
   const { breakdown, invoiceNo, createdAt } = billing;
-  const displayTotal = breakdown.total ?? 0;
+  const displayTotal = billing?.starting_amount ?? breakdown.total ?? 0;
+
+  // Get final negotiated amount
+  const getFinalTotal = () => {
+    if (!billing.final_amount || billing.final_amount === 0) {
+      return displayTotal;
+    }
+    return billing.final_amount;
+  };
+  const finalTotal = getFinalTotal();
 
   // 📄 Capture and download the invoice section as PDF
   // 📄 Capture and download the invoice section as PDF
@@ -116,7 +125,7 @@ const FinalizeDesignStep: React.FC<FinalizeDesignStepProps> = ({ design }) => {
         <div>
           {/* ✅ Header */}
           <div className="flex justify-between items-center">
-            <h2 className="text-lg sm:text-2xl font-bold text-gray-800">TechShirt</h2>
+            <h2 className="text-lg sm:text-2xl font-bold text-gray-800">JCC Textile Printing Services</h2>
            <button
               type="button"
               id="download-btn" // 👈 add this line
@@ -212,12 +221,22 @@ const FinalizeDesignStep: React.FC<FinalizeDesignStepProps> = ({ design }) => {
                 <span>₱{displayTotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between border-b border-gray-200 pb-1">
-                <span>Tax (12%)</span>
+                <span>Tax/VAT (12%)</span>
                 <span>₱{(displayTotal * 0.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
               </div>
-              <div className="flex justify-between font-bold text-gray-800 text-sm sm:text-lg bg-gray-50 px-2 sm:px-3 py-1 sm:py-2 rounded-md">
+              <div className="flex justify-between border-b border-gray-200 pb-1">
                 <span>Total</span>
-                <span>₱{(displayTotal * 1.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                <span>₱{displayTotal.toLocaleString()}</span>
+              </div>
+              {finalTotal < displayTotal && (
+                <div className="flex justify-between text-green-600 pb-1">
+                  <span>Client Discount</span>
+                  <span>-₱{(displayTotal - finalTotal).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-bold text-gray-800 text-sm sm:text-lg bg-gray-50 px-2 sm:px-3 py-1 sm:py-2 rounded-md">
+                <span>Final Negotiated Price</span>
+                <span>₱{finalTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>

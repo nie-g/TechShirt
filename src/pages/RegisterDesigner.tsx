@@ -1,9 +1,11 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar"; 
+import Navbar from "../components/Navbar";
 import cutie from "../images/tuttifruitties.png";
 import { useSignUp } from "@clerk/clerk-react";
+import { Eye, EyeOff } from "lucide-react";
+import { validatePassword } from "../utils/passwordValidation";
 
 const Register = () => {
   const { isLoaded, signUp, setActive } = useSignUp();
@@ -20,11 +22,20 @@ const Register = () => {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [passwordErrors, setPasswordErrors] = useState<string[]>([]);
+  const [showPassword, setShowPassword] = useState(false);
 
   // 🔑 persist signup attempt ID across renders
- 
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setForm({ ...form, [name]: value });
+
+    // Dynamic password validation
+    if (name === "password") {
+      const validation = validatePassword(value);
+      setPasswordErrors(validation.errors);
+    }
   };
 
   // Step 1: Sign up
@@ -32,7 +43,16 @@ const Register = () => {
 const handleSubmit = async (e: React.FormEvent) => {
   e.preventDefault();
   setError("");
+  setPasswordErrors([]);
   setLoading(true);
+
+  // Validate password before attempting signup
+  const passwordValidation = validatePassword(form.password);
+  if (!passwordValidation.isValid) {
+    setPasswordErrors(passwordValidation.errors);
+    setLoading(false);
+    return;
+  }
 
   if (!isLoaded || !signUp) return;
 
@@ -179,19 +199,41 @@ const handleVerification = async (e: React.FormEvent) => {
                     />
                   </div>
 
-                  <div>
+                  <div className="relative">
                     <input
                       aria-label="Password"
                       placeholder="Password"
-                      type="password"
+                      type={showPassword ? "text" : "password"}
                       name="password"
                       value={form.password}
                       onChange={handleChange}
-                      className="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-400"
+                      className="w-full px-4 py-2 pr-10 border border-gray-300 rounded-md focus:ring-2 focus:ring-teal-400"
                       required
                     />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                      title={showPassword ? "Hide password" : "Show password"}
+                    >
+                      {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                    </button>
                   </div>
                   <div id="clerk-captcha" />
+
+                  {passwordErrors.length > 0 && (
+                    <div className="bg-red-50 border border-red-200 rounded-md p-3">
+                      <p className="text-red-700 text-sm font-semibold mb-2">Password requirements:</p>
+                      <ul className="text-red-600 text-sm space-y-1">
+                        {passwordErrors.map((error, index) => (
+                          <li key={index} className="flex items-start">
+                            <span className="mr-2">•</span>
+                            <span>{error}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
 
                   {error && <p className="text-red-500 text-sm">{error}</p>}
 

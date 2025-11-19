@@ -10,6 +10,7 @@ import ClientNavbar from "../components/UsersNavbar";
 import DynamicSidebar from "../components/Sidebar";
 import ShirtDesignForm from "../components/form";
 import RequestDetailsModal from "../components/ClientRequestDetailsModal";
+import ResponseModal from "../components/ResponseModal";
 
 import {
   CheckCircle, Clock, AlertTriangle, XCircle,
@@ -86,6 +87,12 @@ const UserRequests: React.FC = () => {
   const [isSubmitting, _setIsSubmitting] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [activeTab, setActiveTab] = useState<"all" | "pending" | "approved" | "declined">("all");
+  const [responseModal, setResponseModal] = useState({
+    isOpen: false,
+    type: "success" as "success" | "error",
+    title: "",
+    message: "",
+  });
 
   useEffect(() => {
     if (currentUser && currentUser.role !== "client") navigate("/sign-in");
@@ -124,9 +131,19 @@ const UserRequests: React.FC = () => {
     if (!window.confirm("Cancel this request?")) return;
     try {
       await cancelRequest({ request_id: id, client_id: currentUser._id });
-      alert("Request cancelled successfully!");
+      setResponseModal({
+        isOpen: true,
+        type: "success",
+        title: "Success!",
+        message: "Request cancelled successfully!",
+      });
     } catch {
-      alert("Failed to cancel request.");
+      setResponseModal({
+        isOpen: true,
+        type: "error",
+        title: "Error",
+        message: "Failed to cancel request. Please try again.",
+      });
     }
   };
 
@@ -332,6 +349,14 @@ const UserRequests: React.FC = () => {
           userType="client"
         />
       )}
+
+      <ResponseModal
+        isOpen={responseModal.isOpen}
+        type={responseModal.type}
+        title={responseModal.title}
+        message={responseModal.message}
+        onClose={() => setResponseModal({ ...responseModal, isOpen: false })}
+      />
     </div>
   );
 };

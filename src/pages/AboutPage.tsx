@@ -1,9 +1,9 @@
 import React from "react";
 import { motion } from "framer-motion";
 import Navbar from "../components/Navbar";
-import about1 from "../images/picture1.jpg";
-import about2 from "../images/picture2.jpg";
-import about3 from "../images/picture3.jpg";
+import about1 from "../images/1.png";
+import about2 from "../images/2.png";
+import about3 from "../images/3.png";
 import dev1 from "../images/aia.png";
 import dev2 from "../images/cj.jpeg";
 import dev3 from "../images/annie.jpg";
@@ -16,12 +16,12 @@ interface AboutItem {
 }
 const aboutItems: AboutItem[] = [
   {
-    title: "3D Real-Time Shirt Modeling",
+    title: "3D Shirt Modeling",
     text: "Visualize your ideas instantly with our interactive 3D shirt model. Rotate, zoom, and preview your designs in real time for accurate placement and print-ready results.",
     image: about1,
   },
   {
-    title: "Live Design Syncing",
+    title: " Design Syncing",
     text: "Design changes update instantly across the platform—whether you're editing on the canvas or collaborating with a designer. No delays, no outdated versions, just seamless syncing.",
     image: about2,
   },

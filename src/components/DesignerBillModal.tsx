@@ -23,6 +23,16 @@ const DesignerBillModal: React.FC<DesignerBillModalProps> = ({
   if (!billingDoc) return null;
   const breakdown = billingDoc.breakdown;
 
+  // Get final amount
+  const displayTotal = billingDoc?.starting_amount ?? breakdown.total;
+  const getFinalTotal = () => {
+    if (!billingDoc.final_amount || billingDoc.final_amount === 0) {
+      return displayTotal;
+    }
+    return billingDoc.final_amount;
+  };
+  const finalTotal = getFinalTotal();
+
   // Latest negotiation entry
  // Latest negotiation entry
   const latestNegotiation =
@@ -147,15 +157,25 @@ const DesignerBillModal: React.FC<DesignerBillModalProps> = ({
             <div className="w-1/3 space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="font-medium">Subtotal:</span>
-                <span>₱{breakdown.total.toLocaleString()}</span>
+                <span>₱{displayTotal.toLocaleString()}</span>
               </div>
               <div className="flex justify-between">
-                <span className="font-medium">Tax (12%):</span>
-                <span>₱{(breakdown.total * 0.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                <span className="font-medium">Tax/VAT (12%):</span>
+                <span>₱{(displayTotal * 0.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
               </div>
-              <div className="flex justify-between font-semibold border-t pt-2">
+              <div className="flex justify-between border-t pt-2">
                 <span>Total:</span>
-                <span>₱{(breakdown.total * 1.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                <span>₱{displayTotal.toLocaleString()}</span>
+              </div>
+              {finalTotal < displayTotal && (
+                <div className="flex justify-between text-green-600">
+                  <span>Client Discount:</span>
+                  <span>-₱{(displayTotal - finalTotal).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                </div>
+              )}
+              <div className="flex justify-between font-semibold border-t pt-2">
+                <span>Final Negotiated Price:</span>
+                <span>₱{finalTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>
