@@ -7,6 +7,7 @@ import {
   addLine,
   addBrush,
   addEraser,
+  addFreeform,
   addImage,
   addBucketTool,
   disableDrawingMode,
@@ -24,6 +25,7 @@ import {
   Brush,
   Eraser,
   Image as ImageIcon,
+  Pencil,
   MousePointer,
   PaintBucket,
   Trash2,
@@ -260,9 +262,10 @@ const updateEraserSize = (val: number) => {
         <button onClick={() => canvas && addCircle(canvas)} className="p-2 text-teal-900 bg-gray-200 rounded hover:bg-gray-300" title="Add Circle"><CircleIcon size={18} strokeWidth={2.3}/></button>
         <button onClick={() => canvas && addLine(canvas)} className="p-2 text-teal-900 bg-gray-200 rounded hover:bg-gray-300" title="Add Line"><Minus size={18} strokeWidth={2.3}/></button>
 
-        {/* brush/eraser/image/select */}
+        {/* brush/eraser/freeform/image/select */}
         <button onClick={handleBrush} className={`p-2 rounded text-teal-900 ${activeTool==="brush"?"bg-teal-400 text-white":"bg-gray-200 hover:bg-gray-300"}`} title="Brush"><Brush size={18} strokeWidth={2.3}/></button>
         <button onClick={handleEraser} className={`p-2 rounded text-teal-900 ${activeTool==="eraser"?"bg-teal-400 text-white":"bg-gray-200 hover:bg-gray-300"}`} title="Eraser"><Eraser size={18} strokeWidth={2.3}/></button>
+        <button onClick={() => canvas && addFreeform(canvas)} className="p-2  text-teal-900 bg-gray-200 rounded hover:bg-gray-300" title="Freeform"><Pencil size={18} strokeWidth={2.3}/></button>
         <button onClick={() => canvas && addImage(canvas)} className="p-2 text-teal-900 bg-gray-200 rounded hover:bg-gray-300" title="Add Image"><ImageIcon size={18} strokeWidth={2.3}/></button>
 
         {/* bucket + eyedropper */}

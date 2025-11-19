@@ -43,8 +43,8 @@ const shirtTextureAlignments: Record<
   { repeat: [number, number]; offset: [number, number] }
 > = {
   tshirt: { repeat: [0.9, 0.9], offset: [0.25, -0.3] },
-  long_sleeve: { repeat: [1.9, 1.9], offset: [0.30, 0.5] },
-  polo: { repeat: [0.48, 0.52], offset: [0.26, 0.02] },
+  long_sleeve: { repeat: [0.8, 1.2], offset: [0.09, 0.17] },
+  polo: { repeat: [0.9, 0.9], offset: [-0.01, 0.1] },
   jersey: { repeat: [0.5, 0.5], offset: [-0.3, 0.5] },
 };
 

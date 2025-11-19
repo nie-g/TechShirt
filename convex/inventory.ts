@@ -131,15 +131,19 @@ export const updateInventoryItemForEdit = mutation({
     }
 
     // Compute how much stock the user is trying to add
+     let newStock = args.stock;
      let newPendingRestock = currentItem.pending_restock ?? 0;
      if (args.stock > 0) {
       if (args.stock < args.pendingRestock) {
         // Not enough to fulfill pending restock → stock stays the same
 
         newPendingRestock -= args.stock;
+        newStock = 0;
       } else if (args.stock >= args.pendingRestock)  {
         // Stock added covers pending restock and more
+        const excess = args.stock - args.pendingRestock;
         newPendingRestock = 0;
+        newStock = excess;
       } else {
       }
     }
@@ -150,8 +154,8 @@ export const updateInventoryItemForEdit = mutation({
       name: args.name,
       category_id: args.categoryId,
       unit: args.unit,
-      stock: args.stock,
-      pending_restock: args.pendingRestock,
+      stock: newStock,
+      pending_restock: newPendingRestock,
       description: args.description,
       updated_at: now,
     });

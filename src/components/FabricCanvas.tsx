@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as fabric from "fabric";
 import CanvasSettings from "./designCanvasComponents/CanvasSettings";
 import DesignDetails from "./designCanvasComponents/CanvasDesignDetails";
-import { Save, Upload, Info, Wrench, ArrowLeft, ReceiptText, Image, MessageCircleMore, Notebook, Loader2, BadgeCheck, ImageDown, Palette } from "lucide-react"; // added Back icon
+import { Save, Upload, Info, Wrench, ArrowLeft, ReceiptText, Image, MessageCircleMore, Notebook, Loader2, BadgeCheck, ImageDown, Eye, EyeOff } from "lucide-react"; // added Back icon
 import { useQuery } from "convex/react";
 import toast from "react-hot-toast";
 import { api } from "../../convex/_generated/api";
@@ -14,7 +14,6 @@ import { addImageFromUrl } from "./designCanvasComponents/CanvasTools";
 import CommentsModal from "./designCanvasComponents/CanvasComments";
 import ReferencesGallery from "./designCanvasComponents/CanvasDesignReferences";
 import CanvasSketch from "./designCanvasComponents/CanvasSketchModal";
-import TemplatesViewerModal from "./TemplatesViewerModal";
 import { motion } from "framer-motion";
 // 🔹 Bigger canvas size
 const CANVAS_WIDTH = 730;
@@ -41,32 +40,66 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
   const [canvas, setCanvas] = useState<fabric.Canvas | null>(null);
   const navigate = useNavigate();
   const notifyClientUpdate = useMutation(api.design_notifications.notifyClientDesignUpdate);
-  // Add this function inside FabricCanvas component
-    const handleDownloadCanvas = () => {
+  // 🔹 Download canvas with guide overlay if enabled
+  const handleDownloadCanvas = () => {
     if (!canvas) return;
 
-    // Get canvas as PNG data URL
-    const dataURL = canvas.toDataURL({
+    // Create a temporary canvas to merge the design canvas with the guide overlay
+    const tempCanvas = document.createElement("canvas");
+    tempCanvas.width = CANVAS_WIDTH;
+    tempCanvas.height = CANVAS_HEIGHT;
+    const ctx = tempCanvas.getContext("2d");
+    if (!ctx) return;
+
+    // Draw the fabric canvas first
+    const fabricDataURL = canvas.toDataURL({
       format: "png",
       quality: 1,
-      multiplier: 1, // ✅ Required by Fabric.js types
+      multiplier: 1,
     });
 
-    // Create a temporary link to trigger download
-    const link = document.createElement("a");
-    link.href = dataURL;
-    link.download = `design_${designId}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    const fabricImg = document.createElement("img");
+    fabricImg.onload = () => {
+      ctx.drawImage(fabricImg, 0, 0);
+
+      // If guide overlay is enabled, draw it on top
+      if (showGuideOverlay) {
+        const guideImagePath = getGuideImagePath(designRequest?.tshirt_type);
+        const guideImg = document.createElement("img");
+        guideImg.crossOrigin = "anonymous";
+        guideImg.onload = () => {
+          ctx.drawImage(guideImg, 0, 0, CANVAS_WIDTH, CANVAS_HEIGHT);
+          downloadImage();
+        };
+        guideImg.onerror = () => {
+          // If guide image fails to load, just download without it
+          downloadImage();
+        };
+        guideImg.src = guideImagePath;
+      } else {
+        downloadImage();
+      }
+    };
+
+    const downloadImage = () => {
+      const finalDataURL = tempCanvas.toDataURL("image/png");
+      const link = document.createElement("a");
+      link.href = finalDataURL;
+      link.download = `design_${designId}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+
+    fabricImg.src = fabricDataURL;
   };
 
 
   
 
   const [showReferences, setShowReferences] = useState(false);
-  const [showTemplates, setShowTemplates] = useState(false);
-
+  // 🔹 Guide overlay state - toggles the longsleeve guide image overlay on/off
+  const [showGuideOverlay, setShowGuideOverlay] = useState(false);
 
   // 🔹 Floating panel state
   const [activeTab, setActiveTab] = useState<"none" | "details" | "tools"| "references"| "comments"| "sketch">(
@@ -78,10 +111,34 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
   const designDoc = useQuery(api.designs.getById, { designId });
   const isDisabled = designDoc?.status === "approved" || designDoc?.status === "completed";
   const requestId = designDoc?.request_id;
+
+  // 🔹 Fetch design request to get shirt type
   const designRequest = useQuery(
     api.design_requests.getById,
     designDoc?.request_id ? { requestId: designDoc.request_id } : "skip"
   );
+
+  // 🔹 Function to get guide image based on shirt type
+  const getGuideImagePath = (shirtType?: string): string => {
+    if (!shirtType) return "/src/images/Tshirt.png";
+
+    const normalized = shirtType.toLowerCase().trim();
+    const guideMap: Record<string, string> = {
+      "round neck": "/src/images/Tshirt.png",
+      "round_neck": "/src/images/Tshirt.png",
+      "tshirt": "/src/images/Tshirt.png",
+      "t-shirt": "/src/images/Tshirt.png",
+      "polo": "/src/images/Polo.png",
+      "polo shirt": "/src/images/Polo.png",
+      "long sleeves": "/src/images/Longsleeve.png",
+      "long_sleeves": "/src/images/Longsleeve.png",
+      "longsleeve": "/src/images/Longsleeve.png",
+      "jersey": "/src/images/Jersey.png",
+    };
+
+    return guideMap[normalized] || "/src/images/Tshirt.png";
+  };
+
   const [showComments, setShowComments] = useState(false);
   const previewDoc = useQuery(api.design_preview.getByDesign, { designId });
   const [showSketch, setShowSketch] = useState(false);
@@ -320,21 +377,19 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
             <Image size={18} />
           </motion.button>
 
-          {/* Templates button */}
-          {!isDisabled && (
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.95 }}
-              type="button"
-              onClick={() => setShowTemplates(true)}
-              className={`p-2 rounded ${
-                showTemplates ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
-              }`}
-              title="See Templates"
-            >
-              <Palette size={18} />
-            </motion.button>
-          )}
+          {/* Use Guide button - always visible */}
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            type="button"
+            onClick={() => setShowGuideOverlay(!showGuideOverlay)}
+            className={`p-2 rounded ${
+              showGuideOverlay ? "bg-purple-500 text-white" : "bg-gray-200 text-gray-700"
+            }`}
+            title="Toggle Guide Overlay"
+          >
+            {showGuideOverlay ? <Eye size={18} /> : <EyeOff size={18} />}
+          </motion.button>
 
           {/* Details button */}
           <motion.button
@@ -448,13 +503,25 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
         </div>
       </div>
 
-      {/* Canvas */}
-      <canvas
-        ref={canvasElRef}
-        width={CANVAS_WIDTH}
-        height={CANVAS_HEIGHT}
-        className="border border-gray-300 w-[1000px] h-[700px] rounded"
-      />
+      {/* Canvas Container with Guide Overlay */}
+      <div className="relative" style={{ width: `${CANVAS_WIDTH}px`, height: `${CANVAS_HEIGHT}px` }}>
+        {/* Fabric Canvas */}
+        <canvas
+          ref={canvasElRef}
+          width={CANVAS_WIDTH}
+          height={CANVAS_HEIGHT}
+          className="absolute top-0 left-0 z-[1] border border-gray-300 rounded"
+        />
+
+        {/* Guide Overlay Image */}
+        {showGuideOverlay && (
+          <img
+            src={getGuideImagePath(designRequest?.tshirt_type)}
+            alt="Guide Overlay"
+            className="absolute top-0 left-0 w-full h-full pointer-events-none z-[2] rounded"
+          />
+        )}
+      </div>
 
 
       {/* Floating container for details/tools */}
@@ -543,18 +610,8 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
             </div>
           )}
 
-      {/* Templates Modal */}
-      <TemplatesViewerModal
-        isOpen={showTemplates}
-        onClose={() => setShowTemplates(false)}
-        shirtType={designRequest?.tshirt_type || "tshirt"}
-        onSelectTemplate={async (imageUrl) => {
-          if (canvas) {
-            await addImageFromUrl(canvas, imageUrl);
-            setShowTemplates(false);
-          }
-        }}
-      />
+
+        
 
     </div>
   );
