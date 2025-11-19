@@ -77,7 +77,7 @@ const UserDesignModal: React.FC<UserDesignModalProps> = ({ requestId, onClose })
               }}
               className="px-4 sm:px-6 md:px-8 py-2 text-xs sm:text-sm text-white bg-teal-500 rounded-lg shadow-md hover:bg-teal-600"
             >
-              Mark as Pending Pickup
+              Mark as Ready for Pickup
             </button>
             );
           }
