@@ -178,12 +178,16 @@ const BillModal: React.FC<BillModalProps> = ({
                   <span>₱{displayTotal.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between border-b border-gray-300">
+                  <span>Tax (12%)</span>
+                  <span>₱{(displayTotal * 0.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                </div>
+                <div className="flex justify-between border-b border-gray-300">
                   <span>Total</span>
-                  <span>₱{displayTotal.toLocaleString()}</span>
+                  <span>₱{(displayTotal * 1.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between font-bold text-lg bg-gray-50 text-gray-800 px-2 py-1 rounded">
                   <span>Final Negotiated Price</span>
-                  <span>₱{finalTotal.toLocaleString()}</span>
+                  <span>₱{(finalTotal * 1.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
 
                 </div>
               </div>

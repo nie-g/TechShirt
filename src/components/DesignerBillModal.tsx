@@ -149,9 +149,13 @@ const DesignerBillModal: React.FC<DesignerBillModalProps> = ({
                 <span className="font-medium">Subtotal:</span>
                 <span>₱{breakdown.total.toLocaleString()}</span>
               </div>
+              <div className="flex justify-between">
+                <span className="font-medium">Tax (12%):</span>
+                <span>₱{(breakdown.total * 0.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+              </div>
               <div className="flex justify-between font-semibold border-t pt-2">
                 <span>Total:</span>
-                <span>₱{breakdown.total.toLocaleString()}</span>
+                <span>₱{(breakdown.total * 1.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>

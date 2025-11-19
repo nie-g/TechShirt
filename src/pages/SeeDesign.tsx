@@ -704,8 +704,10 @@ function createWhiteFallbackCanvas(): HTMLCanvasElement {
       {(() => {
         const isCommentsDisabled =
           design?.status === "approved" ||
-          design?.status === "finished" ||
+          design?.status === "completed" ||
           design?.status === "in_production" ||
+          design?.status === "pending_pickup" ||
+          design?.status === "finished" ||
           !latestPreview;
 
         return (
@@ -717,8 +719,10 @@ function createWhiteFallbackCanvas(): HTMLCanvasElement {
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder={
                   design?.status === "approved" ||
-                  design?.status === "finished" ||
-                  design?.status === "in_production"
+                  design?.status === "completed" ||
+                  design?.status === "in_production" ||
+                  design?.status === "pending_pickup" ||
+                  design?.status === "finished"
                     ? "Comments are disabled for this design."
                     : "Write a comment..."
                 }
@@ -784,7 +788,7 @@ function createWhiteFallbackCanvas(): HTMLCanvasElement {
             {/* ⚠️ Notice when comments are disabled */}
             {isCommentsDisabled && (
               <p className="text-xs text-gray-500 italic mt-1">
-              Comments are disabled for designs that are marked as approved, finished, or in-production.
+              Comments are disabled for designs that are approved, completed, in production, or pending pickup.
               </p>
             )}
           </div>

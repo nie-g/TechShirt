@@ -87,11 +87,24 @@ export const exportInvoiceToPDF = ({
     y += 7;
   });
 
-  // 💰 Total
+  // 💰 Subtotal
   y += 5;
+  doc.setFont("helvetica", "normal");
+  doc.text("Subtotal:", margin + 120, y);
+  doc.text(`₱${breakdown.total}`, margin + 170, y, { align: "right" });
+
+  // 💰 Tax (12%)
+  y += 7;
+  const tax = breakdown.total * 0.12;
+  doc.text("Tax (12%):", margin + 120, y);
+  doc.text(`₱${tax.toFixed(2)}`, margin + 170, y, { align: "right" });
+
+  // 💰 Total
+  y += 7;
   doc.setFont("helvetica", "bold");
   doc.text("Total:", margin + 120, y);
-  doc.text(`₱${breakdown.total}`, margin + 170, y, { align: "right" });
+  const totalWithTax = breakdown.total * 1.12;
+  doc.text(`₱${totalWithTax.toFixed(2)}`, margin + 170, y, { align: "right" });
 
   // ❤️ Footer
   y += 20;

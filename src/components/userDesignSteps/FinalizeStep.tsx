@@ -211,9 +211,13 @@ const FinalizeDesignStep: React.FC<FinalizeDesignStepProps> = ({ design }) => {
                 <span>Subtotal</span>
                 <span>₱{displayTotal.toLocaleString()}</span>
               </div>
+              <div className="flex justify-between border-b border-gray-200 pb-1">
+                <span>Tax (12%)</span>
+                <span>₱{(displayTotal * 0.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+              </div>
               <div className="flex justify-between font-bold text-gray-800 text-sm sm:text-lg bg-gray-50 px-2 sm:px-3 py-1 sm:py-2 rounded-md">
                 <span>Total</span>
-                <span>₱{displayTotal.toLocaleString()}</span>
+                <span>₱{(displayTotal * 1.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
               </div>
             </div>
           </div>

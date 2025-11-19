@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import * as fabric from "fabric";
 import CanvasSettings from "./designCanvasComponents/CanvasSettings";
 import DesignDetails from "./designCanvasComponents/CanvasDesignDetails";
-import { Save, Upload, Info, Wrench, ArrowLeft, ReceiptText, Image, MessageCircleMore, Notebook, Loader2, BadgeCheck, ImageDown } from "lucide-react"; // added Back icon
+import { Save, Upload, Info, Wrench, ArrowLeft, ReceiptText, Image, MessageCircleMore, Notebook, Loader2, BadgeCheck, ImageDown, Palette } from "lucide-react"; // added Back icon
 import { useQuery } from "convex/react";
 import toast from "react-hot-toast";
 import { api } from "../../convex/_generated/api";
@@ -14,6 +14,7 @@ import { addImageFromUrl } from "./designCanvasComponents/CanvasTools";
 import CommentsModal from "./designCanvasComponents/CanvasComments";
 import ReferencesGallery from "./designCanvasComponents/CanvasDesignReferences";
 import CanvasSketch from "./designCanvasComponents/CanvasSketchModal";
+import TemplatesViewerModal from "./TemplatesViewerModal";
 import { motion } from "framer-motion";
 // 🔹 Bigger canvas size
 const CANVAS_WIDTH = 730;
@@ -64,6 +65,7 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
   
 
   const [showReferences, setShowReferences] = useState(false);
+  const [showTemplates, setShowTemplates] = useState(false);
 
 
   // 🔹 Floating panel state
@@ -75,7 +77,11 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
   const savePreview = useAction(api.design_preview.savePreview);
   const designDoc = useQuery(api.designs.getById, { designId });
   const isDisabled = designDoc?.status === "approved" || designDoc?.status === "completed";
-  const requestId = designDoc?.request_id; 
+  const requestId = designDoc?.request_id;
+  const designRequest = useQuery(
+    api.design_requests.getById,
+    designDoc?.request_id ? { requestId: designDoc.request_id } : "skip"
+  );
   const [showComments, setShowComments] = useState(false);
   const previewDoc = useQuery(api.design_preview.getByDesign, { designId });
   const [showSketch, setShowSketch] = useState(false);
@@ -314,6 +320,22 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
             <Image size={18} />
           </motion.button>
 
+          {/* Templates button */}
+          {!isDisabled && (
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              type="button"
+              onClick={() => setShowTemplates(true)}
+              className={`p-2 rounded ${
+                showTemplates ? "bg-blue-500 text-white" : "bg-gray-200 text-gray-700"
+              }`}
+              title="See Templates"
+            >
+              <Palette size={18} />
+            </motion.button>
+          )}
+
           {/* Details button */}
           <motion.button
             whileHover={{ scale: 1.1 }}
@@ -521,8 +543,18 @@ const FabricCanvas: React.FC<FabricCanvasProps> = ({
             </div>
           )}
 
-
-        
+      {/* Templates Modal */}
+      <TemplatesViewerModal
+        isOpen={showTemplates}
+        onClose={() => setShowTemplates(false)}
+        shirtType={designRequest?.tshirt_type || "tshirt"}
+        onSelectTemplate={async (imageUrl) => {
+          if (canvas) {
+            await addImageFromUrl(canvas, imageUrl);
+            setShowTemplates(false);
+          }
+        }}
+      />
 
     </div>
   );
