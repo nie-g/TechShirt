@@ -99,129 +99,93 @@ const FinalizeDesignStep: React.FC<FinalizeDesignStepProps> = ({ design }) => {
 
       {/* Invoice: when billing approved OR design is in production/pending pickup/completed */}
       {showInvoice && (
-        <div className="p-3 sm:p-6 border rounded-lg shadow bg-white">
+        <div className="p-6 border rounded-lg shadow bg-white">
           {/* Header */}
-          <div className="mb-4 sm:mb-6">
-            <h1 className="text-xl sm:text-2xl font-bold">Invoice</h1>
-            <p className="text-xs sm:text-sm text-gray-500">
-              {new Date().toLocaleDateString()}
-            </p>
-            <div className="mt-2">
-              <h2 className="font-semibold text-sm sm:text-base">
+          <div className="flex justify-between items-start mb-6">
+            <div>
+              <h1 className="text-2xl font-bold">Invoice</h1>
+              <p className="text-sm text-gray-500">
+                Invoice No. #{design._id}
+              </p>
+              <p className="text-sm text-gray-500">
+                {new Date().toLocaleDateString()}
+              </p>
+            </div>
+            <div className="text-right">
+              <h2 className="font-semibold">
                 {design.title || "Custom Design"}
               </h2>
-              <p className="text-xs sm:text-sm text-gray-500">{design.description}</p>
+              <p className="text-sm text-gray-500">{design.description}</p>
             </div>
           </div>
 
-          {/* Mobile: Card Layout | Desktop: Table */}
-          <div className="hidden sm:block">
-            {/* Desktop Table */}
-            <table className="w-full text-sm text-left border-t border-b mb-6">
-              <thead className="bg-gray-100">
-                <tr>
-                  <th className="px-3 py-2">Item</th>
-                  <th className="px-3 py-2 text-center">Quantity</th>
-                  <th className="px-3 py-2 text-center">Unit Price</th>
-                  <th className="px-3 py-2 text-right">Total</th>
-                </tr>
-              </thead>
-              <tbody>
+          {/* Table */}
+          <table className="w-full text-sm text-left border-t border-b mb-6">
+            <thead className="bg-gray-100">
+              <tr>
+                <th className="px-3 py-2">Item</th>
+                <th className="px-3 py-2 text-center">Quantity</th>
+                <th className="px-3 py-2 text-center">Unit Price</th>
+                <th className="px-3 py-2 text-right">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr className="border-t">
+                <td className="px-3 py-2">Printing</td>
+                <td className="px-3 py-2 text-center">
+                  {breakdown.shirtCount}
+                </td>
+                <td className="px-3 py-2 text-center">
+                  ₱{breakdown.printFee.toLocaleString()}
+                </td>
+                <td className="px-3 py-2 text-right">
+                  ₱{(breakdown.printFee * breakdown.shirtCount).toLocaleString()}
+                </td>
+              </tr>
+              {breakdown.revisionFee > 0 && (
                 <tr className="border-t">
-                  <td className="px-3 py-2">Printing</td>
+                  <td className="px-3 py-2">Revision Fee</td>
+                  <td className="px-3 py-2 text-center">-</td>
                   <td className="px-3 py-2 text-center">
-                    {breakdown.shirtCount}
-                  </td>
-                  <td className="px-3 py-2 text-center">
-                    ₱{breakdown.printFee.toLocaleString()}
+                    ₱{breakdown.revisionFee.toLocaleString()}
                   </td>
                   <td className="px-3 py-2 text-right">
-                    ₱{(breakdown.printFee * breakdown.shirtCount).toLocaleString()}
+                    ₱{breakdown.revisionFee.toLocaleString()}
                   </td>
                 </tr>
-                {breakdown.revisionFee > 0 && (
-                  <tr className="border-t">
-                    <td className="px-3 py-2">Revision Fee</td>
-                    <td className="px-3 py-2 text-center">-</td>
-                    <td className="px-3 py-2 text-center">
-                      ₱{breakdown.revisionFee.toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 text-right">
-                      ₱{breakdown.revisionFee.toLocaleString()}
-                    </td>
-                  </tr>
-                )}
-                {breakdown.designerFee > 0 && (
-                  <tr className="border-t">
-                    <td className="px-3 py-2">Designer Fee</td>
-                    <td className="px-3 py-2 text-center">-</td>
-                    <td className="px-3 py-2 text-center">
-                      ₱{breakdown.designerFee.toLocaleString()}
-                    </td>
-                    <td className="px-3 py-2 text-right">
-                      ₱{breakdown.designerFee.toLocaleString()}
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
-
-          {/* Mobile: Card Layout */}
-          <div className="sm:hidden space-y-2 mb-4 border-t border-b py-3">
-            <div className="flex justify-between text-xs">
-              <span className="font-medium">Printing</span>
-              <span>{breakdown.shirtCount} × ₱{breakdown.printFee.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between text-xs font-semibold">
-              <span>Subtotal:</span>
-              <span>₱{(breakdown.printFee * breakdown.shirtCount).toLocaleString()}</span>
-            </div>
-            {breakdown.revisionFee > 0 && (
-              <div className="flex justify-between text-xs">
-                <span className="font-medium">Revision Fee:</span>
-                <span>₱{breakdown.revisionFee.toLocaleString()}</span>
-              </div>
-            )}
-            {breakdown.designerFee > 0 && (
-              <div className="flex justify-between text-xs">
-                <span className="font-medium">Designer Fee:</span>
-                <span>₱{breakdown.designerFee.toLocaleString()}</span>
-              </div>
-            )}
-          </div>
+              )}
+              {breakdown.designerFee > 0 && (
+                <tr className="border-t">
+                  <td className="px-3 py-2">Designer Fee</td>
+                  <td className="px-3 py-2 text-center">-</td>
+                  <td className="px-3 py-2 text-center">
+                    ₱{breakdown.designerFee.toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-right">
+                    ₱{breakdown.designerFee.toLocaleString()}
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
 
           {/* Totals */}
-          <div className="flex justify-end mb-4 sm:mb-6">
-            <div className="w-full sm:w-1/3 space-y-1 text-xs sm:text-sm">
+          <div className="flex justify-end">
+            <div className="w-1/3 space-y-1 text-sm">
               <div className="flex justify-between">
                 <span className="font-medium">Subtotal:</span>
                 <span>₱{displayTotal.toLocaleString()}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="font-medium">Tax/VAT (12%):</span>
-                <span>₱{(displayTotal * 0.12).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-              </div>
-              <div className="flex justify-between border-t pt-2">
+              <div className="flex justify-between font-semibold border-t pt-2">
                 <span>Total:</span>
-                <span>₱{displayTotal.toLocaleString()}</span>
-              </div>
-              {finalTotal < displayTotal && (
-                <div className="flex justify-between text-green-600">
-                  <span>Client Discount:</span>
-                  <span>-₱{(displayTotal - finalTotal).toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
-                </div>
-              )}
-              <div className="flex justify-between font-semibold bg-gray-50 px-2 py-1 rounded">
-                <span>Final Negotiated Price:</span>
-                <span>₱{finalTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+                <span>₱{finalTotal.toLocaleString()}</span>
               </div>
             </div>
           </div>
 
           {/* Footer */}
-          <div className="mt-4 sm:mt-8 text-center">
-            <p className="text-xs sm:text-sm font-medium">Thank you!</p>
+          <div className="mt-8 text-center">
+            <p className="text-sm font-medium">Thank you!</p>
           </div>
         </div>
       )}

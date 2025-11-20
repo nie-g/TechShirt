@@ -67,7 +67,10 @@ const BrowseGallery: React.FC = () => {
     api.gallery.getPreviewUrls,
     allStorageIds.length > 0 ? { storageIds: allStorageIds } : "skip"
   ) as Record<string, string> | undefined;
+  const averageRatings = useQuery(api.ratings_and_feedback.getAverageRatings);
 
+
+  
   // Fetch Clerk profile images for all designers
   useEffect(() => {
     if (!designers || designers.length === 0) return;
@@ -191,6 +194,11 @@ const BrowseGallery: React.FC = () => {
                             <h2 className="text-lg sm:text-xl font-semibold text-gray-800">
                               {designer.first_name} {designer.last_name}
                             </h2>
+                            {averageRatings && averageRatings[designer._id] && (
+                              <p className="text-xs sm:text-sm text-yellow-600 font-semibold mt-1">
+                                ⭐ {averageRatings[designer._id].toFixed(1)} / 5
+                              </p>
+                            )}
                             {specialization && (
                               <p className="text-xs sm:text-sm text-teal-600 font-medium mt-1">
                                 {specialization}

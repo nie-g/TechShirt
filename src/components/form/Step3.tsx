@@ -343,7 +343,7 @@ const handleReferenceImageUpload = async (
               <option value="">Select a size</option>
               {filteredShirtSizes.map((s: any) => (
                 <option key={s._id.toString()} value={s._id.toString()}>
-                  {s.size_label || "Unnamed"}
+                   {s.size_label} {s.category ? `– ${s.category}` : ""}
                 </option>
               ))}
             </select>
